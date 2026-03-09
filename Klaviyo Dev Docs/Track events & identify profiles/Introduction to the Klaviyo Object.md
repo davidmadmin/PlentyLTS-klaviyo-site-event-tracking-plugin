@@ -54,7 +54,7 @@ This includes:
 
 
 
-# How to load the `klaviyo` object
+## How to load the `klaviyo` object
 
 
 
@@ -82,7 +82,7 @@ The `klaviyo` object only needs to be loaded **once per page**.
 
 
 
-# Callback support
+## Callback support
 
 
 
@@ -170,7 +170,7 @@ This approach allows you to:
 
 
 
-# Promise support
+## Promise support
 
 
 
@@ -204,7 +204,7 @@ When the identify call completes, the promise resolves.
 
 
 
-# Supported methods
+## Supported methods
 
 
 

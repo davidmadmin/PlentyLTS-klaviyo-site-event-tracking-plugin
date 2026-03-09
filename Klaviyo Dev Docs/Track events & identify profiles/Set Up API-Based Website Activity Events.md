@@ -22,7 +22,7 @@ The snippets in this guide use example data. You will need to update the values 
 
 If you have questions about custom integrations check out our [Custom integration FAQ](https://developers.klaviyo.com/en/docs/custom_integration_faqs).
 
-## **JavaScript requests**
+## JavaScript requests
 
 To enable our JavaScript API and the ability to push events and profile properties to Klaviyo from your site, add the following snippet so it appears on every page on your website. Often, the end of the footer is a good place to add it. Make sure to replace PUBLIC_API_KEY (also known as your Company ID) with your Klaviyo account's 6 character [Public API Key](https://www.klaviyo.com/account#api-keys-tab):
 
@@ -31,7 +31,7 @@ To enable our JavaScript API and the ability to push events and profile properti
 <script type="application/javascript" async src="https://static.klaviyo.com/onsite/js/<PUBLIC_API_KEY>/klaviyo.js"></script>
 ```
 
-## **Server-side requests**
+## Server-side requests
 
 For sending server-side events and profile properties, you should use our [server-side API](https://developers.klaviyo.com/en/reference/api_overview). We have libraries available for [Python](https://github.com/klaviyo/klaviyo-api-python), [Ruby](https://github.com/klaviyo/klaviyo-api-ruby), [Node](https://github.com/klaviyo/klaviyo-api-node), and [PHP](https://github.com/klaviyo/klaviyo-api-php) but in a general sense the API requires making an HTTP POST request with a JSON payload.
 
@@ -53,11 +53,11 @@ Server-side events should include any information about the person who took the 
 
 In this example, we will be using Python with the Requests library. Many other language examples are available in our [API reference](https://developers.klaviyo.com/en/reference/create_event) as well as in our [Postman Workspace](https://www.postman.com/klaviyo/workspace/klaviyo-developers/overview).
 
-## **Shares and referrals**
+## Shares and referrals
 
 Shares and referrals can be leveraged by your business to gain new customers and increase brand awareness.
 
-### **Share an item**
+### Share an item
 
 There are two types of events you can track when someone shares something (a product, an article, a page, etc.) with another person:
 
@@ -66,7 +66,7 @@ There are two types of events you can track when someone shares something (a pro
 
 The first is sent using our Javascript Track API, but the second must be sent using our server-side API. For the sake of simplicity, we will use blog articles as an example.
 
-### **Shared Article event**
+### Shared Article event
 
 When the article is initially shared, the *Shared Article* event uses our Track API to record the following information:
 
@@ -91,7 +91,7 @@ Once someone enters the email address(es) of the person(s) they'd like to share 
 </script>
 ```
 
-### **Received Article Share event**
+### Received Article Share event
 
 The *Received Article Share* event is sent to people who aren’t cookied or identified by Klaviyo on the front-end at the time of this action. So, this event requires a server-side events request for each email in the *Shared Article* event.
 
@@ -134,7 +134,7 @@ headers = {
 response = requests.post(url, json=payload, headers=headers)
 ```
 
-### **Referrals**
+### Referrals
 
 If you’d like to report on who’s referred your brand to a friend or send a thank you note to the person who referred you, you can track *Referred Friend* and *Referred by Friend* events. Similar to when someone shares content with a friend, you’ll need to track two kinds of events:
 
@@ -143,7 +143,7 @@ If you’d like to report on who’s referred your brand to a friend or send a t
 
 As part of a server-side events request, you can also send profile properties, which may be useful in this case if a person can use a referral code to gain some kind of perk with your brand.
 
-### **Referred Friend event**
+### Referred Friend event
 
 When the referral is initially made, the *Referred Friend* event uses our Track API to record the following information:
 
@@ -162,7 +162,7 @@ See the code below for an example of what the *Referred Friend* event looks li
  </script>
 ```
 
-### **Referred by Friend event**
+### Referred by Friend event
 
 At the same time, send something like the following payload for each referred person:
 
@@ -202,11 +202,11 @@ You can then use the `ReferrerCode` to create unique URLs for each referral, a
 to find out if you do!
 ```
 
-## **Website activity**
+## Website activity
 
 In addition to our standard events like [Viewed Product](https://developers.klaviyo.com/en/docs/guide_to_integrating_a_platform_without_a_pre_built_klaviyo_integration#viewed-product), people can take other actions on your website which you may want to track for targeting or reporting. Below are some common examples.
 
-### **Viewed Category**
+### Viewed Category
 
 Similar to a *Viewed Product* event, the *Viewed Category* event allows you to capture when someone views a particular category of items, and triggers when a person lands on a category page.
 
@@ -231,7 +231,7 @@ See the code below for an example of what the *Viewed Category* event looks li
 </script>
 ```
 
-### **Searched Site**
+### Searched Site
 
 The *Searched Site* event allows you to track search terms users look for on your site. This event also allows you to track any suggestions your site made based off of the user’s initial search term, such as correcting their spelling or closest match.
 
@@ -254,7 +254,7 @@ See the code below for an example of what the *Searched Site* event looks like
 </script>
 ```
 
-### **Clicked Banner**
+### Clicked Banner
 
 The *Clicked Banner* event is used to track when someone clicks a banner on your site, allowing you to better target the users based on their click activity. This event can be used for any kind of banner as long as the user will be directed to a specific destination.
 

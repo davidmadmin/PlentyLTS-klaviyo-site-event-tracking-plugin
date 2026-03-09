@@ -1,8 +1,8 @@
-### **Events API overview**
+# Events API overview
 
 
 
-## **Before you begin**
+## Before you begin
 
 
 
@@ -32,7 +32,7 @@ Our \[Events API](https://developers.klaviyo.com/en/reference/get_events) allo
 
 
 
-## **Use cases**
+## Use cases
 
 
 
@@ -66,7 +66,7 @@ You can find example code for all of these use cases in our \[api-examples repo
 
 
 
-## **Data model**
+## Data model
 
 
 
@@ -136,7 +136,7 @@ An event can have the following:
 
 
 
-## **Events and metrics**
+## Events and metrics
 
 
 
@@ -144,7 +144,7 @@ Each event object is related to a \[metric](https://help.klaviyo.com/hc/en-us/a
 
 
 
-## **Event properties**
+## Event properties
 
 
 
@@ -182,7 +182,7 @@ You may have up to 400 event properties per event. See \*Limitations\* for inf
 
 
 
-### **Excluded property values**
+## Excluded property values
 
 
 
@@ -206,7 +206,7 @@ Note that the way Klaviyo handles event properties differs from how it handles p
 
 
 
-## **Create Event**
+## Create Event
 
 
 
@@ -300,7 +300,7 @@ In the example Create Event payload, an `email`, `sarah.mason@klaviyo-demo.com
 
 
 
-### **Using optional fields like `time` and `value` in events**
+## Using optional fields like `time` and `value` in events
 
 
 
@@ -392,7 +392,7 @@ Request payload
 
 
 
-## **Bulk Create Events**
+## Bulk Create Events
 
 
 
@@ -404,7 +404,7 @@ A maximum of 1,000 events can be created in a single request, and the max allowe
 
 
 
-### **Bulk create events for a single profile**
+## Bulk create events for a single profile
 
 
 
@@ -584,7 +584,7 @@ Request
 
 
 
-### **Bulk create events for multiple profiles**
+## Bulk create events for multiple profiles
 
 
 
@@ -784,7 +784,7 @@ Request
 
 
 
-## **Event deduplication behavior**
+## Event deduplication behavior
 
 
 
@@ -792,7 +792,7 @@ The Bulk Create Events API handles deduplication of events. This means that ther
 
 
 
-### **Use a unique ID for each event**
+## Use a unique ID for each event
 
 
 
@@ -804,7 +804,7 @@ To ensure that these events are treated as distinct, assign a unique identifier 
 
 
 
-### **Include the `time` field for historical events**
+## Include the `time` field for historical events
 
 
 
@@ -812,7 +812,7 @@ When importing historical events, always include the `time` field to specify w
 
 
 
-## **Troubleshooting**
+## Troubleshooting
 
 
 
@@ -820,7 +820,7 @@ If you're trying to create events via either of the APIs above, and your events 
 
 
 
-### **Receiving a 400?**
+## Receiving a 400?
 
 
 
@@ -832,7 +832,7 @@ If you're trying to create events via either of the APIs above, and your events 
 
 
 
-### **Receiving a 202?**
+## Receiving a 202?
 
 
 
@@ -866,7 +866,7 @@ If you're still not seeing the events in Klaviyo, you may be sending a payload t
 
 
 
-## **Get Event(s)**
+## Get Event(s)
 
 
 
@@ -944,7 +944,7 @@ The API-created metric object with the name \*Reset Password\* is returned in 
 
 
 
-## **Querying events**
+## Querying events
 
 
 
@@ -968,7 +968,7 @@ Querying events with the Events API can help you achieve many use cases, such as
 
 
 
-### **Query example**
+## Query example
 
 
 
@@ -1002,7 +1002,7 @@ curl --request GET \\
 
 
 
-## **Limitations**
+## Limitations
 
 
 

@@ -1,4 +1,4 @@
-### **Track API Metrics with JavaScript**
+# Track API Metrics with JavaScript
 
 Track metrics in Klaviyo and use them for targeted messaging.
 
@@ -12,7 +12,7 @@ Klaviyo's metric tracking and analytics are very flexible. You can customize met
 
 
 
-## **Track a metric**
+## Track a metric
 
 
 
@@ -110,7 +110,7 @@ You can also track metrics when a customer clicks a custom button you have defin
 
 
 
-## **Use API metrics in flows**
+## Use API metrics in flows
 
 
 
@@ -122,7 +122,7 @@ To learn more about these flows, \[read our metric-triggered flow guide](https:
 
 
 
-## **Report on API metrics**
+## Report on API metrics
 
 
 

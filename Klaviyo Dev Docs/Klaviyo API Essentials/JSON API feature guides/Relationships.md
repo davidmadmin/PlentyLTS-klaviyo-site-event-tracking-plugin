@@ -1,8 +1,9 @@
-### **Relationships**Learn more about resource relationships available with the JSON:API standard.
+# Relationships
+Learn more about resource relationships available with the JSON:API standard.
 
 
 
-## **What are relationships?**
+## What are relationships?
 
 
 
@@ -18,7 +19,7 @@ Because of the myriad ways our partners and customers model and sync data to and
 
 
 
-## **The `include` query parameter**
+## The `include` query parameter
 
 
 
@@ -48,7 +49,7 @@ Note that `include` values may be singular or plural depending on the relation
 
 
 
-### **Example request and response**
+## Example request and response
 
 
 
@@ -74,7 +75,7 @@ curl --request GET \\
 
 
 
-## **Scopes**
+## Scopes
 
 
 
@@ -90,7 +91,7 @@ Check out the \[guide to API scopes](https://help.klaviyo.com/hc/en-us/articles
 
 
 
-## **Relationship support**
+## Relationship support
 
 
 
@@ -98,7 +99,7 @@ When a relationship between two resources is defined, there are two main ways of
 
 
 
-### **Single resource relationship support**
+## Single resource relationship support
 
 
 
@@ -114,7 +115,7 @@ Let's use `/profiles` and `/lists` as an example. A common use case for many
 
 
 
-### **Example request \& response**
+## Example request \& response
 
 
 
@@ -140,7 +141,7 @@ curl --request GET \\
 
 
 
-### **Collection-level relationship support**
+## Collection-level relationship support
 
 
 
@@ -152,7 +153,7 @@ Use `include` if you need all resources from a particular endpoint (paginated)
 
 
 
-### **Example request \& response**
+## Example request \& response
 
 
 
@@ -178,7 +179,7 @@ curl --request GET \\
 
 
 
-## **Modify a relationship**
+## Modify a relationship
 
 
 
@@ -186,7 +187,7 @@ You can not only read relationships, you can also create and delete them.
 
 
 
-### **Create a relationship**
+## Create a relationship
 
 
 
@@ -224,7 +225,7 @@ curl --request POST \\
 
 
 
-### **Delete a relationship**
+## Delete a relationship
 
 
 

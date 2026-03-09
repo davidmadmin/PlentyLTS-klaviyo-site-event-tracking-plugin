@@ -1,4 +1,5 @@
-### **Klaviyo's data model**Learn about Klaviyo's data model, including Metrics, Profiles, Catalogs, and Feeds objects.
+# Klaviyo's data model
+Learn about Klaviyo's data model, including Metrics, Profiles, Catalogs, and Feeds objects.
 
 
 
@@ -14,7 +15,7 @@
 
 
 
-## **Primary data objects**
+## Primary data objects
 
 
 
@@ -70,7 +71,7 @@ The table below provides more detail on supported data types.
 
 
 
-## **Other data objects**
+## Other data objects
 
 
 

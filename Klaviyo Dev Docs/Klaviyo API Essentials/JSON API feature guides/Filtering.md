@@ -1,8 +1,9 @@
-### **Filtering**Learn how to use our JSON:API filtering syntax.
+# Filtering
+Learn how to use our JSON:API filtering syntax.
 
 
 
-## **Filter syntax**
+## Filter syntax
 
 
 
@@ -18,7 +19,7 @@ The filtering syntax for Klaviyo’s new APIs uses the `?filter` query paramet
 
 
 
-### **URI encoding**
+## URI encoding
 
 
 
@@ -26,11 +27,11 @@ Filter expressions can contain non-URL-safe characters. We recommend that you al
 
 
 
-## **Filter operations**
+## Filter operations
 
 
 
-### **Filter operators**
+## Filter operators
 
 
 
@@ -68,7 +69,7 @@ Below are the filter operators supported by our filter syntax. The documentation
 
 
 
-### **Boolean logic operators**
+## Boolean logic operators
 
 
 
@@ -110,7 +111,7 @@ Below are the filter operators supported by our filter syntax. The documentation
 
 
 
-## **Comparison literals**
+## Comparison literals
 
 
 
