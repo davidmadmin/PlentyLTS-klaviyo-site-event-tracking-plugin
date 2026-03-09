@@ -9,3 +9,16 @@ Based on certain frontend conditions, the plugin should send events to the Klavi
 All relevant Plenty plugin development documentation and Klaviyo development documentation are included in the `Documentation` folder.
 
 These are first-party documentations from the respective companies about their software products and should be treated as the first source of truth when handling anything regarding PlentyLTS and Klaviyo.
+
+## README tracking-status table maintenance
+Whenever any change is made in this repository, always review the event status table in `README.md` under `Scope: Klaviyo on-site metrics/events`.
+
+If implementation status changed for one or more events, update the table in the same change so README reflects the current repository state.
+
+Ordering rule for that table is mandatory:
+1. List all 🟢 Implemented events first.
+2. Then list all 🟡 In progress / scaffolded events.
+3. Then list all 🔴 Not implemented events.
+
+Within each status group, keep a stable, readable order (e.g., current order unless a better logical grouping is needed). If an event changes status, move it to the matching section automatically.
+
