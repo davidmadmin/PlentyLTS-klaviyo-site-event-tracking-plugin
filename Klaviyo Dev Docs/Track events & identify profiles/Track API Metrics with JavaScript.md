@@ -44,11 +44,9 @@ It also accepts an optional dictionary or hash of properties associated with tha
 
 
 
-JavaScript
 
-
-
-`<script type="text/javascript">
+```javascript
+<script type="text/javascript">
 
       var item = {
 
@@ -74,7 +72,8 @@ JavaScript
 
       klaviyo.track("Viewed Product", item);
 
-</script>`
+</script>
+```
 
 
 
@@ -96,11 +95,9 @@ You can also track metrics when a customer clicks a custom button you have defin
 
 
 
-JavaScript
 
-
-
-`<script type="text/javascript">
+```javascript
+<script type="text/javascript">
 
     	document.getElementById("Like").addEventListener('click',function (){
 
@@ -108,7 +105,8 @@ JavaScript
 
     	});
 
-</script>`
+</script>
+```
 
 
 

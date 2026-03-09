@@ -148,13 +148,12 @@ To be able to publish forms directly from Klaviyo to your site, add the followin
 
 
 
-JavaScript
 
+```javascript
+<script type="text/javascript" async=""
 
-
-`<script type="text/javascript" async=""
-
-src="https://static.klaviyo.com/onsite/js/PUBLIC_API_KEY/klaviyo.js"></script>;`
+src="https://static.klaviyo.com/onsite/js/PUBLIC_API_KEY/klaviyo.js"></script>;
+```
 
 
 
@@ -190,11 +189,9 @@ If you'd like to set up a \[browse abandonment flow](https://help.klaviyo.com/h
 
 
 
-JavaScript
 
-
-
-`<script type="text/javascript">
+```javascript
+<script type="text/javascript">
 
       var item = {
 
@@ -220,7 +217,8 @@ JavaScript
 
       klaviyo.track("Viewed Product", item);
 
-</script>`
+</script>
+```
 
 
 
@@ -236,11 +234,9 @@ The following snippet can be added directly below the \*Viewed Product\* snipp
 
 
 
-JavaScript
 
-
-
-`<script type="text/javascript">
+```javascript
+<script type="text/javascript">
 
       klaviyo.trackViewedItem({
 
@@ -266,7 +262,8 @@ JavaScript
 
       });
 
-</script>`
+</script>
+```
 
 
 
@@ -286,11 +283,9 @@ Here's an example Track request where the cart already contained one item (\*Win
 
 
 
-JavaScript
 
-
-
-`<script type="text/javascript">
+```javascript
+<script type="text/javascript">
 
       klaviyo.track("Added to Cart", {
 
@@ -364,7 +359,8 @@ JavaScript
 
       });
 
-    </script>`
+    </script>
+```
 
 
 
@@ -386,11 +382,9 @@ Include all line item details so your abandoned checkout emails can be customize
 
 
 
-JavaScript
 
-
-
-`<script type="text/javascript">
+```javascript
+<script type="text/javascript">
 
       klaviyo.track("Started Checkout", {
 
@@ -452,7 +446,8 @@ JavaScript
 
       });
 
-    </script>`
+    </script>
+```
 
 
 
@@ -774,11 +769,9 @@ The remainder of the POST \[create event](https://developers.klaviyo.com/en/ref
 
 
 
-JSON
 
-
-
-`{
+```json
+{
 
        "data": {
 
@@ -860,7 +853,8 @@ JSON
 
        }
 
-}`
+}
+```
 
 
 
@@ -892,11 +886,9 @@ For \*Fulfilled Order\*, the only update needed is the metric name and the time
 
 
 
-JSON
 
-
-
-`{
+```json
+{
 
        "data": {
 
@@ -1076,7 +1068,8 @@ JSON
 
        }
 
-}`
+}
+```
 
 
 
@@ -1088,11 +1081,9 @@ For \*Canceled Order\*, update the metric name and timestamp, and add an additi
 
 
 
-JSON
 
-
-
-`{
+```json
+{
 
        "data": {
 
@@ -1274,7 +1265,8 @@ JSON
 
        }
 
-}`
+}
+```
 
 
 
@@ -1286,11 +1278,9 @@ For \*Refunded Order\*, update the metric name and timestamp, and add an additi
 
 
 
-JSON
 
-
-
-`{
+```json
+{
 
        "data": {
 
@@ -1472,7 +1462,8 @@ JSON
 
        }
 
-}`
+}
+```
 
 
 

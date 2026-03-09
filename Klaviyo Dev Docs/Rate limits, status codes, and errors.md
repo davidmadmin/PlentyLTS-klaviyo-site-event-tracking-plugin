@@ -258,11 +258,9 @@ Here is an example of an error response returned for an invalid request to GET 
 
 
 
-JSON
 
-
-
-`{
+```json
+{
 
       "errors": \[
 
@@ -290,7 +288,8 @@ JSON
 
       ]
 
-}`
+}
+```
 
 ## Source
 
