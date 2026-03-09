@@ -2,7 +2,7 @@
   "name": "Klaviyo On-site Event Tracking",
   "namespace": "KlaviyoSiteEventTracking",
   "type": "template",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "AGPL-3.0",
   "description": "Basic plugin scaffold for Klaviyo on-site event tracking in plentyShop LTS.",
   "author": "Project Contributors",
@@ -17,5 +17,12 @@
       "description": "Injects the placeholder Klaviyo tracking entrypoint into a selected plentyShop container.",
       "defaultLayoutContainer": "Ceres::Script.Loader"
     }
-  ]
+  ],
+  "require": {
+    "Ceres": "~5.0.0",
+    "IO": "~5.0.0"
+  },
+  "platform": {
+    "php": "^7.3 || ^8.0"
+  }
 }
