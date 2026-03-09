@@ -6,6 +6,8 @@
 node_modules/
 tests/
 vendor/
+Klaviyo Dev Docs/
+Plenty-native Plugins Docs in Markdown/
 composer.lock
 npm-debug.log*
 yarn-debug.log*
