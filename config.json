@@ -23,6 +23,51 @@
               }
             ]
           }
+        },
+        "tracking.publicApiKey": {
+          "type": "inputText",
+          "required": false,
+          "label": "Config.publicApiKeyLabel",
+          "options": {
+            "tooltip": "Config.publicApiKeyTooltip",
+            "defaultValue": ""
+          }
+        },
+        "tracking.enableDebugLogging": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.enableDebugLoggingLabel",
+          "options": {
+            "tooltip": "Config.enableDebugLoggingTooltip",
+            "defaultValue": false
+          }
+        },
+        "tracking.logIdentifyCalls": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.logIdentifyCallsLabel",
+          "options": {
+            "tooltip": "Config.logIdentifyCallsTooltip",
+            "defaultValue": false
+          }
+        },
+        "tracking.logTrackCalls": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.logTrackCallsLabel",
+          "options": {
+            "tooltip": "Config.logTrackCallsTooltip",
+            "defaultValue": false
+          }
+        },
+        "tracking.logErrorsOnly": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.logErrorsOnlyLabel",
+          "options": {
+            "tooltip": "Config.logErrorsOnlyTooltip",
+            "defaultValue": false
+          }
         }
       }
     }

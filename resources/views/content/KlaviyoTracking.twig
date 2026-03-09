@@ -1,12 +1,17 @@
 {% set integrationMode = config("KlaviyoSiteEventTracking.tracking.integrationMode")|default("plugin") %}
+{% set publicApiKey = config("KlaviyoSiteEventTracking.tracking.publicApiKey")|default("") %}
+{% set enableDebugLogging = config("KlaviyoSiteEventTracking.tracking.enableDebugLogging") == "1" %}
+{% set logIdentifyCalls = config("KlaviyoSiteEventTracking.tracking.logIdentifyCalls") == "1" %}
+{% set logTrackCalls = config("KlaviyoSiteEventTracking.tracking.logTrackCalls") == "1" %}
+{% set logErrorsOnly = config("KlaviyoSiteEventTracking.tracking.logErrorsOnly") == "1" %}
 
-{#
-  Placeholder template:
-  - In `gtm` mode, this plugin should eventually avoid injecting its own Klaviyo bootstrap.
-  - In `plugin` mode, this plugin will provide the Klaviyo JavaScript integration directly.
-#}
 <script>
   window.KlaviyoSiteEventTracking = window.KlaviyoSiteEventTracking || {};
-  window.KlaviyoSiteEventTracking.integrationMode = "{{ integrationMode }}";
+  window.KlaviyoSiteEventTracking.integrationMode = "{{ integrationMode|e('js') }}";
+  window.KlaviyoSiteEventTracking.publicApiKey = "{{ publicApiKey|e('js') }}";
+  window.KlaviyoSiteEventTracking.enableDebugLogging = {{ enableDebugLogging ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.logIdentifyCalls = {{ logIdentifyCalls ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.logTrackCalls = {{ logTrackCalls ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.logErrorsOnly = {{ logErrorsOnly ? 'true' : 'false' }};
 </script>
 <script src="{{ plugin_path('KlaviyoSiteEventTracking') }}/js/klaviyo-tracking-placeholder.js"></script>
