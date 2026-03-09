@@ -1,4 +1,5 @@
-### **Use data in Klaviyo**Learn how data is used in Klaviyo and how to get data in using integrations, APIs, and developer tools.
+# Use data in Klaviyo
+Learn how data is used in Klaviyo and how to get data in using integrations, APIs, and developer tools.
 
 
 
@@ -14,7 +15,7 @@
 
 
 
-## **Data objects**
+## Data objects
 
 
 
@@ -38,7 +39,7 @@ Klaviyo also includes an object for data feeds, which is related to our catalogs
 
 
 
-## **How data is used**
+## How data is used
 
 
 
@@ -80,7 +81,7 @@ Part of the power of Klaviyo is how these mechanisms work together and interact.
 
 
 
-## **Targeting**
+## Targeting
 
 
 
@@ -88,7 +89,7 @@ Send an email one hour after someone adds an item into their cart, but only if t
 
 
 
-## **Personalization**
+## Personalization
 
 
 
@@ -112,7 +113,7 @@ This table illustrates how different data objects are used in flows, segmentatio
 
 
 
-## **Getting data into Klaviyo**
+## Getting data into Klaviyo
 
 
 
@@ -120,7 +121,7 @@ Once you understand Klaviyo’s data model and how data is used in Klaviyo, you 
 
 
 
-### **Native and third-party integrations**
+## Native and third-party integrations
 
 
 
@@ -132,7 +133,7 @@ Additionally, because our APIs are open, many third-parties have productized int
 
 
 
-### **APIs**
+## APIs
 
 
 
@@ -154,7 +155,7 @@ We’ve built Klaviyo to make it easy to push data to us and use it. Here are so
 
 
 
-## **Other ways to upload data**
+## Other ways to upload data
 
 
 

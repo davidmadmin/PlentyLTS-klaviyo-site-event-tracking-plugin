@@ -1,4 +1,4 @@
-## **Date and timestamp support**
+# Date and timestamp support
 
 
 
@@ -6,7 +6,7 @@ Note that event datetimes sent via the legacy v1/v2 endpoints support Unix times
 
 
 
-## **Datetime formatting**
+## Datetime formatting
 
 
 
@@ -28,7 +28,7 @@ For more information on recognized formats, refer to our \[acceptable date and 
 
 
 
-## **URI encoding**
+## URI encoding
 
 
 
@@ -36,7 +36,7 @@ Datetimes can contain non-URL-safe characters. To combat this, we recommend that
 
 
 
-## **Example request and response**
+## Example request and response
 
 
 

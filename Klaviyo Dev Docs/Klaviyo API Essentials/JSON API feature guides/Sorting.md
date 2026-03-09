@@ -1,8 +1,9 @@
-### **Sorting**Learn how to use our JSON:API sorting feature.
+# Sorting
+Learn how to use our JSON:API sorting feature.
 
 
 
-## **Sort syntax**
+## Sort syntax
 
 
 
@@ -58,7 +59,7 @@ curl --request GET \\
 
 
 
-## **Example request and response**
+## Example request and response
 
 
 
@@ -96,7 +97,7 @@ curl --request GET \\
 
 
 
-## **SDK example (Node, PHP, Python, Ruby)**
+## SDK example (Node, PHP, Python, Ruby)
 
 
 

@@ -1,8 +1,9 @@
-### **Rate limits, status codes, and errors**Refer to our list of status codes, error responses, rate limits, and ingestion limits for troubleshooting help.
+# Rate limits, status codes, and errors
+Refer to our list of status codes, error responses, rate limits, and ingestion limits for troubleshooting help.
 
 
 
-## **Rate limits**
+## Rate limits
 
 
 
@@ -70,7 +71,7 @@ Treat these limits as maximums and don’t generate unnecessary load.
 
 
 
-## **Query Param Rate Limits**
+## Query Param Rate Limits
 
 
 
@@ -122,7 +123,7 @@ The rate limits on all of these calls reset at the same window. Similar rules ap
 
 
 
-## **Ingestion limits**
+## Ingestion limits
 
 
 
@@ -138,7 +139,7 @@ The rate limits on all of these calls reset at the same window. Similar rules ap
 
 
 
-**Endpoints with additional limits:**
+## Endpoints with additional limits:
 
 
 
@@ -170,7 +171,7 @@ Klaviyo's event tracking endpoints use ingestion limits to prevent processing de
 
 
 
-## **Response status codes**
+## Response status codes
 
 
 
@@ -226,7 +227,7 @@ See the table below for a list of error codes and their corresponding descriptio
 
 
 
-## **Retries**
+## Retries
 
 
 
@@ -246,7 +247,7 @@ We recommend watching for 429 and 503 error codes and building in a retry mechan
 
 
 
-## **Errors**
+## Errors
 
 
 

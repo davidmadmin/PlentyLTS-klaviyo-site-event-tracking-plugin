@@ -1,8 +1,8 @@
-### **Profiles API overview**
+# Profiles API overview
 
 
 
-## **Before you begin**
+## Before you begin
 
 
 
@@ -44,7 +44,7 @@ You can use our \[Profiles API](https://developers.klaviyo.com/en/reference/get
 
 
 
-## **Use cases**
+## Use cases
 
 
 
@@ -80,11 +80,11 @@ You can find example code for all of these use cases in our \[api-examples](htt
 
 
 
-## **Data model**
+## Data model
 
 
 
-### **Profile identifiers**
+## Profile identifiers
 
 
 
@@ -138,7 +138,7 @@ Profile identifiers are important for fetching profiles and merging shared data 
 
 
 
-### **Additional attributes**
+## Additional attributes
 
 
 
@@ -228,7 +228,7 @@ A profile can contain additional personal information, including:
 
 
 
-### **Profile properties**
+## Profile properties
 
 
 
@@ -262,7 +262,7 @@ A profile has a `properties` object for storing custom properties. Some use ca
 
 
 
-### **Setting the `locale` property**
+## Setting the `locale` property
 
 
 
@@ -278,7 +278,7 @@ The `locale` property can be updated from a variety of sources, such as from a
 
 
 
-### **Additional fields**
+## Additional fields
 
 
 
@@ -286,7 +286,7 @@ When you make a Get Profile(s) request, there are additional fields that are not
 
 
 
-## **Subscription data**
+## Subscription data
 
 
 
@@ -429,7 +429,7 @@ curl --get 'https://a.klaviyo.com/api/profiles/' \\
 
 
 
-### **Fetching suppressed profiles**
+## Fetching suppressed profiles
 
 
 
@@ -467,7 +467,7 @@ curl --get 'https://a.klaviyo.com/api/profiles/' \\
 
 
 
-### **Fetching suppressed profiles from a list**
+## Fetching suppressed profiles from a list
 
 
 
@@ -493,7 +493,7 @@ curl --get 'https://a.klaviyo.com/api/profiles/' \\
 
 
 
-### **Suppression data filters**
+## Suppression data filters
 
 
 
@@ -533,7 +533,7 @@ You can apply the following filters to fetch profiles by suppression data includ
 
 
 
-## **Predictive analytics**
+## Predictive analytics
 
 
 
@@ -578,7 +578,7 @@ For more information about each field, please review the sparse fieldset guidanc
 
 
 
-## **Create or Update Profile**
+## Create or Update Profile
 
 
 
@@ -654,7 +654,7 @@ Request
 
 
 
-## **Bulk Import Profiles API**
+## Bulk Import Profiles API
 
 
 
@@ -662,7 +662,7 @@ Our Profiles API has support for creating and updating profiles via \[Bulk Impo
 
 
 
-## **Get Profile(s)**
+## Get Profile(s)
 
 
 
@@ -769,7 +769,7 @@ Note that the `updated` field represents the last time any profile property ha
 
 
 
-## **Querying profiles**
+## Querying profiles
 
 
 
@@ -791,7 +791,7 @@ Querying profiles with the Profiles API is useful for monitoring valuable inform
 
 
 
-## **Limitations**
+## Limitations
 
 
 
@@ -807,7 +807,7 @@ A set limit is allotted for each unique data identifier or digested piece of inf
 
 
 
-## **Next steps**
+## Next steps
 
 
 
@@ -827,7 +827,7 @@ Using your Klaviyo test account and \[Postman](https://www.postman.com/klaviyo)
 
 
 
-## **Troubleshooting**
+## Troubleshooting
 
 
 

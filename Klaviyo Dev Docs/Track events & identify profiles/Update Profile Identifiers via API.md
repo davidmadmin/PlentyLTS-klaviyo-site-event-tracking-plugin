@@ -1,4 +1,4 @@
-### **Update Profile Identifiers via API**
+# Update Profile Identifiers via API
 
 Learn how to update profile identifier fields using Klaviyo's RESTful APIs.
 
@@ -42,7 +42,7 @@ You can update profile identifiers via a POST request to \[Create or Update Pro
 
 
 
-## **Update a profile identifier without a profile ID**
+## Update a profile identifier without a profile ID
 
 
 
@@ -176,7 +176,7 @@ As shown in the 200 response, the returned profile has the same profile ID as th
 
 
 
-## **Update profile identifiers with a profile ID**
+## Update profile identifiers with a profile ID
 
 
 

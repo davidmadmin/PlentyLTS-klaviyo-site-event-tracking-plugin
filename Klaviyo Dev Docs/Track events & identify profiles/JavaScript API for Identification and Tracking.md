@@ -42,7 +42,7 @@ This snippet loads Klaviyo’s onsite JavaScript (`klaviyo.js`) which enables cl
 
 
 
-# Identify visitors
+## Identify visitors
 
 
 
@@ -102,7 +102,7 @@ These properties allow segmentation and personalization within Klaviyo.
 
 
 
-# Track events
+## Track events
 
 
 
@@ -172,7 +172,7 @@ Tracked events can then be used to:
 
 
 
-# Track purchases
+## Track purchases
 
 
 
@@ -238,7 +238,7 @@ These values help power revenue attribution and customer lifecycle analysis.
 
 
 
-# Track custom events
+## Track custom events
 
 
 
@@ -286,7 +286,7 @@ Custom events enable advanced lifecycle marketing workflows.
 
 
 
-# Common workflow
+## Common workflow
 
 
 
@@ -336,11 +336,11 @@ This ensures events are associated with the correct profile.
 
 
 
-# Key concepts
+## Key concepts
 
 
 
-## Identify
+### Identify
 
 
 
@@ -348,7 +348,7 @@ Associates browsing activity with a known user profile.
 
 
 
-## Track
+### Track
 
 
 
@@ -356,7 +356,7 @@ Sends behavioral events (metrics) to Klaviyo.
 
 
 
-## Events (Metrics)
+### Events (Metrics)
 
 
 
@@ -382,7 +382,7 @@ Examples:
 
 
 
-# Summary
+## Summary
 
 
 

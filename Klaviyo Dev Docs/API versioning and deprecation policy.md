@@ -1,4 +1,5 @@
-### **API versioning and deprecation policy**Learn about how we version and support our APIs.
+# API versioning and deprecation policy
+Learn about how we version and support our APIs.
 
 
 
@@ -18,7 +19,7 @@ To stay up-to-date on API changes, be sure to:
 
 
 
-## **API versioning**
+## API versioning
 
 
 
@@ -76,7 +77,7 @@ curl --request GET \\
 
 
 
-### **Beta revisions**
+## Beta revisions
 
 
 
@@ -96,7 +97,7 @@ For testing and feedback purposes, we share our new APIs with developers in an e
 
 
 
-## **Breaking changes**
+## Breaking changes
 
 
 
@@ -134,7 +135,7 @@ Breaking changes are generally gated behind a new revision and clearly documente
 
 
 
-## **Non-breaking changes**
+## Non-breaking changes
 
 
 
@@ -178,7 +179,7 @@ Generally, new endpoints are only released in new revisions. Note that non-break
 
 
 
-## **SDK versioning**
+## SDK versioning
 
 
 
@@ -216,7 +217,7 @@ Note that SDK support relies on our API versioning and deprecation policy, as ea
 
 
 
-## **API lifecycle**
+## API lifecycle
 
 
 
@@ -274,7 +275,7 @@ As shown in the example above, a revision goes through the following phases:
 
 
 
-### **Initial release**
+## Initial release
 
 
 
@@ -294,7 +295,7 @@ When a new revision is released:
 
 
 
-### **Deprecation**
+## Deprecation
 
 
 
@@ -326,7 +327,7 @@ When a revision becomes deprecated:
 
 
 
-### **Retirement**
+## Retirement
 
 
 
@@ -334,7 +335,7 @@ After a revision’s year-long deprecation phase, it is \[retired](https://deve
 
 
 
-### **Fall-forward behavior**
+## Fall-forward behavior
 
 
 
@@ -378,7 +379,7 @@ Our fall-forward behavior is a best-effort attempt to honor your request and not
 
 
 
-## **Additional resources**
+## Additional resources
 
 
 

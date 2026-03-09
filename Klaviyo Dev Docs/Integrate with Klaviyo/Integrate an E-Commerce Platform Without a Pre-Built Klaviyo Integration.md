@@ -1,4 +1,4 @@
-### **Integrate an E-Commerce Platform Without a Pre-Built Klaviyo Integration**
+# Integrate an E-Commerce Platform Without a Pre-Built Klaviyo Integration
 
 Learn how to integrate a platform without a pre-built Klaviyo integration.
 
@@ -28,7 +28,7 @@ If you’re using an ecommerce platform not currently supported by one of Klaviy
 
 
 
-## **Key integration components**
+## Key integration components
 
 
 
@@ -46,7 +46,7 @@ The key components of integrating this type of ecommerce solution are:
 
 
 
-## **About JavaScript and server-side event APIs**
+## About JavaScript and server-side event APIs
 
 
 
@@ -136,11 +136,11 @@ Check out our \[Custom integration FAQ](https://developers.klaviyo.com/en/docs/
 
 
 
-## **JavaScript Track API for onsite metrics**
+## JavaScript Track API for onsite metrics
 
 
 
-### **Active on Site tracking snippet**
+## Active on Site tracking snippet
 
 
 
@@ -161,7 +161,7 @@ Once you’ve added the snippet above, an \*Active on Site\* metric will trigg
 
 
 
-### **Initialize the klaviyo object**
+## Initialize the klaviyo object
 
 
 
@@ -169,7 +169,7 @@ Ensure that you have \[initialized the klaviyo object](https://developers.klavi
 
 
 
-### **Viewed Product tracking snippet**
+## Viewed Product tracking snippet
 
 
 
@@ -267,7 +267,7 @@ The following snippet can be added directly below the \*Viewed Product\* snipp
 
 
 
-### **Added to Cart tracking snippet**
+## Added to Cart tracking snippet
 
 
 
@@ -364,7 +364,7 @@ Here's an example Track request where the cart already contained one item (\*Win
 
 
 
-### **Started Checkout**
+## Started Checkout
 
 
 
@@ -455,7 +455,7 @@ The `$event_id` should be a unique identifier for the cart combined with the U
 
 
 
-## **Server-side metrics**
+## Server-side metrics
 
 
 
@@ -467,7 +467,7 @@ Klaviyo also has \[SDKs](https://developers.klaviyo.com/en/docs/sdk_overview) 
 
 
 
-### **Syncing historical data**
+## Syncing historical data
 
 
 
@@ -475,7 +475,7 @@ Along with your ongoing data, it is best practice to send your historical order 
 
 
 
-### **Placed Order**
+## Placed Order
 
 
 
@@ -757,7 +757,7 @@ Key things to be aware of when tracking server-side events:
 
 
 
-### **Ordered Product**
+## Ordered Product
 
 
 
@@ -858,7 +858,7 @@ The remainder of the POST \[create event](https://developers.klaviyo.com/en/ref
 
 
 
-### **Fulfilled Order, Canceled Order, and Refunded Order**
+## Fulfilled Order, Canceled Order, and Refunded Order
 
 
 
@@ -878,7 +878,7 @@ Depending on how your products are sent to the customer, and whether they are ab
 
 
 
-### **Fulfilled Order example**
+## Fulfilled Order example
 
 
 
@@ -1073,7 +1073,7 @@ For \*Fulfilled Order\*, the only update needed is the metric name and the time
 
 
 
-### **Canceled Order example**
+## Canceled Order example
 
 
 
@@ -1270,7 +1270,7 @@ For \*Canceled Order\*, update the metric name and timestamp, and add an additi
 
 
 
-### **Refunded Order example**
+## Refunded Order example
 
 
 
@@ -1467,7 +1467,7 @@ For \*Refunded Order\*, update the metric name and timestamp, and add an additi
 
 
 
-## **Catalog feed integration**
+## Catalog feed integration
 
 
 

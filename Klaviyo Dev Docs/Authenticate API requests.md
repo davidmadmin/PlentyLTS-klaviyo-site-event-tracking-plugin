@@ -1,12 +1,12 @@
-**Authenticate API requests**
+# Authenticate API requests
 
 Learn how to authenticate requests to Klaviyo endpoints.
 
-**You will learn**
+## You will learn
 
 After reading this article, you will be able to distinguish which methods of authentication you should use for making calls with Klaviyo's server- and client-side APIs. You will also learn how to set custom scopes to protect you and your customers’ data.
 
-**Server-side vs client-side APIs📘**
+## Server-side vs client-side APIs📘
 
 Check out our video on \[client- and server-side tracking with Klaviyo's APIs](https://www.youtube.com/watch?v=x0RjkP8T13A\&list=PLHkNfHgtxcUanrkMnKPdkRzuWU7MGv_xM\&index=3).
 
@@ -18,13 +18,13 @@ Klaviyo provides 3 methods of authentication including private key authenticatio
 
 To manage API keys, you must have an Owner, Admin, or Manager role on your Klaviyo account.
 
-**Private key authentication**
+## Private key authentication
 
 Private API keys can be used to read and write data to your Klaviyo account. Klaviyo allows you to generate multiple private keys for your applications.**🚧**
 
 For your account's security, your private API keys should never be used with Client endpoints, exposed in client-side code, or made accessible from public repositories.
 
-**Create a private key**
+## Create a private key
 
 To create a private key:
 
@@ -46,7 +46,7 @@ Note that you cannot add a scope to an existing private key. You also cannot edi
 
 Private keys will have the prefix pk_ followed by a longer alphanumeric string.
 
-**Use a private key**
+## Use a private key
 
 Private key authentication for `/api` endpoints is performed by setting the following request header:
 
@@ -72,7 +72,7 @@ curl --request GET \\
 
 
 
-**Public key authentication**
+## Public key authentication
 
 Your 6-character public key, sometimes referred to as a site ID, is a short alphanumeric string that serves as the unique identifier for your Klaviyo account.
 
@@ -98,11 +98,11 @@ curl --request POST \\
 
 
 
-**OAuth**
+## OAuth
 
 If you're building an app with Klaviyo, use \[OAuth](https://developers.klaviyo.com/en/docs/set_up_oauth) to provide secure delegated access to users via access tokens (required to enter Klaviyo’s App Marketplace). When setting up OAuth, you must provide designated scopes for each API authorization request you'll want to make.
 
-**Set custom scopes**
+## Set custom scopes
 
 Setting custom scopes helps you protect your and your customers’ data by limiting what third parties can access. When requesting authorization to make API calls (OAuth), you should only request the scopes required to use your app.
 
@@ -158,7 +158,7 @@ Segments`segments:read`
 
 `web-feeds:write`
 
-**Additional resources**
+## Additional resources
 
 - \[Make API calls with OAuth](https://developers.klaviyo.com/en/docs/set_up_oauth)
 

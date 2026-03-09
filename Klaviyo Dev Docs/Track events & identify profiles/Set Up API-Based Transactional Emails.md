@@ -28,7 +28,7 @@ In Klaviyo, **transactional and marketing messages can be triggered from the sam
 
 
 
-# Why use API-based transactional events?
+## Why use API-based transactional events?
 
 
 
@@ -56,7 +56,7 @@ For transactional messages, **server-side events are strongly recommended**.
 
 
 
-# Overview of the process
+## Overview of the process
 
 
 
@@ -92,7 +92,7 @@ Example use cases:
 
 
 
-# Step 1 — Create a transactional event
+## Step 1 — Create a transactional event
 
 
 
@@ -140,7 +140,7 @@ Reset Password Requested
 
 
 
-# Step 2 — Send the event using the Events API
+## Step 2 — Send the event using the Events API
 
 
 
@@ -246,7 +246,7 @@ This event will be recorded in the user's activity timeline.
 
 
 
-# Step 3 — Create a flow triggered by the event
+## Step 3 — Create a flow triggered by the event
 
 
 
@@ -284,7 +284,7 @@ This means the flow runs whenever that event is received.
 
 
 
-# Step 4 — Add the transactional email
+## Step 4 — Add the transactional email
 
 
 
@@ -320,7 +320,7 @@ Use **event properties** to dynamically populate links and data.
 
 
 
-# Example transactional events
+## Example transactional events
 
 
 
@@ -328,7 +328,7 @@ Common transactional event types include:
 
 
 
-## Password reset
+### Password reset
 
 
 
@@ -358,7 +358,7 @@ Properties:
 
 
 
-## Order confirmation
+### Order confirmation
 
 
 
@@ -390,7 +390,7 @@ Properties:
 
 
 
-## Shipping notification
+### Shipping notification
 
 
 
@@ -422,7 +422,7 @@ Properties:
 
 
 
-# Best practices
+## Best practices
 
 
 
@@ -480,7 +480,7 @@ This improves personalization and debugging.
 
 
 
-# Summary
+## Summary
 
 
 

@@ -1,4 +1,5 @@
-### **Sparse fieldsets**Learn how to request specific fields from resources.
+# Sparse fieldsets
+Learn how to request specific fields from resources.
 
 
 
@@ -6,7 +7,7 @@ Sparse fieldsets allow you to request only specific fields from a resource or co
 
 
 
-## **Sparse fieldsets syntax**
+## Sparse fieldsets syntax
 
 
 
@@ -26,7 +27,7 @@ Sparse fieldsets are specified using `?fields\[TYPE]=field1,field2` as a query
 
 
 
-## **Example request and response**
+## Example request and response
 
 
 
@@ -60,7 +61,7 @@ Note that the `relationships` and `links` fields are still fully populated i
 
 
 
-### **Sparse fieldsets with included resource types**
+## Sparse fieldsets with included resource types
 
 
 
@@ -102,7 +103,7 @@ Note that the `included` field of the response payload contains a list of prof
 
 
 
-## **Additional fields**
+## Additional fields
 
 
 
@@ -110,7 +111,7 @@ You can use ?`additional-fields` as a query parameter to return additional fiel
 
 
 
-### **Example request and response**
+## Example request and response
 
 
 
@@ -136,7 +137,7 @@ curl --request GET \\
 
 
 
-### **Predictive analytics**
+## Predictive analytics
 
 
 
@@ -212,7 +213,7 @@ The full list of predictive analytics fields that can be returned for a profile 
 
 
 
-## **SDK example (Node, PHP, Python, Ruby)**
+## SDK example (Node, PHP, Python, Ruby)
 
 
 
