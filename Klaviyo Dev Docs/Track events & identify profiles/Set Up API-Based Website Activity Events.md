@@ -26,9 +26,10 @@ If you have questions about custom integrations check out our [Custom integrati
 
 To enable our JavaScript API and the ability to push events and profile properties to Klaviyo from your site, add the following snippet so it appears on every page on your website. Often, the end of the footer is a good place to add it. Make sure to replace PUBLIC_API_KEY (also known as your Company ID) with your Klaviyo account's 6 character [Public API Key](https://www.klaviyo.com/account#api-keys-tab):
 
-JavaScript
 
-`<script type="application/javascript" async src="https://static.klaviyo.com/onsite/js/<PUBLIC_API_KEY>/klaviyo.js"></script>`
+```javascript
+<script type="application/javascript" async src="https://static.klaviyo.com/onsite/js/<PUBLIC_API_KEY>/klaviyo.js"></script>
+```
 
 ## **Server-side requests**
 
@@ -77,9 +78,9 @@ When the article is initially shared, the *Shared Article* event uses our Trac
 
 Once someone enters the email address(es) of the person(s) they'd like to share with, send a *Shared Article* event that looks something like this:
 
-JavaScript
 
-`<script>
+```javascript
+<script>
    klaviyo.track("Shared Article", {
      "Recipients": ["email.on.list@email.com","email.2.on.list@email.com"],
      "Quantity": 2,
@@ -87,7 +88,8 @@ JavaScript
      "URL": "https://www.example.com/top-10-flows-holidays",
      "ImageURL": "https://www.example.com/top-10-flows-holidays-hero-image.png"
    });
-</script>`
+</script>
+```
 
 ### **Received Article Share event**
 
@@ -103,9 +105,9 @@ Successful requests to the Create Event endpoint return a 202/Accepted response 
 > To make sure the Received Article Share events are recorded separately, each call needs to have a different `unique_id`. There are many ways to generate a `unique_id`; one method is to base64 encode the email address of the recipient and concatenate it with the current UNIX timestamp, as shown below.
 > 
 
-Python
 
-`import requests
+```python
+import requests
 url = "https://a.klaviyo.com/api/events/"
 payload = {"data": {
         "type": "event",
@@ -129,7 +131,8 @@ headers = {
     "content-type": "application/json",
     "Authorization": "Klaviyo-API-Key your-private-api-key"
 }
-response = requests.post(url, json=payload, headers=headers)`
+response = requests.post(url, json=payload, headers=headers)
+```
 
 ### **Referrals**
 
@@ -149,22 +152,23 @@ When the referral is initially made, the *Referred Friend* event uses our Trac
 
 See the code below for an example of what the *Referred Friend* event looks like:
 
-JavaScript
 
-`<script type="text/javascript">
+```javascript
+<script type="text/javascript">
    klaviyo.track("Referred Friend", {
      "Recipients": ["email.on.list@email.com","email.2.on.list@email.com"],
      "Quantity": 2
    });
- </script>`
+ </script>
+```
 
 ### **Referred by Friend event**
 
 At the same time, send something like the following payload for each referred person:
 
-Python
 
-`import requests
+```python
+import requests
 url = "https://a.klaviyo.com/api/events/"
 payload = {"data": {
         "type": "event",
@@ -186,15 +190,17 @@ headers = {
     "content-type": "application/json",
     "Authorization": "Klaviyo-API-Key your-private-api-key"
 }
-response = requests.post(url, json=payload, headers=headers)`
+response = requests.post(url, json=payload, headers=headers)
+```
 
 You can then use the `ReferrerCode` to create unique URLs for each referral, and insert those URLs into a referral email. For example, if you had an email flow triggered by the *Referred by Friend* event, you could include the following:
 
-HTML
 
- `event|lookup:'ReferrerName' thought you might like this,
-<a href="{{https://www.example.com/?referral_code={{}} event|lookup:'ReferrerCode}}">click here</a> 
-to find out if you do!`
+```html
+{{ event|lookup:'ReferrerName' }} thought you might like this,
+<a href="https://www.example.com/?referral_code={{ event|lookup:'ReferrerCode' }}">click here</a>
+to find out if you do!
+```
 
 ## **Website activity**
 
@@ -213,16 +219,17 @@ This event uses our JavaScript Track API to record the following information:
 
 See the code below for an example of what the *Viewed Category* event looks like:
 
-JavaScript
 
-`<script type="text/javascript">
+```javascript
+<script type="text/javascript">
    klaviyo.track("Viewed Category",{
      "CategoryName": "Fantasy Books",
      "CategoryID": "01",
      "ImageURL": "http://www.example.com/path/to/category/hero/image.png",
      "URL": "http://www.example.com/path/to/category"
    });
-</script>`
+</script>
+```
 
 ### **Searched Site**
 
@@ -236,15 +243,16 @@ This event should be triggered when someone submits a search query, and it uses 
 
 See the code below for an example of what the *Searched Site* event looks like:
 
-JavaScript
 
-`<script>
+```javascript
+<script>
    klaviyo.track("Searched Site",{
      "SearchTerm": "Fantasty Boks",
      "SearchTerm (autocorrected)": "Fantasy Books",
      "ReturnedResults": 54
    });
-</script>`
+</script>
+```
 
 ### **Clicked Banner**
 
@@ -264,12 +272,13 @@ The *Clicked Banner* event uses our JavaScript Track API to record the followi
 
 The example below is specifically for banner ads, but this can be extrapolated to other use-cases as well:
 
-JavaScript
 
-`<script>
+```javascript
+<script>
    klaviyo.track("Clicked Banner",{
      "SourceURL": "https://www.example.com/home",
      "DestinationURL": "https://www.example.com/black-friday-deals",
      "BannerTitle": "Check out these awesome Black Friday sales!"
    });
-</script>`
+</script>
+```

@@ -314,11 +314,9 @@ The `subscriptions` object should look like the example object shown below:
 
 
 
-JSON
 
-
-
-    `"subscriptions": {
+```json
+    "subscriptions": {
 
        "email": {
 
@@ -390,7 +388,8 @@ JSON
 
         }
 
-},`
+},
+```
 
 
 
@@ -546,11 +545,9 @@ If your account is eligible for predictive analytics, the above query should ret
 
 
 
-JSON
 
-
-
-`"predictive_analytics": {
+```json
+"predictive_analytics": {
 
        "historic_clv": 93.87,
 
@@ -572,7 +569,8 @@ JSON
 
        "ranked_channel_affinity": \["sms", "email", "push"]
 
-     }`
+     }
+```
 
 
 
@@ -684,11 +682,9 @@ When making a \[Get Profile](https://developers.klaviyo.com/en/reference/get_pr
 
 
 
-JSON
 
-
-
-`{
+```json
+{
 
        "type": "profile",
 
@@ -764,7 +760,8 @@ JSON
 
        }
 
-},`
+},
+```
 
 
 
