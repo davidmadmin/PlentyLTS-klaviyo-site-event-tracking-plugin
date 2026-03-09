@@ -48,29 +48,29 @@ JavaScript
 
 `<script type="text/javascript">
 
-&nbsp;  var item = {
+      var item = {
 
-&nbsp;    "ProductName": "Winnie the Pooh",
+        "ProductName": "Winnie the Pooh",
 
-&nbsp;    "ProductID": "1111",
+        "ProductID": "1111",
 
-&nbsp;    "SKU": "WINNIEPOOH",
+        "SKU": "WINNIEPOOH",
 
-&nbsp;    "Categories": \["Fiction", "Children"],
+        "Categories": \["Fiction", "Children"],
 
-&nbsp;    "ImageURL": "http://www.example.com/path/to/product/image.png",
+        "ImageURL": "http://www.example.com/path/to/product/image.png",
 
-&nbsp;    "URL": "http://www.example.com/path/to/product",
+        "URL": "http://www.example.com/path/to/product",
 
-&nbsp;    "Brand": "Kids Books",
+        "Brand": "Kids Books",
 
-&nbsp;    "Price": 9.99,
+        "Price": 9.99,
 
-&nbsp;    "CompareAtPrice": 14.99
+        "CompareAtPrice": 14.99
 
-&nbsp;  };
+      };
 
-&nbsp;  klaviyo.track("Viewed Product", item);
+      klaviyo.track("Viewed Product", item);
 
 </script>`
 
@@ -100,11 +100,11 @@ JavaScript
 
 `<script type="text/javascript">
 
-&nbsp;	document.getElementById("Like").addEventListener('click',function (){
+    	document.getElementById("Like").addEventListener('click',function (){
 
-&nbsp;		klaviyo.track('Added Like', item);
+    		klaviyo.track('Added Like', item);
 
-&nbsp;	});
+    	});
 
 </script>`
 

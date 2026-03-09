@@ -264,31 +264,31 @@ JSON
 
 `{
 
-&nbsp;  "errors": \[
+      "errors": \[
 
-&nbsp;      {
+          {
 
-&nbsp;          "id": "2c76424d-b1ff-4afd-a2a1-728d85dac775",
+              "id": "2c76424d-b1ff-4afd-a2a1-728d85dac775",
 
-&nbsp;          "status": 400,
+              "status": 400,
 
-&nbsp;          "code": "invalid",
+              "code": "invalid",
 
-&nbsp;          "title": "Invalid input.",
+              "title": "Invalid input.",
 
-&nbsp;          "detail": "'profiless' is not an allowed include parameter for this resource.",
+              "detail": "'profiless' is not an allowed include parameter for this resource.",
 
-&nbsp;          "source": {
+              "source": {
 
-&nbsp;              "parameter": "include"
+                  "parameter": "include"
 
-&nbsp;          },
+              },
 
-&nbsp;          "meta": {}
+              "meta": {}
 
-&nbsp;      }
+          }
 
-&nbsp;  ]
+      ]
 
 }`
 

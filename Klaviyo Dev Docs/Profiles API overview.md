@@ -16,19 +16,19 @@ You can use our \[Profiles API](https://developers.klaviyo.com/en/reference/get
 
 \- **Active profiles**
 
-&nbsp;   
+       
 
-&nbsp;   Profiles that can be messaged via email or SMS. For example, a profile that has subscribed to marketing updates via sign-up form.
+       Profiles that can be messaged via email or SMS. For example, a profile that has subscribed to marketing updates via sign-up form.
 
-&nbsp;   
+       
 
 \- **Suppressed profiles**
 
-&nbsp;   
+       
 
-&nbsp;   Profiles that cannot receive emails, even if they have provided consent. Learn more about \[suppressed email profiles](https://help.klaviyo.com/hc/en-us/articles/115005246108).
+       Profiles that cannot receive emails, even if they have provided consent. Learn more about \[suppressed email profiles](https://help.klaviyo.com/hc/en-us/articles/115005246108).
 
-&nbsp;   
+       
 
 
 
@@ -94,47 +94,47 @@ Profile identifiers are important for fetching profiles and merging shared data 
 
 \- `email`(recommended for use as the primary identifier)
 
-&nbsp;   
+       
 
-&nbsp;   The profile’s valid email address (must be <= 100 characters). We recommend using \[regex for email validation](https://emailregex.com/index.html).
+       The profile’s valid email address (must be <= 100 characters). We recommend using \[regex for email validation](https://emailregex.com/index.html).
 
-&nbsp;   
+       
 
 \- `phone_number`
 
-&nbsp;   
+       
 
-&nbsp;   The profile’s phone number (a valid E.164 number, e.g., +15005550006).
+       The profile’s phone number (a valid E.164 number, e.g., +15005550006).
 
-&nbsp;   
+       
 
-&nbsp;   > **🚧Phone numbers must be in E.164 format**
+       > **🚧Phone numbers must be in E.164 format**
 
-&nbsp;   > 
+       > 
 
-&nbsp;   > 
+       > 
 
-&nbsp;   > We recommend using a library like \[libphonenumber](https://github.com/google/libphonenumber) to ensure numbers are valid and properly formatted prior to sending.
+       > We recommend using a library like \[libphonenumber](https://github.com/google/libphonenumber) to ensure numbers are valid and properly formatted prior to sending.
 
-&nbsp;   > 
+       > 
 
 \- `external_id`
 
-&nbsp;   
+       
 
-&nbsp;   A unique identifier to associate Klaviyo profiles with profiles in an external system. Usually set via integrations or API.
+       A unique identifier to associate Klaviyo profiles with profiles in an external system. Usually set via integrations or API.
 
-&nbsp;   
+       
 
-&nbsp;   > **🚧**
+       > **🚧**
 
-&nbsp;   > 
+       > 
 
-&nbsp;   > 
+       > 
 
-&nbsp;   > `external_id` is not involved in profile merging, so its use can lead to duplicate profiles. This identifier should only be used if you are aware of its \[impact on profile duplication](https://developers.klaviyo.com/en/docs/custom_integration_faqs#should-i-use-emailphone-or-external-id-as-my-unique-identifier).
+       > `external_id` is not involved in profile merging, so its use can lead to duplicate profiles. This identifier should only be used if you are aware of its \[impact on profile duplication](https://developers.klaviyo.com/en/docs/custom_integration_faqs#should-i-use-emailphone-or-external-id-as-my-unique-identifier).
 
-&nbsp;   > 
+       > 
 
 
 
@@ -148,83 +148,83 @@ A profile can contain additional personal information, including:
 
 \- `first_name` and `last_name`
 
-&nbsp;   
+       
 
-&nbsp;   The profile’s first and last names.
+       The profile’s first and last names.
 
-&nbsp;   
+       
 
 \- `organization` and `title`
 
-&nbsp;   
+       
 
-&nbsp;   The profile’s organization and their job title.
+       The profile’s organization and their job title.
 
-&nbsp;   
+       
 
 \- `image`
 
-&nbsp;   
+       
 
-&nbsp;   The profile image’s URL.
+       The profile image’s URL.
 
-&nbsp;   
+       
 
 \- `locale`
 
-&nbsp;   
+       
 
-&nbsp;   The locale of the profile, in the IETF BCP 47 language tag format `ISO 639-1/2)-(ISO 3166 alpha-2` e.g., `en-US`.
+       The locale of the profile, in the IETF BCP 47 language tag format `ISO 639-1/2)-(ISO 3166 alpha-2` e.g., `en-US`.
 
-&nbsp;   
+       
 
 \- `location`
 
-&nbsp;   
+       
 
-&nbsp;   An object containing location-related information.
+       An object containing location-related information.
 
-&nbsp;   
+       
 
-&nbsp;   - `address1` and `address2`
+       - `address1` and `address2`
 
-&nbsp;       
+           
 
-&nbsp;       First and second lines of the profile’s street address.
+           First and second lines of the profile’s street address.
 
-&nbsp;       
+           
 
-&nbsp;   - `city, country, region,` and `zip`
+       - `city, country, region,` and `zip`
 
-&nbsp;       
+           
 
-&nbsp;       Fields for the profile’s city, country, region (e.g., state), and zip code.
+           Fields for the profile’s city, country, region (e.g., state), and zip code.
 
-&nbsp;       
+           
 
-&nbsp;   - `latitude` and `longitude`
+       - `latitude` and `longitude`
 
-&nbsp;       
+           
 
-&nbsp;       The profile’s latitude and longitude coordinates.
+           The profile’s latitude and longitude coordinates.
 
-&nbsp;       
+           
 
-&nbsp;   - `timezone`
+       - `timezone`
 
-&nbsp;       
+           
 
-&nbsp;       The profile’s timezone name. Names from the \[IANA Time Zone Database](https://www.iana.org/time-zones) are recommended.
+           The profile’s timezone name. Names from the \[IANA Time Zone Database](https://www.iana.org/time-zones) are recommended.
 
-&nbsp;       
+           
 
-&nbsp;   - `ip`
+       - `ip`
 
-&nbsp;       
+           
 
-&nbsp;       The profile’s IP address.
+           The profile’s IP address.
 
-&nbsp;       
+           
 
 
 
@@ -238,27 +238,27 @@ A profile has a `properties` object for storing custom properties. Some use ca
 
 \- **Segmentation**
 
-&nbsp;   
+       
 
-&nbsp;   Use non-object property values to segment your audience and target customers with personalized content, e.g., create a segment for profiles who identify as women and share brand preferences.
+       Use non-object property values to segment your audience and target customers with personalized content, e.g., create a segment for profiles who identify as women and share brand preferences.
 
-&nbsp;   
+       
 
 \- **Flows**
 
-&nbsp;   
+       
 
-&nbsp;   Filter flows based on profile properties, e.g., store a `birthday` field collected via form to use in a \[date property-triggered flow](https://help.klaviyo.com/hc/en-us/articles/360002732652).
+       Filter flows based on profile properties, e.g., store a `birthday` field collected via form to use in a \[date property-triggered flow](https://help.klaviyo.com/hc/en-us/articles/360002732652).
 
-&nbsp;   
+       
 
 \- **Reporting**
 
-&nbsp;   
+       
 
-&nbsp;   Generate reports to analyze customer behavior based on profile property, e.g., create a report that details performance of the "Clicked Email" metric for a campaign that contains dynamic content based on gender.
+       Generate reports to analyze customer behavior based on profile property, e.g., create a report that details performance of the "Clicked Email" metric for a campaign that contains dynamic content based on gender.
 
-&nbsp;   
+       
 
 
 
@@ -318,77 +318,77 @@ JSON
 
 
 
-&nbsp;`"subscriptions": {
+    `"subscriptions": {
 
-&nbsp;   "email": {
+       "email": {
 
-&nbsp;        "marketing": {
+            "marketing": {
 
-&nbsp;            "can_receive_email_marketing": true,
+                "can_receive_email_marketing": true,
 
-&nbsp;            "consent": "SUBSCRIBED",
+                "consent": "SUBSCRIBED",
 
-&nbsp;            "consent_timestamp": "2023-02-21T20:07:38+00:00",
+                "consent_timestamp": "2023-02-21T20:07:38+00:00",
 
-&nbsp;            "last_updated": "2023-02-21T20:07:38+00:00",
+                "last_updated": "2023-02-21T20:07:38+00:00",
 
-&nbsp;            "method": "PREFERENCE_PAGE",
+                "method": "PREFERENCE_PAGE",
 
-&nbsp;            "method_detail": "mydomain.com/signup",
+                "method_detail": "mydomain.com/signup",
 
-&nbsp;            "custom_method_detail": "marketing drive",
+                "custom_method_detail": "marketing drive",
 
-&nbsp;            "double_optin": "True",
+                "double_optin": "True",
 
-&nbsp;            "suppression": \[
+                "suppression": \[
 
-&nbsp;             {
+                 {
 
-&nbsp;               "reason": "HARD_BOUNCE",
+                   "reason": "HARD_BOUNCE",
 
-&nbsp;               "timestamp": "2023-02-21T20:07:38+00:00"
+                   "timestamp": "2023-02-21T20:07:38+00:00"
 
-&nbsp;             }
+                 }
 
-&nbsp;            ],
+                ],
 
-&nbsp;            "list_suppressions": \[
+                "list_suppressions": \[
 
-&nbsp;             {
+                 {
 
-&nbsp;              "list_id": "Y6nRLr",
+                  "list_id": "Y6nRLr",
 
-&nbsp;              "reason": "USER_SUPPRESSED",
+                  "reason": "USER_SUPPRESSED",
 
-&nbsp;              "timestamp": "2023-02-21T20:07:38+00:00"
+                  "timestamp": "2023-02-21T20:07:38+00:00"
 
-&nbsp;             }
+                 }
 
-&nbsp;           ]
+               ]
 
-&nbsp;         }
+             }
 
-&nbsp;       },
+           },
 
-&nbsp;   "sms": {
+       "sms": {
 
-&nbsp;     "marketing": {
+         "marketing": {
 
-&nbsp;         "can_receive_sms_marketing": true,
+             "can_receive_sms_marketing": true,
 
-&nbsp;         "consent": "SUBSCRIBED",
+             "consent": "SUBSCRIBED",
 
-&nbsp;         "consent_timestamp": "2023-02-21T20:07:38+00:00",
+             "consent_timestamp": "2023-02-21T20:07:38+00:00",
 
-&nbsp;         "method": "TEXT",
+             "method": "TEXT",
 
-&nbsp;         "method_detail": "JOIN",
+             "method_detail": "JOIN",
 
-&nbsp;         "last_updated": "2023-02-21T20:07:38+00:00"
+             "last_updated": "2023-02-21T20:07:38+00:00"
 
-&nbsp;       }
+           }
 
-&nbsp;    }
+        }
 
 },`
 
@@ -418,13 +418,15 @@ Request
 
 
 
-`curl --get 'https://a.klaviyo.com/api/profiles/' \\
+```bash
+curl --get 'https://a.klaviyo.com/api/profiles/' \\
 
 --data-urlencode 'additional-fields\[profile]=subscriptions' \\
 
 --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
 
---header 'revision: 2023-12-15'`
+--header 'revision: 2023-12-15'
+```
 
 
 
@@ -440,7 +442,8 @@ Request
 
 
 
-`curl --get 'https://a.klaviyo.com/api/profiles/' \\
+```bash
+curl --get 'https://a.klaviyo.com/api/profiles/' \\
 
 --data-urlencode 'additional-fields\[profile]=subscriptions' \\
 
@@ -448,7 +451,8 @@ Request
 
 --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
 
---header 'revision: 2023-12-15'`
+--header 'revision: 2023-12-15'
+```
 
 
 
@@ -476,7 +480,8 @@ Request
 
 
 
-`curl --get 'https://a.klaviyo.com/api/profiles/' \\
+```bash
+curl --get 'https://a.klaviyo.com/api/profiles/' \\
 
 --data-urlencode 'additional-fields\[profile]=subscriptions' \\
 
@@ -484,7 +489,8 @@ Request
 
 --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
 
---header 'revision: 2023-12-15'`
+--header 'revision: 2023-12-15'
+```
 
 
 
@@ -504,23 +510,23 @@ You can apply the following filters to fetch profiles by suppression data includ
 
 | --- | --- | --- | --- |
 
-| Get excluded profiles by timestamp of suppression | `subscriptions.email.marketing.suppression.timestamp` | • `greater-than`
+| Get excluded profiles by timestamp of suppression | `subscriptions.email.marketing.suppression.timestamp` | - `greater-than`
 
-• `greater-or-equal`
+- `greater-or-equal`
 
-• `less-than`
+- `less-than`
 
-• `less-or-equal` | `?filter=greater-or-equal(subscriptions.email.marketing.suppression.timestamp,YYYY-MM-DD)` |
+- `less-or-equal` | `?filter=greater-or-equal(subscriptions.email.marketing.suppression.timestamp,YYYY-MM-DD)` |
 
 | Get excluded profiles by suppression reason | `subscriptions.email.marketing.suppression.reason` | `equals` | `?filter=equals(subscriptions.email.marketing.suppression.reason,"UNSUBSCRIBE")`Suppression reasons: `UNSUBSCRIBE`, `SPAM_COMPLAINT`, `HARD_BOUNCE`, `INVALID_EMAIL`, `USER_SUPPRESSED`. |
 
-| Get excluded profiles by timestamp of list suppression | `subscriptions.email.marketing.list_suppressions.timestamp` | • `greater-than`
+| Get excluded profiles by timestamp of list suppression | `subscriptions.email.marketing.list_suppressions.timestamp` | - `greater-than`
 
-• `greater-or-equal`
+- `greater-or-equal`
 
-• `less-than`
+- `less-than`
 
-• `less-or-equal` | `?filter=less-or-equal(subscriptions.email.marketing.list_suppressions.timestamp,YYYY-MM-DD)` |
+- `less-or-equal` | `?filter=less-or-equal(subscriptions.email.marketing.list_suppressions.timestamp,YYYY-MM-DD)` |
 
 | Get excluded profiles by list suppression reason | `subscriptions.email.marketing.list_suppressions.reason` | `equals` | `?filter=equals(subscriptions.email.marketing.list_suppressions.reason,"UNSUBSCRIBE")`Suppression reasons: `UNSUBSCRIBE`, `SPAM_COMPLAINT`, `HARD_BOUNCE`, `INVALID_EMAIL`, `USER_SUPPRESSED`. |
 
@@ -546,27 +552,27 @@ JSON
 
 `"predictive_analytics": {
 
-&nbsp;   "historic_clv": 93.87,
+       "historic_clv": 93.87,
 
-&nbsp;   "predicted_clv": 27.24,
+       "predicted_clv": 27.24,
 
-&nbsp;   "total_clv": 121.11,
+       "total_clv": 121.11,
 
-&nbsp;   "historic_number_of_orders": 2,
+       "historic_number_of_orders": 2,
 
-&nbsp;   "predicted_number_of_orders": 0.54,
+       "predicted_number_of_orders": 0.54,
 
-&nbsp;   "average_days_between_orders": 189,
+       "average_days_between_orders": 189,
 
-&nbsp;   "average_order_value": 46.94,
+       "average_order_value": 46.94,
 
-&nbsp;   "churn_probability": 0.89,
+       "churn_probability": 0.89,
 
-&nbsp;   "expected_date_of_next_order": "2022-11-08T00:00:00",
+       "expected_date_of_next_order": "2022-11-08T00:00:00",
 
-&nbsp;   "ranked_channel_affinity": \["sms", "email", "push"]
+       "ranked_channel_affinity": \["sms", "email", "push"]
 
-&nbsp; }`
+     }`
 
 
 
@@ -600,27 +606,27 @@ Request
 
 `{
 
-&nbsp;   "data": {
+       "data": {
 
-&nbsp;       "type": "profile",
+           "type": "profile",
 
-&nbsp;       "attributes": {
+           "attributes": {
 
-&nbsp;           "email": "sarah.mason@klaviyo-demo.com",
+               "email": "sarah.mason@klaviyo-demo.com",
 
-&nbsp;           "first_name": "Sarah",
+               "first_name": "Sarah",
 
-&nbsp;           "last_name": "Mason"
+               "last_name": "Mason"
 
-&nbsp;       },
+           },
 
-&nbsp;       "properties": {
+           "properties": {
 
-&nbsp;           "birthday": "1989-12-13T00:00:00Z"
+               "birthday": "1989-12-13T00:00:00Z"
 
-&nbsp;       }
+           }
 
-&nbsp;   }
+       }
 
 }`
 
@@ -684,79 +690,79 @@ JSON
 
 `{
 
-&nbsp;   "type": "profile",
+       "type": "profile",
 
-&nbsp;   "id": "01H260JDT1NJVY1EF61ET64Z7F",
+       "id": "01H260JDT1NJVY1EF61ET64Z7F",
 
-&nbsp;   "attributes": {
+       "attributes": {
 
-&nbsp;       "email": "henry.downing@klaviyo-demo.com",
+           "email": "henry.downing@klaviyo-demo.com",
 
-&nbsp;       "first_name": "Henry",
+           "first_name": "Henry",
 
-&nbsp;       "last_name": "Downing",
+           "last_name": "Downing",
 
-&nbsp;       "created": "2023-06-05T14:49:54+00:00",
+           "created": "2023-06-05T14:49:54+00:00",
 
-&nbsp;       "updated": "2023-07-17T14:36:25+00:00",
+           "updated": "2023-07-17T14:36:25+00:00",
 
-&nbsp;       "last_event_date": "2023-06-05T14:49:56+00:00",
+           "last_event_date": "2023-06-05T14:49:56+00:00",
 
-&nbsp;       "location": {
+           "location": {
 
-&nbsp;           "address1": "225 Franklin St",
+               "address1": "225 Franklin St",
 
-&nbsp;           "address2": "6th floor",
+               "address2": "6th floor",
 
-&nbsp;           "city": "Boston",
+               "city": "Boston",
 
-&nbsp;           ...
+               ...
 
-&nbsp;       },
+           },
 
-&nbsp;       "properties": {
+           "properties": {
 
-&nbsp;           "FavoriteColors": \["blue","yellow"],
+               "FavoriteColors": \["blue","yellow"],
 
-&nbsp;           ...
+               ...
 
-&nbsp;       }
+           }
 
-&nbsp;   },
+       },
 
-&nbsp;   "relationships": {
+       "relationships": {
 
-&nbsp;       "lists": {
+           "lists": {
 
-&nbsp;           "links": {
+               "links": {
 
-&nbsp;               "self": "https://a.klaviyo.com/api/profiles/01H260JDT1NJVY1EF61ET64Z7F/relationships/lists/",
+                   "self": "https://a.klaviyo.com/api/profiles/01H260JDT1NJVY1EF61ET64Z7F/relationships/lists/",
 
-&nbsp;               "related": "https://a.klaviyo.com/api/profiles/01H260JDT1NJVY1EF61ET64Z7F/lists/"
+                   "related": "https://a.klaviyo.com/api/profiles/01H260JDT1NJVY1EF61ET64Z7F/lists/"
 
-&nbsp;           }
+               }
 
-&nbsp;       },
+           },
 
-&nbsp;       "segments": {
+           "segments": {
 
-&nbsp;           "links": {
+               "links": {
 
-&nbsp;               "self": "https://a.klaviyo.com/api/profiles/01H260JDT1NJVY1EF61ET64Z7F/relationships/segments/",
+                   "self": "https://a.klaviyo.com/api/profiles/01H260JDT1NJVY1EF61ET64Z7F/relationships/segments/",
 
-&nbsp;               "related": "https://a.klaviyo.com/api/profiles/01H260JDT1NJVY1EF61ET64Z7F/segments/"
+                   "related": "https://a.klaviyo.com/api/profiles/01H260JDT1NJVY1EF61ET64Z7F/segments/"
 
-&nbsp;           }
+               }
 
-&nbsp;       }
+           }
 
-&nbsp;   },
+       },
 
-&nbsp;   "links": {
+       "links": {
 
-&nbsp;       "self": "https://a.klaviyo.com/api/profiles/01H260JDT1NJVY1EF61ET64Z7F/"
+           "self": "https://a.klaviyo.com/api/profiles/01H260JDT1NJVY1EF61ET64Z7F/"
 
-&nbsp;   }
+       }
 
 },`
 

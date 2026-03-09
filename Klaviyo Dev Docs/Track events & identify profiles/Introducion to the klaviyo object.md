@@ -114,31 +114,31 @@ Example: identifying a user **with a callback**, then tracking an event.
 
 function myCallback() {
 
-&nbsp; var item = {
+     var item = {
 
-&nbsp;   "ProductName": item.ProductName,
+       "ProductName": item.ProductName,
 
-&nbsp;   "ProductID": item.ProductID,
+       "ProductID": item.ProductID,
 
-&nbsp;   "SKU": item.SKU,
+       "SKU": item.SKU,
 
-&nbsp;   "Categories": item.Categories,
+       "Categories": item.Categories,
 
-&nbsp;   "ImageURL": item.ImageURL,
+       "ImageURL": item.ImageURL,
 
-&nbsp;   "URL": item.URL,
+       "URL": item.URL,
 
-&nbsp;   "Brand": item.Brand,
+       "Brand": item.Brand,
 
-&nbsp;   "Price": item.Price,
+       "Price": item.Price,
 
-&nbsp;   "CompareAtPrice": item.CompareAtPrice
+       "CompareAtPrice": item.CompareAtPrice
 
-&nbsp; };
+     };
 
 
 
-&nbsp; klaviyo.track("Viewed Product", item);
+     klaviyo.track("Viewed Product", item);
 
 }
 
@@ -146,7 +146,7 @@ function myCallback() {
 
 klaviyo.identify({
 
-&nbsp; "email": "\[email protected]"
+     "email": "\[email protected]"
 
 }, myCallback);
 
@@ -190,7 +190,7 @@ Example:
 
 klaviyo.identify({})
 
-&nbsp; .then(() => console.log("Identify has been completed"));
+     .then(() => console.log("Identify has been completed"));
 
 ```
 

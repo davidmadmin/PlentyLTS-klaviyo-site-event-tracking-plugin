@@ -48,13 +48,15 @@ RequestResponse
 
 
 
-`curl --request GET \\
+```bash
+curl --request GET \\
 
-&nbsp;    --url 'https://a.klaviyo.com/api/events/?filter=greater-than(datetime,2023-08-07T12:30:00.710Z)' \\
+        --url 'https://a.klaviyo.com/api/events/?filter=greater-than(datetime,2023-08-07T12:30:00.710Z)' \\
 
-&nbsp;    --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
+        --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
 
-&nbsp;    --header 'accept: application/json' \\
+        --header 'accept: application/json' \\
 
-&nbsp;    --header 'revision: 2023-07-15'`
+        --header 'revision: 2023-07-15'
+```
 

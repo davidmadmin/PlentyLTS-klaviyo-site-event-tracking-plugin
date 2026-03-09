@@ -62,11 +62,11 @@ Example:
 
 klaviyo.identify({
 
-&nbsp; "email": "\[email protected]",
+     "email": "\[email protected]",
 
-&nbsp; "first\_name": "Jane",
+     "first\_name": "Jane",
 
-&nbsp; "last\_name": "Doe"
+     "last\_name": "Doe"
 
 });
 
@@ -132,23 +132,23 @@ Example:
 
 klaviyo.track("Viewed Product", {
 
-&nbsp; "ProductName": "Red T-Shirt",
+     "ProductName": "Red T-Shirt",
 
-&nbsp; "ProductID": "1111",
+     "ProductID": "1111",
 
-&nbsp; "SKU": "REDTSHIRT1",
+     "SKU": "REDTSHIRT1",
 
-&nbsp; "Categories": \["Apparel", "T-Shirts"],
+     "Categories": \["Apparel", "T-Shirts"],
 
-&nbsp; "ImageURL": "https://example.com/image.jpg",
+     "ImageURL": "https://example.com/image.jpg",
 
-&nbsp; "URL": "https://example.com/product/red-shirt",
+     "URL": "https://example.com/product/red-shirt",
 
-&nbsp; "Brand": "Example Brand",
+     "Brand": "Example Brand",
 
-&nbsp; "Price": 19.99,
+     "Price": 19.99,
 
-&nbsp; "CompareAtPrice": 24.99
+     "CompareAtPrice": 24.99
 
 });
 
@@ -188,25 +188,25 @@ Example purchase event:
 
 klaviyo.track("Placed Order", {
 
-&nbsp; "OrderId": "1234",
+     "OrderId": "1234",
 
-&nbsp; "Total": 29.99,
+     "Total": 29.99,
 
-&nbsp; "Items": \[
+     "Items": \[
 
-&nbsp;   {
+       {
 
-&nbsp;     "ProductID": "1111",
+         "ProductID": "1111",
 
-&nbsp;     "ProductName": "Red T-Shirt",
+         "ProductName": "Red T-Shirt",
 
-&nbsp;     "Quantity": 1,
+         "Quantity": 1,
 
-&nbsp;     "ItemPrice": 19.99
+         "ItemPrice": 19.99
 
-&nbsp;   }
+       }
 
-&nbsp; ]
+     ]
 
 });
 
@@ -268,9 +268,9 @@ Example custom event:
 
 klaviyo.track("Clicked Banner", {
 
-&nbsp; "BannerName": "Spring Sale",
+     "BannerName": "Spring Sale",
 
-&nbsp; "Location": "Homepage"
+     "Location": "Homepage"
 
 });
 
@@ -294,11 +294,11 @@ Typical event tracking workflow:
 
 
 
-1\. Load the Klaviyo JavaScript snippet
+1. Load the Klaviyo JavaScript snippet
 
-2\. Identify the user once you know their identity
+2. Identify the user once you know their identity
 
-3\. Track behavioral events as they occur
+3. Track behavioral events as they occur
 
 
 
@@ -310,7 +310,7 @@ Example:
 
 klaviyo.identify({
 
-&nbsp; email: "\[email protected]"
+     email: "\[email protected]"
 
 });
 
@@ -318,9 +318,9 @@ klaviyo.identify({
 
 klaviyo.track("Viewed Product", {
 
-&nbsp; ProductName: "Red T-Shirt",
+     ProductName: "Red T-Shirt",
 
-&nbsp; ProductID: "1111"
+     ProductID: "1111"
 
 });
 

@@ -76,63 +76,63 @@ An event can have the following:
 
 \- `properties` (required)
 
-&nbsp;   
+       
 
-&nbsp;   The properties of the event (see \*Event properties\*). Non-object properties can be used for creating segments. The `$extra` property records any non-segmentable values, e.g., HTML templates, that can be referenced later.
+       The properties of the event (see \*Event properties\*). Non-object properties can be used for creating segments. The `$extra` property records any non-segmentable values, e.g., HTML templates, that can be referenced later.
 
-&nbsp;   
+       
 
 \- `time`
 
-&nbsp;   
+       
 
-&nbsp;   The timestamp of when the event occurred. By default, the value is the time the event was created. You should provide `time` when creating a historical event for a profile.
+       The timestamp of when the event occurred. By default, the value is the time the event was created. You should provide `time` when creating a historical event for a profile.
 
-&nbsp;   
+       
 
 \- `value`
 
-&nbsp;   
+       
 
-&nbsp;   The numeric value to associate with the event, e.g., a price. Defaults to 0 if events logged under the provided metric have historically contained a `value` field.
+       The numeric value to associate with the event, e.g., a price. Defaults to 0 if events logged under the provided metric have historically contained a `value` field.
 
-&nbsp;   
+       
 
 \- `unique_id`
 
-&nbsp;   
+       
 
-&nbsp;   The unique identifier for an event. We recommend using \[uuidv4](https://www.npmjs.com/package/uuidv4) or a similar method to create unique IDs for your events.
+       The unique identifier for an event. We recommend using \[uuidv4](https://www.npmjs.com/package/uuidv4) or a similar method to create unique IDs for your events.
 
-&nbsp;   
+       
 
-&nbsp;   > **🚧Use unique ID to avoid event loss**
+       > **🚧Use unique ID to avoid event loss**
 
-&nbsp;   > 
+       > 
 
-&nbsp;   > 
+       > 
 
-&nbsp;   > If you do not provide a `unique_id`, multiple events sent at the same time will be assigned the same default `unique_id` and may be removed as duplicates (see \*Event deduplication behavior\*).
+       > If you do not provide a `unique_id`, multiple events sent at the same time will be assigned the same default `unique_id` and may be removed as duplicates (see \*Event deduplication behavior\*).
 
-&nbsp;   > 
+       > 
 
 \- `relationships`
 
-&nbsp;   - `metric`
+       - `metric`
 
-&nbsp;       
+           
 
-&nbsp;       The metric associated with the event.
+           The metric associated with the event.
 
-&nbsp;       
+           
 
-&nbsp;   - `profile`
+       - `profile`
 
-&nbsp;       
+           
 
-&nbsp;       The profile associated with the event.
+           The profile associated with the event.
 
-&nbsp;       
+           
 
 
 
@@ -154,27 +154,27 @@ Each event includes a `properties` object, which stores relevant details about
 
 \- **Segmentation**
 
-&nbsp;   
+       
 
-&nbsp;   Non-object property values can be used to build segments, e.g., a segment with customers who have purchased products within the "Skincare" category. See our \[FAQ](https://developers.klaviyo.com/en/docs/custom_integration_faqs#how-should-i-structure-my-data-for-segmentation-and-flow-filtering) for more information on how to structure event data for segmentation.
+       Non-object property values can be used to build segments, e.g., a segment with customers who have purchased products within the "Skincare" category. See our \[FAQ](https://developers.klaviyo.com/en/docs/custom_integration_faqs#how-should-i-structure-my-data-for-segmentation-and-flow-filtering) for more information on how to structure event data for segmentation.
 
-&nbsp;   
+       
 
 \- **Flows**
 
-&nbsp;   
+       
 
-&nbsp;   Use data stored in event properties to personalize flows, e.g., build show/hide conditions in an abandoned cart flow based on a cart's value or items added.
+       Use data stored in event properties to personalize flows, e.g., build show/hide conditions in an abandoned cart flow based on a cart's value or items added.
 
-&nbsp;   
+       
 
 \- **Reporting**
 
-&nbsp;   
+       
 
-&nbsp;   Understand trends in reports by key event properties, e.g., create a report that gives performance data on revenue for Placed Order events for a specific product.
+       Understand trends in reports by key event properties, e.g., create a report that gives performance data on revenue for Placed Order events for a specific product.
 
-&nbsp;   
+       
 
 
 
@@ -236,57 +236,57 @@ Request payload
 
 `{
 
-&nbsp;   "data": {
+       "data": {
 
-&nbsp;       "type": "event",
+           "type": "event",
 
-&nbsp;       "attributes": {
+           "attributes": {
 
-&nbsp;           "properties": {
+               "properties": {
 
-&nbsp;               "action": "Reset Password",
+                   "action": "Reset Password",
 
-&nbsp;               "PasswordResetLink": "https://www.website.com/reset/1234567890987654321"
+                   "PasswordResetLink": "https://www.website.com/reset/1234567890987654321"
 
-&nbsp;           },
+               },
 
-&nbsp;           "metric": {
+               "metric": {
 
-&nbsp;               "data": {
+                   "data": {
 
-&nbsp;                   "type": "metric",
+                       "type": "metric",
 
-&nbsp;                   "attributes": {
+                       "attributes": {
 
-&nbsp;                       "name": "Reset Password"
+                           "name": "Reset Password"
 
-&nbsp;                   }
+                       }
 
-&nbsp;               }
+                   }
 
-&nbsp;           },
+               },
 
-&nbsp;           "profile": {
+               "profile": {
 
-&nbsp;               "data": {
+                   "data": {
 
-&nbsp;                   "type": "profile",
+                       "type": "profile",
 
-&nbsp;                   "attributes": {
+                       "attributes": {
 
-&nbsp;                       "email": "sarah.mason@klaviyo-demo.com"
+                           "email": "sarah.mason@klaviyo-demo.com"
 
-&nbsp;                   }
+                       }
 
-&nbsp;               }
+                   }
 
-&nbsp;           },
+               },
 
-&nbsp;           "unique_id": "4b5d3f33-2e21-4c1c-b392-2dae2a74a2ed"
+               "unique_id": "4b5d3f33-2e21-4c1c-b392-2dae2a74a2ed"
 
-&nbsp;       }
+           }
 
-&nbsp;   }
+       }
 
 }`
 
@@ -314,67 +314,67 @@ Request payload
 
 `{
 
-&nbsp; "data": {
+     "data": {
 
-&nbsp;   "type": "event",
+       "type": "event",
 
-&nbsp;   "attributes": {
+       "attributes": {
 
-&nbsp;     "properties": {
+         "properties": {
 
-&nbsp;       "OrderId": "cc50e5b3-059c-4f7d-9e26-821302b63235",
+           "OrderId": "cc50e5b3-059c-4f7d-9e26-821302b63235",
 
-&nbsp;       "ProductID": "1111",
+           "ProductID": "1111",
 
-&nbsp;       "SKU": "WINNIEPOOH",
+           "SKU": "WINNIEPOOH",
 
-&nbsp;       "ProductName": "Winnie the Pooh",
+           "ProductName": "Winnie the Pooh",
 
-&nbsp;       "Quantity": 1,
+           "Quantity": 1,
 
-&nbsp;       "ProductURL": "http://www.example.com/path/to/product",
+           "ProductURL": "http://www.example.com/path/to/product",
 
-&nbsp;       "value": 9.99,
+           "value": 9.99,
 
-&nbsp;       "metric": {
+           "metric": {
 
-&nbsp;           "data": {
+               "data": {
 
-&nbsp;           "type": "metric",
+               "type": "metric",
 
-&nbsp;           "attributes": {
+               "attributes": {
 
-&nbsp;               "name": "Ordered Product"
+                   "name": "Ordered Product"
 
-&nbsp;           }
+               }
 
-&nbsp;       }
+           }
 
-&nbsp;     },
+         },
 
-&nbsp;     "profile": {
+         "profile": {
 
-&nbsp;       "data": {
+           "data": {
 
-&nbsp;         "type": "profile",
+             "type": "profile",
 
-&nbsp;         "id": "01H7FZEVECGN0MNQ8V417TPVP0",
+             "id": "01H7FZEVECGN0MNQ8V417TPVP0",
 
-&nbsp;         "attributes": {
+             "attributes": {
 
-&nbsp;           "email": "sarah.mason@klaviyo-demo.com",
+               "email": "sarah.mason@klaviyo-demo.com",
 
-&nbsp;           "phone_number": "+15005550006",
+               "phone_number": "+15005550006",
 
-&nbsp;           ...
+               ...
 
-&nbsp;       }
+           }
 
-&nbsp;     },
+         },
 
-&nbsp;     "unique_id": "cc50e5b3-059c-4f7d-9e26-821302b63235"
+         "unique_id": "cc50e5b3-059c-4f7d-9e26-821302b63235"
 
-&nbsp;  }
+      }
 
 }`
 
@@ -418,155 +418,155 @@ Request
 
 `{
 
-&nbsp;   "data": {
+       "data": {
 
-&nbsp;       "type": "event-bulk-create-job",
+           "type": "event-bulk-create-job",
 
-&nbsp;       "attributes": {
+           "attributes": {
 
-&nbsp;           "events-bulk-create": {
+               "events-bulk-create": {
 
-&nbsp;               "data": \[
+                   "data": \[
 
-&nbsp;                   {
+                       {
 
-&nbsp;                       "type": "event-bulk-create",
+                           "type": "event-bulk-create",
 
-&nbsp;                       "attributes": {
+                           "attributes": {
 
-&nbsp;                           "profile": {
+                               "profile": {
 
-&nbsp;                               "data": {
+                                   "data": {
 
-&nbsp;                                   "type": "profile",
+                                       "type": "profile",
 
-&nbsp;                                   "attributes": {
+                                       "attributes": {
 
-&nbsp;                                       "email": "bill.joel@klaviyo-demo.com",
+                                           "email": "bill.joel@klaviyo-demo.com",
 
-&nbsp;                                   }
+                                       }
 
-&nbsp;                               }
+                                   }
 
-&nbsp;                           },
+                               },
 
-&nbsp;                           "events": {
+                               "events": {
 
-&nbsp;                               "data": \[
+                                   "data": \[
 
-&nbsp;                                   {
+                                       {
 
-&nbsp;                                       "type": "event",
+                                           "type": "event",
 
-&nbsp;                                       "attributes": {
+                                           "attributes": {
 
-&nbsp;                                           "properties": {
+                                               "properties": {
 
-&nbsp;                                               "Reason": "No longer needed.",
+                                                   "Reason": "No longer needed.",
 
-&nbsp;                                               "Brand": "Kids Book",
+                                                   "Brand": "Kids Book",
 
-&nbsp;                                               "Categories": \[
+                                                   "Categories": \[
 
-&nbsp;                                                   "Fiction",
+                                                       "Fiction",
 
-&nbsp;                                                   "Children"
+                                                       "Children"
 
-&nbsp;                                               ]
+                                                   ]
 
-&nbsp;                                           },
+                                               },
 
-&nbsp;                                           "time": "2024-05-10T00:00:00+00:00",
+                                               "time": "2024-05-10T00:00:00+00:00",
 
-&nbsp;                                           "value": 9.99,
+                                               "value": 9.99,
 
-&nbsp;                                           "value_currency": "USD",
+                                               "value_currency": "USD",
 
-&nbsp;                                           "unique_id": "3e57326a-f0b8-4d4f-98e5-aa56a39842d9",
+                                               "unique_id": "3e57326a-f0b8-4d4f-98e5-aa56a39842d9",
 
-&nbsp;                                           "metric": {
+                                               "metric": {
 
-&nbsp;                                               "data": {
+                                                   "data": {
 
-&nbsp;                                                   "type": "metric",
+                                                       "type": "metric",
 
-&nbsp;                                                   "attributes": {
+                                                       "attributes": {
 
-&nbsp;                                                       "name": "Refunded Order"
+                                                           "name": "Refunded Order"
 
-&nbsp;                                                   }
+                                                       }
 
-&nbsp;                                               }
+                                                   }
 
-&nbsp;                                           }
+                                               }
 
-&nbsp;                                       }
+                                           }
 
-&nbsp;                                   },
+                                       },
 
-&nbsp;                                   {
+                                       {
 
-&nbsp;                                       "type": "event",
+                                           "type": "event",
 
-&nbsp;                                       "attributes": {
+                                           "attributes": {
 
-&nbsp;                                           "properties": {
+                                               "properties": {
 
-&nbsp;                                               "Brand": "Kids Book",
+                                                   "Brand": "Kids Book",
 
-&nbsp;                                               "Categories": \[
+                                                   "Categories": \[
 
-&nbsp;                                                   "Fiction",
+                                                       "Fiction",
 
-&nbsp;                                                   "Children"
+                                                       "Children"
 
-&nbsp;                                               ]
+                                                   ]
 
-&nbsp;                                           },
+                                               },
 
-&nbsp;                                           "time": "2024-05-11T00:00:00+00:00",
+                                               "time": "2024-05-11T00:00:00+00:00",
 
-&nbsp;                                           "value": 9.99,
+                                               "value": 9.99,
 
-&nbsp;                                           "value_currency": "USD",
+                                               "value_currency": "USD",
 
-&nbsp;                                           "unique_id": "bd29b5e8-076f-405c-b34c-591794e196e6",
+                                               "unique_id": "bd29b5e8-076f-405c-b34c-591794e196e6",
 
-&nbsp;                                           "metric": {
+                                               "metric": {
 
-&nbsp;                                               "data": {
+                                                   "data": {
 
-&nbsp;                                                   "type": "metric",
+                                                       "type": "metric",
 
-&nbsp;                                                   "attributes": {
+                                                       "attributes": {
 
-&nbsp;                                                       "name": "Placed Order"
+                                                           "name": "Placed Order"
 
-&nbsp;                                                   }
+                                                       }
 
-&nbsp;                                               }
+                                                   }
 
-&nbsp;                                           }
+                                               }
 
-&nbsp;                                       }
+                                           }
 
-&nbsp;                                   }
+                                       }
 
-&nbsp;                               ]
+                                   ]
 
-&nbsp;                           }
+                               }
 
-&nbsp;                       }
+                           }
 
-&nbsp;                   }
+                       }
 
-&nbsp;               ]
+                   ]
 
-&nbsp;           }
+               }
 
-&nbsp;       }
+           }
 
-&nbsp;   }
+       }
 
 }`
 
@@ -598,187 +598,187 @@ Request
 
 `{
 
-&nbsp;   "data": {
+       "data": {
 
-&nbsp;       "type": "event-bulk-create-job",
+           "type": "event-bulk-create-job",
 
-&nbsp;       "attributes": {
+           "attributes": {
 
-&nbsp;           "events-bulk-create": {
+               "events-bulk-create": {
 
-&nbsp;               "data": \[
+                   "data": \[
 
-&nbsp;                   {
+                       {
 
-&nbsp;                       "type": "event-bulk-create",
+                           "type": "event-bulk-create",
 
-&nbsp;                       "attributes": {
+                           "attributes": {
 
-&nbsp;                           "profile": {
+                               "profile": {
 
-&nbsp;                               "data": {
+                                   "data": {
 
-&nbsp;                                   "type": "profile",
+                                       "type": "profile",
 
-&nbsp;                                   "attributes": {
+                                       "attributes": {
 
-&nbsp;                                       "email": "bill.joel@klaviyo-demo.com"
+                                           "email": "bill.joel@klaviyo-demo.com"
 
-&nbsp;                                   }
+                                       }
 
-&nbsp;                               }
+                                   }
 
-&nbsp;                           },
+                               },
 
-&nbsp;                           "events": {
+                               "events": {
 
-&nbsp;                               "data": \[
+                                   "data": \[
 
-&nbsp;                                   {
+                                       {
 
-&nbsp;                                       "type": "event",
+                                           "type": "event",
 
-&nbsp;                                       "attributes": {
+                                           "attributes": {
 
-&nbsp;                                           "properties": {
+                                               "properties": {
 
-&nbsp;                                               "Brand": "Kids Book",
+                                                   "Brand": "Kids Book",
 
-&nbsp;                                               "Categories": \[
+                                                   "Categories": \[
 
-&nbsp;                                                   "Fiction",
+                                                       "Fiction",
 
-&nbsp;                                                   "Children"
+                                                       "Children"
 
-&nbsp;                                               ]
+                                                   ]
 
-&nbsp;                                           },
+                                               },
 
-&nbsp;                                           "time": "2023-05-08T00:00:00+00:00",
+                                               "time": "2023-05-08T00:00:00+00:00",
 
-&nbsp;                                           "value": 9.99,
+                                               "value": 9.99,
 
-&nbsp;                                           "value_currency": "USD",
+                                               "value_currency": "USD",
 
-&nbsp;                                           "unique_id": "baf5fcf1-8e41-4868-a9b0-3a3c63c805e8",
+                                               "unique_id": "baf5fcf1-8e41-4868-a9b0-3a3c63c805e8",
 
-&nbsp;                                           "metric": {
+                                               "metric": {
 
-&nbsp;                                               "data": {
+                                                   "data": {
 
-&nbsp;                                                   "type": "metric",
+                                                       "type": "metric",
 
-&nbsp;                                                   "attributes": {
+                                                       "attributes": {
 
-&nbsp;                                                       "name": "Placed Order"
+                                                           "name": "Placed Order"
 
-&nbsp;                                                   }
+                                                       }
 
-&nbsp;                                               }
+                                                   }
 
-&nbsp;                                           }
+                                               }
 
-&nbsp;                                       }
+                                           }
 
-&nbsp;                                   }
+                                       }
 
-&nbsp;                               ]
+                                   ]
 
-&nbsp;                           }
+                               }
 
-&nbsp;                       }
+                           }
 
-&nbsp;                   },
+                       },
 
-&nbsp;                   {
+                       {
 
-&nbsp;                       "type": "event-bulk-create",
+                           "type": "event-bulk-create",
 
-&nbsp;                       "attributes": {
+                           "attributes": {
 
-&nbsp;                           "profile": {
+                               "profile": {
 
-&nbsp;                               "data": {
+                                   "data": {
 
-&nbsp;                                   "type": "profile",
+                                       "type": "profile",
 
-&nbsp;                                   "attributes": {
+                                       "attributes": {
 
-&nbsp;                                       "phone_number": "+13105555555"
+                                           "phone_number": "+13105555555"
 
-&nbsp;                                   }
+                                       }
 
-&nbsp;                               }
+                                   }
 
-&nbsp;                           },
+                               },
 
-&nbsp;                           "events": {
+                               "events": {
 
-&nbsp;                               "data": \[
+                                   "data": \[
 
-&nbsp;                                   {
+                                       {
 
-&nbsp;                                       "type": "event",
+                                           "type": "event",
 
-&nbsp;                                       "attributes": {
+                                           "attributes": {
 
-&nbsp;                                           "properties": {
+                                               "properties": {
 
-&nbsp;                                               "Brand": "Kids Book",
+                                                   "Brand": "Kids Book",
 
-&nbsp;                                               "Categories": \[
+                                                   "Categories": \[
 
-&nbsp;                                                   "Fiction",
+                                                       "Fiction",
 
-&nbsp;                                                   "Children"
+                                                       "Children"
 
-&nbsp;                                               ]
+                                                   ]
 
-&nbsp;                                           },
+                                               },
 
-&nbsp;                                           "time": "2023-05-09T00:00:00+00:00",
+                                               "time": "2023-05-09T00:00:00+00:00",
 
-&nbsp;                                           "value": 9.99,
+                                               "value": 9.99,
 
-&nbsp;                                           "value_currency": "USD",
+                                               "value_currency": "USD",
 
-&nbsp;                                           "unique_id": "fc2ac97b-24dc-4c2c-8e8e-232834dd69a8",
+                                               "unique_id": "fc2ac97b-24dc-4c2c-8e8e-232834dd69a8",
 
-&nbsp;                                           "metric": {
+                                               "metric": {
 
-&nbsp;                                               "data": {
+                                                   "data": {
 
-&nbsp;                                                   "type": "metric",
+                                                       "type": "metric",
 
-&nbsp;                                                   "attributes": {
+                                                       "attributes": {
 
-&nbsp;                                                       "name": "Viewed Product"
+                                                           "name": "Viewed Product"
 
-&nbsp;                                                   }
+                                                       }
 
-&nbsp;                                               }
+                                                   }
 
-&nbsp;                                           }
+                                               }
 
-&nbsp;                                       }
+                                           }
 
-&nbsp;                                   }
+                                       }
 
-&nbsp;                               ]
+                                   ]
 
-&nbsp;                           }
+                               }
 
-&nbsp;                       }
+                           }
 
-&nbsp;                   }
+                       }
 
-&nbsp;               ]
+                   ]
 
-&nbsp;           }
+               }
 
-&nbsp;       }
+           }
 
-&nbsp;   }
+       }
 
 }`
 
@@ -878,15 +878,17 @@ RequestResponse
 
 
 
-`curl --request GET \\
+```bash
+curl --request GET \\
 
-&nbsp;    --url https://a.klaviyo.com/api/events/ \\
+        --url https://a.klaviyo.com/api/events/ \\
 
-&nbsp;    --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
+        --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
 
-&nbsp;    --header 'accept: application/json' \\
+        --header 'accept: application/json' \\
 
-&nbsp;    --header 'revision: 2023-10-15'`
+        --header 'revision: 2023-10-15'
+```
 
 
 
@@ -898,15 +900,17 @@ RequestResponse
 
 
 
-`curl --request GET \\
+```bash
+curl --request GET \\
 
-&nbsp;    --url https://a.klaviyo.com/api/profile/01H7FZEVECGN0MNQ8V417TPVP0/ \\
+        --url https://a.klaviyo.com/api/profile/01H7FZEVECGN0MNQ8V417TPVP0/ \\
 
-&nbsp;    --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
+        --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
 
-&nbsp;    --header 'accept: application/json' \\
+        --header 'accept: application/json' \\
 
-&nbsp;    --header 'revision: 2023-10-15'`
+        --header 'revision: 2023-10-15'
+```
 
 
 
@@ -922,15 +926,17 @@ RequestResponse
 
 
 
-`curl --request GET \\
+```bash
+curl --request GET \\
 
-&nbsp;    --url https://a.klaviyo.com/api/metrics/WvcZZE/ \\
+        --url https://a.klaviyo.com/api/metrics/WvcZZE/ \\
 
-&nbsp;    --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
+        --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
 
-&nbsp;    --header 'accept: application/json' \\
+        --header 'accept: application/json' \\
 
-&nbsp;    --header 'revision: 2023-10-15'`
+        --header 'revision: 2023-10-15'
+```
 
 
 
@@ -982,15 +988,17 @@ RequestResponse
 
 
 
-`curl --request GET \\
+```bash
+curl --request GET \\
 
-&nbsp;    --url https://a.klaviyo.com/api/events/?filter=equals(profile_id,"01H7FZEVECGN0MNQ8V417TPVP0") \\
+        --url https://a.klaviyo.com/api/events/?filter=equals(profile_id,"01H7FZEVECGN0MNQ8V417TPVP0") \\
 
-&nbsp;    --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
+        --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
 
-&nbsp;    --header 'accept: application/json' \\
+        --header 'accept: application/json' \\
 
-&nbsp;    --header 'revision: 2023-10-15'`
+        --header 'revision: 2023-10-15'
+```
 
 
 

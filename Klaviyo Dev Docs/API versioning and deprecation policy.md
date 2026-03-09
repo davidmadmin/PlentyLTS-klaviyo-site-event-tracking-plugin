@@ -34,15 +34,17 @@ Request
 
 
 
-`curl --request GET \\
+```bash
+curl --request GET \\
 
-&nbsp;    --url https://a.klaviyo.com/api/events/ \\
+        --url https://a.klaviyo.com/api/events/ \\
 
-&nbsp;    --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
+        --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
 
-&nbsp;    --header 'accept: application/json' \\
+        --header 'accept: application/json' \\
 
-&nbsp;    --header 'revision: 2023-12-15'`
+        --header 'revision: 2023-12-15'
+```
 
 
 
@@ -186,27 +188,27 @@ When a new API revision is released, we release new versions of our \[SDKs](htt
 
 \- **major**
 
-&nbsp;   
+       
 
-&nbsp;   The API revision contains at least one breaking change.
+       The API revision contains at least one breaking change.
 
-&nbsp;   
+       
 
 \- **minor**
 
-&nbsp;   
+       
 
-&nbsp;   The API revision contains non-breaking changes, such as notable new functionality.
+       The API revision contains non-breaking changes, such as notable new functionality.
 
-&nbsp;   
+       
 
 \- **patch**
 
-&nbsp;   
+       
 
-&nbsp;   The SDK has been updated with bug fixes.
+       The SDK has been updated with bug fixes.
 
-&nbsp;   
+       
 
 
 
@@ -240,23 +242,23 @@ As shown in the example above, a revision goes through the following phases:
 
 \- **Stable**
 
-&nbsp;   - The revision is subject to non-breaking changes, but remains largely unchanged.
+       - The revision is subject to non-breaking changes, but remains largely unchanged.
 
-&nbsp;   - Lasts for 1 year after release.
+       - Lasts for 1 year after release.
 
 \- **Deprecated**
 
-&nbsp;   - Use of the revision is discouraged over stable revisions
+       - Use of the revision is discouraged over stable revisions
 
-&nbsp;   - At this point, you should plan to migrate your apps to our latest stable revision before the revision is retired to avoid breakages.
+       - At this point, you should plan to migrate your apps to our latest stable revision before the revision is retired to avoid breakages.
 
-&nbsp;   - Starts 1 year after release. Lasts for 1 year.
+       - Starts 1 year after release. Lasts for 1 year.
 
 \- **Retired**
 
-&nbsp;   - 2 years after release, the revision is no longer supported, and breakages are likely to occur in any apps/integrations that rely on it.
+       - 2 years after release, the revision is no longer supported, and breakages are likely to occur in any apps/integrations that rely on it.
 
-&nbsp;   - Calls to endpoints that have been removed since this revision will receive a 410 error.
+       - Calls to endpoints that have been removed since this revision will receive a 410 error.
 
 
 

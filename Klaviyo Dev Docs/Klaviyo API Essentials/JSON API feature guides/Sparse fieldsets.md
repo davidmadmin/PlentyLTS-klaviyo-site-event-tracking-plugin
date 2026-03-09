@@ -42,7 +42,8 @@ RequestResponse
 
 
 
-`curl --request GET \\
+```bash
+curl --request GET \\
 
 --url'https://a.klaviyo.com/api/catalog-variants/?fields\[catalog-variant]=external_id,title'\\
 
@@ -50,7 +51,8 @@ RequestResponse
 
 --header 'accept: application/json' \\
 
---header 'revision: 2023-09-15'`
+--header 'revision: 2023-09-15'
+```
 
 
 
@@ -70,7 +72,8 @@ RequestResponse
 
 
 
-`curl --request GET \\
+```bash
+curl --request GET \\
 
 --url'https://a.klaviyo.com/api/events?include=profile\&fields\[profile]=email'\\
 
@@ -78,7 +81,8 @@ RequestResponse
 
 --header 'accept: application/json' \\
 
---header 'revision: 2023-09-15'`
+--header 'revision: 2023-09-15'
+```
 
 
 
@@ -118,7 +122,8 @@ RequestResponse
 
 
 
-`curl --request GET \\
+```bash
+curl --request GET \\
 
 --url'https://a.klaviyo.com/api/lists/RB89mt/?additional-fields\[list]=profile_count'\\
 
@@ -126,7 +131,8 @@ RequestResponse
 
 --header 'accept: application/json' \\
 
---header 'revision: 2023-09-15'`
+--header 'revision: 2023-09-15'
+```
 
 
 

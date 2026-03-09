@@ -194,29 +194,29 @@ JavaScript
 
 `<script type="text/javascript">
 
-&nbsp;  var item = {
+      var item = {
 
-&nbsp;    "ProductName": item.ProductName,
+        "ProductName": item.ProductName,
 
-&nbsp;    "ProductID": item.ProductID,
+        "ProductID": item.ProductID,
 
-&nbsp;    "SKU": item.SKU,
+        "SKU": item.SKU,
 
-&nbsp;    "Categories": item.Categories,
+        "Categories": item.Categories,
 
-&nbsp;    "ImageURL": item.ImageURL,
+        "ImageURL": item.ImageURL,
 
-&nbsp;    "URL": item.URL,
+        "URL": item.URL,
 
-&nbsp;    "Brand": item.Brand,
+        "Brand": item.Brand,
 
-&nbsp;    "Price": item.Price,
+        "Price": item.Price,
 
-&nbsp;    "CompareAtPrice": item.CompareAtPrice
+        "CompareAtPrice": item.CompareAtPrice
 
-&nbsp;  };
+      };
 
-&nbsp;  klaviyo.track("Viewed Product", item);
+      klaviyo.track("Viewed Product", item);
 
 </script>`
 
@@ -240,29 +240,29 @@ JavaScript
 
 `<script type="text/javascript">
 
-&nbsp;  klaviyo.trackViewedItem({
+      klaviyo.trackViewedItem({
 
-&nbsp;    "Title": item.ProductName,
+        "Title": item.ProductName,
 
-&nbsp;    "ItemId": item.ProductID,
+        "ItemId": item.ProductID,
 
-&nbsp;    "Categories": item.Categories,
+        "Categories": item.Categories,
 
-&nbsp;    "ImageUrl": item.ImageURL,
+        "ImageUrl": item.ImageURL,
 
-&nbsp;    "Url": item.URL,
+        "Url": item.URL,
 
-&nbsp;    "Metadata": {
+        "Metadata": {
 
-&nbsp;      "Brand": item.Brand,
+          "Brand": item.Brand,
 
-&nbsp;      "Price": item.Price,
+          "Price": item.Price,
 
-&nbsp;      "CompareAtPrice": item.CompareAtPrice
+          "CompareAtPrice": item.CompareAtPrice
 
-&nbsp;    }
+        }
 
-&nbsp;  });
+      });
 
 </script>`
 
@@ -290,79 +290,79 @@ JavaScript
 
 `<script type="text/javascript">
 
-&nbsp;  klaviyo.track("Added to Cart", {
+      klaviyo.track("Added to Cart", {
 
-&nbsp;    "$value": 29.98,
+        "$value": 29.98,
 
-&nbsp;    "AddedItemProductName": "A Tale of Two Cities",
+        "AddedItemProductName": "A Tale of Two Cities",
 
-&nbsp;    "AddedItemProductID": "1112",
+        "AddedItemProductID": "1112",
 
-&nbsp;    "AddedItemSKU": "TALEOFTWO",
+        "AddedItemSKU": "TALEOFTWO",
 
-&nbsp;    "AddedItemCategories": \["Fiction", "Classics", "Children"],
+        "AddedItemCategories": \["Fiction", "Classics", "Children"],
 
-&nbsp;    "AddedItemImageURL": "http://www.example.com/path/to/product/image2.png",
+        "AddedItemImageURL": "http://www.example.com/path/to/product/image2.png",
 
-&nbsp;    "AddedItemURL": "http://www.example.com/path/to/product2",
+        "AddedItemURL": "http://www.example.com/path/to/product2",
 
-&nbsp;    "AddedItemPrice": 19.99,
+        "AddedItemPrice": 19.99,
 
-&nbsp;    "AddedItemQuantity": 1,
+        "AddedItemQuantity": 1,
 
-&nbsp;    "ItemNames": \["Winnie the Pooh", "A Tale of Two Cities"],
+        "ItemNames": \["Winnie the Pooh", "A Tale of Two Cities"],
 
-&nbsp;    "CheckoutURL": "http://www.example.com/path/to/checkout",
+        "CheckoutURL": "http://www.example.com/path/to/checkout",
 
-&nbsp;    "Items": \[{
+        "Items": \[{
 
-&nbsp;        "ProductID": "1111",
+            "ProductID": "1111",
 
-&nbsp;        "SKU": "WINNIEPOOH",
+            "SKU": "WINNIEPOOH",
 
-&nbsp;        "ProductName": "Winnie the Pooh",
+            "ProductName": "Winnie the Pooh",
 
-&nbsp;        "Quantity": 1,
+            "Quantity": 1,
 
-&nbsp;        "ItemPrice": 9.99,
+            "ItemPrice": 9.99,
 
-&nbsp;        "RowTotal": 9.99,
+            "RowTotal": 9.99,
 
-&nbsp;        "ProductURL": "http://www.example.com/path/to/product",
+            "ProductURL": "http://www.example.com/path/to/product",
 
-&nbsp;        "ImageURL": "http://www.example.com/path/to/product/image.png",
+            "ImageURL": "http://www.example.com/path/to/product/image.png",
 
-&nbsp;        "ProductCategories": \["Fiction", "Children"]
+            "ProductCategories": \["Fiction", "Children"]
 
-&nbsp;      },
+          },
 
-&nbsp;      {
+          {
 
-&nbsp;        "ProductID": "1112",
+            "ProductID": "1112",
 
-&nbsp;        "SKU": "TALEOFTWO",
+            "SKU": "TALEOFTWO",
 
-&nbsp;        "ProductName": "A Tale of Two Cities",
+            "ProductName": "A Tale of Two Cities",
 
-&nbsp;        "Quantity": 1,
+            "Quantity": 1,
 
-&nbsp;        "ItemPrice": 19.99,
+            "ItemPrice": 19.99,
 
-&nbsp;        "RowTotal": 19.99,
+            "RowTotal": 19.99,
 
-&nbsp;        "ProductURL": "http://www.example.com/path/to/product2",
+            "ProductURL": "http://www.example.com/path/to/product2",
 
-&nbsp;        "ImageURL": "http://www.example.com/path/to/product/image2.png",
+            "ImageURL": "http://www.example.com/path/to/product/image2.png",
 
-&nbsp;        "ProductCategories": \["Fiction", "Classics"]
+            "ProductCategories": \["Fiction", "Classics"]
 
-&nbsp;      }
+          }
 
-&nbsp;    ]
+        ]
 
-&nbsp;  });
+      });
 
-&nbsp;</script>`
+    </script>`
 
 
 
@@ -390,67 +390,67 @@ JavaScript
 
 `<script type="text/javascript">
 
-&nbsp;  klaviyo.track("Started Checkout", {
+      klaviyo.track("Started Checkout", {
 
-&nbsp;    "$event_id": "1000123_1387299423",
+        "$event_id": "1000123_1387299423",
 
-&nbsp;    "$value": 29.98,
+        "$value": 29.98,
 
-&nbsp;    "ItemNames": \["Winnie the Pooh", "A Tale of Two Cities"],
+        "ItemNames": \["Winnie the Pooh", "A Tale of Two Cities"],
 
-&nbsp;    "CheckoutURL": "http://www.example.com/path/to/checkout",
+        "CheckoutURL": "http://www.example.com/path/to/checkout",
 
-&nbsp;    "Categories": \["Fiction", "Children", "Classics"],
+        "Categories": \["Fiction", "Children", "Classics"],
 
-&nbsp;    "Items": \[{
+        "Items": \[{
 
-&nbsp;        "ProductID": "1111",
+            "ProductID": "1111",
 
-&nbsp;        "SKU": "WINNIEPOOH",
+            "SKU": "WINNIEPOOH",
 
-&nbsp;        "ProductName": "Winnie the Pooh",
+            "ProductName": "Winnie the Pooh",
 
-&nbsp;        "Quantity": 1,
+            "Quantity": 1,
 
-&nbsp;        "ItemPrice": 9.99,
+            "ItemPrice": 9.99,
 
-&nbsp;        "RowTotal": 9.99,
+            "RowTotal": 9.99,
 
-&nbsp;        "ProductURL": "http://www.example.com/path/to/product",
+            "ProductURL": "http://www.example.com/path/to/product",
 
-&nbsp;        "ImageURL": "http://www.example.com/path/to/product/image.png",
+            "ImageURL": "http://www.example.com/path/to/product/image.png",
 
-&nbsp;        "ProductCategories": \["Fiction", "Children"]
+            "ProductCategories": \["Fiction", "Children"]
 
-&nbsp;      },
+          },
 
-&nbsp;      {
+          {
 
-&nbsp;        "ProductID": "1112",
+            "ProductID": "1112",
 
-&nbsp;        "SKU": "TALEOFTWO",
+            "SKU": "TALEOFTWO",
 
-&nbsp;        "ProductName": "A Tale of Two Cities",
+            "ProductName": "A Tale of Two Cities",
 
-&nbsp;        "Quantity": 1,
+            "Quantity": 1,
 
-&nbsp;        "ItemPrice": 19.99,
+            "ItemPrice": 19.99,
 
-&nbsp;        "RowTotal": 19.99,
+            "RowTotal": 19.99,
 
-&nbsp;        "ProductURL": "http://www.example.com/path/to/product2",
+            "ProductURL": "http://www.example.com/path/to/product2",
 
-&nbsp;        "ImageURL": "http://www.example.com/path/to/product/image2.png",
+            "ImageURL": "http://www.example.com/path/to/product/image2.png",
 
-&nbsp;        "ProductCategories": \["Fiction", "Classics"]
+            "ProductCategories": \["Fiction", "Classics"]
 
-&nbsp;      }
+          }
 
-&nbsp;    ]
+        ]
 
-&nbsp;  });
+      });
 
-&nbsp;</script>`
+    </script>`
 
 
 
@@ -506,15 +506,15 @@ For each order, we recommend you send two types of events:
 
 \- One event named \*Placed Order\* for the entire order.
 
-&nbsp;   - Useful for triggering post-purchase flows and managing conversion revenue.
+       - Useful for triggering post-purchase flows and managing conversion revenue.
 
-&nbsp;   - Includes a `value` property that represents the total value of the entire order.
+       - Includes a `value` property that represents the total value of the entire order.
 
 \- One event for each line item named \*Ordered Product\* (see below).
 
-&nbsp;   - Allows for deeper segmentation and filtering based on product-specific data.
+       - Allows for deeper segmentation and filtering based on product-specific data.
 
-&nbsp;   - Includes a `value` property that represents the total cost of an item in the order before any adjustments as well as more SKU-level detailed information about the item.
+       - Includes a `value` property that represents the total cost of an item in the order before any adjustments as well as more SKU-level detailed information about the item.
 
 
 
@@ -526,203 +526,205 @@ cURL
 
 
 
-`curl --request POST \\
+```bash
+curl --request POST \\
 
-&nbsp;    --url https: //a.klaviyo.com/api/events/ \\
+        --url https: //a.klaviyo.com/api/events/ \\
 
-&nbsp;    --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
+        --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
 
-&nbsp;    --header 'accept: application/json' \\
+        --header 'accept: application/json' \\
 
-&nbsp;    --header 'content-type: application/json' \\
+        --header 'content-type: application/json' \\
 
-&nbsp;    --header 'revision: 2024-02-15' \\
+        --header 'revision: 2024-02-15' \\
 
-&nbsp;    --data '
+        --data '
 
 {
 
-&nbsp;   "data": {
+       "data": {
 
-&nbsp;       "type": "event",
+           "type": "event",
 
-&nbsp;       "attributes": {
+           "attributes": {
 
-&nbsp;           "properties": {
+               "properties": {
 
-&nbsp;               "OrderId": "1234",
+                   "OrderId": "1234",
 
-&nbsp;               "Categories": \[
+                   "Categories": \[
 
-&nbsp;                   "Fiction",
+                       "Fiction",
 
-&nbsp;                   "Classics",
+                       "Classics",
 
-&nbsp;                   "Children"
+                       "Children"
 
-&nbsp;               ],
+                   ],
 
-&nbsp;               "ItemNames": \[
+                   "ItemNames": \[
 
-&nbsp;                   "Winnie the Pooh",
+                       "Winnie the Pooh",
 
-&nbsp;                   "A Tale of Two Cities"
+                       "A Tale of Two Cities"
 
-&nbsp;               ],
+                   ],
 
-&nbsp;               "DiscountCode": "Free Shipping",
+                   "DiscountCode": "Free Shipping",
 
-&nbsp;               "DiscountValue": 5,
+                   "DiscountValue": 5,
 
-&nbsp;               "Brands": \[
+                   "Brands": \[
 
-&nbsp;                   "Kids Books",
+                       "Kids Books",
 
-&nbsp;                   "Harcourt Classics"
+                       "Harcourt Classics"
 
-&nbsp;               ],
+                   ],
 
-&nbsp;               "Items": \[
+                   "Items": \[
 
-&nbsp;                   {
+                       {
 
-&nbsp;                       "ProductID": "1111",
+                           "ProductID": "1111",
 
-&nbsp;                       "SKU": "WINNIEPOOH",
+                           "SKU": "WINNIEPOOH",
 
-&nbsp;                       "ProductName": "Winnie the Pooh",
+                           "ProductName": "Winnie the Pooh",
 
-&nbsp;                       "Quantity": 1,
+                           "Quantity": 1,
 
-&nbsp;                       "ItemPrice": 9.99,
+                           "ItemPrice": 9.99,
 
-&nbsp;                       "RowTotal": 9.99,
+                           "RowTotal": 9.99,
 
-&nbsp;                       "ProductURL": "http://www.example.com/path/to/product",
+                           "ProductURL": "http://www.example.com/path/to/product",
 
-&nbsp;                       "ImageURL": "http://www.example.com/path/to/product/image.png",
+                           "ImageURL": "http://www.example.com/path/to/product/image.png",
 
-&nbsp;                       "Categories": \[
+                           "Categories": \[
 
-&nbsp;                           "Fiction",
+                               "Fiction",
 
-&nbsp;                           "Children"
+                               "Children"
 
-&nbsp;                       ],
+                           ],
 
-&nbsp;                       "Brand": "Kids Books"
+                           "Brand": "Kids Books"
 
-&nbsp;                   },
+                       },
 
-&nbsp;                   {
+                       {
 
-&nbsp;                       "ProductID": "1112",
+                           "ProductID": "1112",
 
-&nbsp;                       "SKU": "TALEOFTWO",
+                           "SKU": "TALEOFTWO",
 
-&nbsp;                       "ProductName": "A Tale of Two Cities",
+                           "ProductName": "A Tale of Two Cities",
 
-&nbsp;                       "Quantity": 1,
+                           "Quantity": 1,
 
-&nbsp;                       "ItemPrice": 19.99,
+                           "ItemPrice": 19.99,
 
-&nbsp;                       "RowTotal": 19.99,
+                           "RowTotal": 19.99,
 
-&nbsp;                       "ProductURL": "http://www.example.com/path/to/product2",
+                           "ProductURL": "http://www.example.com/path/to/product2",
 
-&nbsp;                       "ImageURL": "http://www.example.com/path/to/product/image2.png",
+                           "ImageURL": "http://www.example.com/path/to/product/image2.png",
 
-&nbsp;                       "Categories": \[
+                           "Categories": \[
 
-&nbsp;                           "Fiction",
+                               "Fiction",
 
-&nbsp;                           "Classics"
+                               "Classics"
 
-&nbsp;                       ],
+                           ],
 
-&nbsp;                       "Brand": "Harcourt Classics"
+                           "Brand": "Harcourt Classics"
 
-&nbsp;                   }
+                       }
 
-&nbsp;               ],
+                   ],
 
-&nbsp;               "BillingAddress": {
+                   "BillingAddress": {
 
-&nbsp;                   "FirstName": "John",
+                       "FirstName": "John",
 
-&nbsp;                   "LastName": "Smith",
+                       "LastName": "Smith",
 
-&nbsp;                   "Address1": "123 Abc St",
+                       "Address1": "123 Abc St",
 
-&nbsp;                   "City": "Boston",
+                       "City": "Boston",
 
-&nbsp;                   "RegionCode": "MA",
+                       "RegionCode": "MA",
 
-&nbsp;                   "CountryCode": "US",
+                       "CountryCode": "US",
 
-&nbsp;                   "Zip": "02110",
+                       "Zip": "02110",
 
-&nbsp;                   "Phone": "+15551234567"
+                       "Phone": "+15551234567"
 
-&nbsp;               },
+                   },
 
-&nbsp;               "ShippingAddress": {
+                   "ShippingAddress": {
 
-&nbsp;                   "Address1": "123 Abc St"
+                       "Address1": "123 Abc St"
 
-&nbsp;               }
+                   }
 
-&nbsp;           },
+               },
 
-&nbsp;           "time": "2022-11-08T00:00:00",
+               "time": "2022-11-08T00:00:00",
 
-&nbsp;           "value": 29.98,
+               "value": 29.98,
 
-&nbsp;           "value_currency": "USD",
+               "value_currency": "USD",
 
-&nbsp;           "unique_id": "d47aeda5-1751-4483-a81e-6fcc8ad48711",
+               "unique_id": "d47aeda5-1751-4483-a81e-6fcc8ad48711",
 
-&nbsp;           "metric": {
+               "metric": {
 
-&nbsp;               "data": {
+                   "data": {
 
-&nbsp;                   "type": "metric",
+                       "type": "metric",
 
-&nbsp;                   "attributes": {
+                       "attributes": {
 
-&nbsp;                       "name": "Placed Order"
+                           "name": "Placed Order"
 
-&nbsp;                   }
+                       }
 
-&nbsp;               }
+                   }
 
-&nbsp;           },
+               },
 
-&nbsp;           "profile": {
+               "profile": {
 
-&nbsp;               "data": {
+                   "data": {
 
-&nbsp;                   "type": "profile",
+                       "type": "profile",
 
-&nbsp;                   "attributes": {
+                       "attributes": {
 
-&nbsp;                       "email": "sarah.mason@klaviyo-demo.com",
+                           "email": "sarah.mason@klaviyo-demo.com",
 
-&nbsp;                       "phone_number": "+15005550006"
+                           "phone_number": "+15005550006"
 
-&nbsp;                   }
+                       }
 
-&nbsp;               }
+                   }
 
-&nbsp;           }
+               }
 
-&nbsp;       }
+           }
 
-&nbsp;   }
+       }
 
 }
 
-'`
+'
+```
 
 
 
@@ -776,85 +778,85 @@ JSON
 
 `{
 
-&nbsp;   "data": {
+       "data": {
 
-&nbsp;       "type": "event",
+           "type": "event",
 
-&nbsp;       "attributes": {
+           "attributes": {
 
-&nbsp;           "properties": {
+               "properties": {
 
-&nbsp;               "OrderId": "1234",
+                   "OrderId": "1234",
 
-&nbsp;               "ProductID": "1111",
+                   "ProductID": "1111",
 
-&nbsp;               "SKU": "WINNIEPOOH",
+                   "SKU": "WINNIEPOOH",
 
-&nbsp;               "ProductName": "Winnie the Pooh",
+                   "ProductName": "Winnie the Pooh",
 
-&nbsp;               "Quantity": 1,
+                   "Quantity": 1,
 
-&nbsp;               "ProductURL": "http://www.example.com/path/to/product",
+                   "ProductURL": "http://www.example.com/path/to/product",
 
-&nbsp;               "ImageURL": "http://www.example.com/path/to/product/image.png",
+                   "ImageURL": "http://www.example.com/path/to/product/image.png",
 
-&nbsp;               "Categories": \[
+                   "Categories": \[
 
-&nbsp;                   "Fiction",
+                       "Fiction",
 
-&nbsp;                   "Children"
+                       "Children"
 
-&nbsp;               ],
+                   ],
 
-&nbsp;               "ProductBrand": "Kids Books"
+                   "ProductBrand": "Kids Books"
 
-&nbsp;           },
+               },
 
-&nbsp;           "time": "2022-11-08T00:00:00",
+               "time": "2022-11-08T00:00:00",
 
-&nbsp;           "value": 9.99,
+               "value": 9.99,
 
-&nbsp;           "value_currency": "USD",
+               "value_currency": "USD",
 
-&nbsp;           "unique_id": "d47aeda5-1751-4483-a81e-6fcc8ad48711",
+               "unique_id": "d47aeda5-1751-4483-a81e-6fcc8ad48711",
 
-&nbsp;           "metric": {
+               "metric": {
 
-&nbsp;               "data": {
+                   "data": {
 
-&nbsp;                   "type": "metric",
+                       "type": "metric",
 
-&nbsp;                   "attributes": {
+                       "attributes": {
 
-&nbsp;                       "name": "Ordered Product"
+                           "name": "Ordered Product"
 
-&nbsp;                   }
+                       }
 
-&nbsp;               }
+                   }
 
-&nbsp;           },
+               },
 
-&nbsp;           "profile": {
+               "profile": {
 
-&nbsp;               "data": {
+                   "data": {
 
-&nbsp;                   "type": "profile",
+                       "type": "profile",
 
-&nbsp;                   "attributes": {
+                       "attributes": {
 
-&nbsp;                       "email": "sarah.mason@klaviyo-demo.com",
+                           "email": "sarah.mason@klaviyo-demo.com",
 
-&nbsp;                       "phone_number": "+15005550006"
+                           "phone_number": "+15005550006"
 
-&nbsp;                   }
+                       }
 
-&nbsp;               }
+                   }
 
-&nbsp;           }
+               }
 
-&nbsp;       }
+           }
 
-&nbsp;   }
+       }
 
 }`
 
@@ -894,183 +896,183 @@ JSON
 
 `{
 
-&nbsp;   "data": {
+       "data": {
 
-&nbsp;       "type": "event",
+           "type": "event",
 
-&nbsp;       "attributes": {
+           "attributes": {
 
-&nbsp;           "properties": {
+               "properties": {
 
-&nbsp;               "OrderId": "1234",
+                   "OrderId": "1234",
 
-&nbsp;               "Categories": \[
+                   "Categories": \[
 
-&nbsp;                   "Fiction",
+                       "Fiction",
 
-&nbsp;                   "Classics",
+                       "Classics",
 
-&nbsp;                   "Children"
+                       "Children"
 
-&nbsp;               ],
+                   ],
 
-&nbsp;               "ItemNames": \[
+                   "ItemNames": \[
 
-&nbsp;                   "Winnie the Pooh",
+                       "Winnie the Pooh",
 
-&nbsp;                   "A Tale of Two Cities"
+                       "A Tale of Two Cities"
 
-&nbsp;               ],
+                   ],
 
-&nbsp;               "Brands": \[
+                   "Brands": \[
 
-&nbsp;                   "Kids Books",
+                       "Kids Books",
 
-&nbsp;                   "Harcourt Classics"
+                       "Harcourt Classics"
 
-&nbsp;               ],
+                   ],
 
-&nbsp;               "DiscountCode": "Free Shipping",
+                   "DiscountCode": "Free Shipping",
 
-&nbsp;               "DiscountValue": 5,
+                   "DiscountValue": 5,
 
-&nbsp;               "Items": \[
+                   "Items": \[
 
-&nbsp;                   {
+                       {
 
-&nbsp;                       "ProductID": "1111",
+                           "ProductID": "1111",
 
-&nbsp;                       "SKU": "WINNIEPOOH",
+                           "SKU": "WINNIEPOOH",
 
-&nbsp;                       "ProductName": "Winnie the Pooh",
+                           "ProductName": "Winnie the Pooh",
 
-&nbsp;                       "Quantity": 1,
+                           "Quantity": 1,
 
-&nbsp;                       "ItemPrice": 9.99,
+                           "ItemPrice": 9.99,
 
-&nbsp;                       "RowTotal": 9.99,
+                           "RowTotal": 9.99,
 
-&nbsp;                       "ProductURL": "http://www.example.com/path/to/product",
+                           "ProductURL": "http://www.example.com/path/to/product",
 
-&nbsp;                       "ImageURL": "http://www.example.com/path/to/product/image.png",
+                           "ImageURL": "http://www.example.com/path/to/product/image.png",
 
-&nbsp;                       "Categories": \[
+                           "Categories": \[
 
-&nbsp;                           "Fiction",
+                               "Fiction",
 
-&nbsp;                           "Children"
+                               "Children"
 
-&nbsp;                       ],
+                           ],
 
-&nbsp;                       "Brand": "Kids Books"
+                           "Brand": "Kids Books"
 
-&nbsp;                   },
+                       },
 
-&nbsp;                   {
+                       {
 
-&nbsp;                       "ProductID": "1112",
+                           "ProductID": "1112",
 
-&nbsp;                       "SKU": "TALEOFTWO",
+                           "SKU": "TALEOFTWO",
 
-&nbsp;                       "ProductName": "A Tale of Two Cities",
+                           "ProductName": "A Tale of Two Cities",
 
-&nbsp;                       "Quantity": 1,
+                           "Quantity": 1,
 
-&nbsp;                       "ItemPrice": 19.99,
+                           "ItemPrice": 19.99,
 
-&nbsp;                       "RowTotal": 19.99,
+                           "RowTotal": 19.99,
 
-&nbsp;                       "ProductURL": "http://www.example.com/path/to/product2",
+                           "ProductURL": "http://www.example.com/path/to/product2",
 
-&nbsp;                       "ImageURL": "http://www.example.com/path/to/product/image2.png",
+                           "ImageURL": "http://www.example.com/path/to/product/image2.png",
 
-&nbsp;                       "Categories": \[
+                           "Categories": \[
 
-&nbsp;                           "Fiction",
+                               "Fiction",
 
-&nbsp;                           "Classics"
+                               "Classics"
 
-&nbsp;                       ],
+                           ],
 
-&nbsp;                       "Brand": "Harcourt Classics"
+                           "Brand": "Harcourt Classics"
 
-&nbsp;                   }
+                       }
 
-&nbsp;               ],
+                   ],
 
-&nbsp;               "BillingAddress": {
+                   "BillingAddress": {
 
-&nbsp;                   "FirstName": "John",
+                       "FirstName": "John",
 
-&nbsp;                   "LastName": "Smith",
+                       "LastName": "Smith",
 
-&nbsp;                   "Address1": "123 Abc St",
+                       "Address1": "123 Abc St",
 
-&nbsp;                   "City": "Boston",
+                       "City": "Boston",
 
-&nbsp;                   "RegionCode": "MA",
+                       "RegionCode": "MA",
 
-&nbsp;                   "CountryCode": "US",
+                       "CountryCode": "US",
 
-&nbsp;                   "Zip": "02110",
+                       "Zip": "02110",
 
-&nbsp;                   "Phone": "+15551234567"
+                       "Phone": "+15551234567"
 
-&nbsp;               },
+                   },
 
-&nbsp;               "ShippingAddress": {
+                   "ShippingAddress": {
 
-&nbsp;                   "Address1": "123 Abc St"
+                       "Address1": "123 Abc St"
 
-&nbsp;               }
+                   }
 
-&nbsp;           },
+               },
 
-&nbsp;           "time": "2022-11-10T00:00:00",
+               "time": "2022-11-10T00:00:00",
 
-&nbsp;           "value": 29.98,
+               "value": 29.98,
 
-&nbsp;           "value_currency": "USD",
+               "value_currency": "USD",
 
-&nbsp;           "unique_id": "d47aeda5-1751-4483-a81e-6fcc8ad48711",
+               "unique_id": "d47aeda5-1751-4483-a81e-6fcc8ad48711",
 
-&nbsp;           "metric": {
+               "metric": {
 
-&nbsp;               "data": {
+                   "data": {
 
-&nbsp;                   "type": "metric",
+                       "type": "metric",
 
-&nbsp;                   "attributes": {
+                       "attributes": {
 
-&nbsp;                       "name": "Fulfilled Order"
+                           "name": "Fulfilled Order"
 
-&nbsp;                   }
+                       }
 
-&nbsp;               }
+                   }
 
-&nbsp;           },
+               },
 
-&nbsp;           "profile": {
+               "profile": {
 
-&nbsp;               "data": {
+                   "data": {
 
-&nbsp;                   "type": "profile",
+                       "type": "profile",
 
-&nbsp;                   "attributes": {
+                       "attributes": {
 
-&nbsp;                       "email": "sarah.mason@klaviyo-demo.com",
+                           "email": "sarah.mason@klaviyo-demo.com",
 
-&nbsp;                       "phone_number": "+15005550006"
+                           "phone_number": "+15005550006"
 
-&nbsp;                   }
+                       }
 
-&nbsp;               }
+                   }
 
-&nbsp;           }
+               }
 
-&nbsp;       }
+           }
 
-&nbsp;   }
+       }
 
 }`
 
@@ -1090,185 +1092,185 @@ JSON
 
 `{
 
-&nbsp;   "data": {
+       "data": {
 
-&nbsp;       "type": "event",
+           "type": "event",
 
-&nbsp;       "attributes": {
+           "attributes": {
 
-&nbsp;           "properties": {
+               "properties": {
 
-&nbsp;               "OrderId": "1234",
+                   "OrderId": "1234",
 
-&nbsp;               "Reason": "No longer needed",
+                   "Reason": "No longer needed",
 
-&nbsp;               "Categories": \[
+                   "Categories": \[
 
-&nbsp;                   "Fiction",
+                       "Fiction",
 
-&nbsp;                   "Classics",
+                       "Classics",
 
-&nbsp;                   "Children"
+                       "Children"
 
-&nbsp;               ],
+                   ],
 
-&nbsp;               "ItemNames": \[
+                   "ItemNames": \[
 
-&nbsp;                   "Winnie the Pooh",
+                       "Winnie the Pooh",
 
-&nbsp;                   "A Tale of Two Cities"
+                       "A Tale of Two Cities"
 
-&nbsp;               ],
+                   ],
 
-&nbsp;               "Brands": \[
+                   "Brands": \[
 
-&nbsp;                   "Kids Books",
+                       "Kids Books",
 
-&nbsp;                   "Harcourt Classics"
+                       "Harcourt Classics"
 
-&nbsp;               ],
+                   ],
 
-&nbsp;               "Discount Code": "Free Shipping",
+                   "Discount Code": "Free Shipping",
 
-&nbsp;               "Discount Value": 5,
+                   "Discount Value": 5,
 
-&nbsp;               "Items": \[
+                   "Items": \[
 
-&nbsp;                   {
+                       {
 
-&nbsp;                       "ProductID": "1111",
+                           "ProductID": "1111",
 
-&nbsp;                       "SKU": "WINNIEPOOH",
+                           "SKU": "WINNIEPOOH",
 
-&nbsp;                       "ProductName": "Winnie the Pooh",
+                           "ProductName": "Winnie the Pooh",
 
-&nbsp;                       "Quantity": 1,
+                           "Quantity": 1,
 
-&nbsp;                       "ItemPrice": 9.99,
+                           "ItemPrice": 9.99,
 
-&nbsp;                       "RowTotal": 9.99,
+                           "RowTotal": 9.99,
 
-&nbsp;                       "ProductURL": "http://www.example.com/path/to/product",
+                           "ProductURL": "http://www.example.com/path/to/product",
 
-&nbsp;                       "ImageURL": "http://www.example.com/path/to/product/image.png",
+                           "ImageURL": "http://www.example.com/path/to/product/image.png",
 
-&nbsp;                       "Categories": \[
+                           "Categories": \[
 
-&nbsp;                           "Fiction",
+                               "Fiction",
 
-&nbsp;                           "Children"
+                               "Children"
 
-&nbsp;                       ],
+                           ],
 
-&nbsp;                       "Brand": "Kids Books"
+                           "Brand": "Kids Books"
 
-&nbsp;                   },
+                       },
 
-&nbsp;                   {
+                       {
 
-&nbsp;                       "ProductID": "1112",
+                           "ProductID": "1112",
 
-&nbsp;                       "SKU": "TALEOFTWO",
+                           "SKU": "TALEOFTWO",
 
-&nbsp;                       "ProductName": "A Tale of Two Cities",
+                           "ProductName": "A Tale of Two Cities",
 
-&nbsp;                       "Quantity": 1,
+                           "Quantity": 1,
 
-&nbsp;                       "ItemPrice": 19.99,
+                           "ItemPrice": 19.99,
 
-&nbsp;                       "RowTotal": 19.99,
+                           "RowTotal": 19.99,
 
-&nbsp;                       "ProductURL": "http://www.example.com/path/to/product2",
+                           "ProductURL": "http://www.example.com/path/to/product2",
 
-&nbsp;                       "ImageURL": "http://www.example.com/path/to/product/image2.png",
+                           "ImageURL": "http://www.example.com/path/to/product/image2.png",
 
-&nbsp;                       "Categories": \[
+                           "Categories": \[
 
-&nbsp;                           "Fiction",
+                               "Fiction",
 
-&nbsp;                           "Classics"
+                               "Classics"
 
-&nbsp;                       ],
+                           ],
 
-&nbsp;                       "Brand": "Harcourt Classics"
+                           "Brand": "Harcourt Classics"
 
-&nbsp;                   }
+                       }
 
-&nbsp;               ],
+                   ],
 
-&nbsp;               "BillingAddress": {
+                   "BillingAddress": {
 
-&nbsp;                   "FirstName": "John",
+                       "FirstName": "John",
 
-&nbsp;                   "LastName": "Smith",
+                       "LastName": "Smith",
 
-&nbsp;                   "Address1": "123 Abc St",
+                       "Address1": "123 Abc St",
 
-&nbsp;                   "City": "Boston",
+                       "City": "Boston",
 
-&nbsp;                   "RegionCode": "MA",
+                       "RegionCode": "MA",
 
-&nbsp;                   "CountryCode": "US",
+                       "CountryCode": "US",
 
-&nbsp;                   "Zip": "02110",
+                       "Zip": "02110",
 
-&nbsp;                   "Phone": "+15551234567"
+                       "Phone": "+15551234567"
 
-&nbsp;               },
+                   },
 
-&nbsp;               "ShippingAddress": {
+                   "ShippingAddress": {
 
-&nbsp;                   "Address1": "123 Abc St"
+                       "Address1": "123 Abc St"
 
-&nbsp;               }
+                   }
 
-&nbsp;           },
+               },
 
-&nbsp;           "time": "2022-11-09T00:00:00",
+               "time": "2022-11-09T00:00:00",
 
-&nbsp;           "value": 29.98,
+               "value": 29.98,
 
-&nbsp;           "value_currency": "USD",
+               "value_currency": "USD",
 
-&nbsp;           "unique_id": "d47aeda5-1751-4483-a81e-6fcc8ad48711",
+               "unique_id": "d47aeda5-1751-4483-a81e-6fcc8ad48711",
 
-&nbsp;           "metric": {
+               "metric": {
 
-&nbsp;               "data": {
+                   "data": {
 
-&nbsp;                   "type": "metric",
+                       "type": "metric",
 
-&nbsp;                   "attributes": {
+                       "attributes": {
 
-&nbsp;                       "name": "Canceled Order"
+                           "name": "Canceled Order"
 
-&nbsp;                   }
+                       }
 
-&nbsp;               }
+                   }
 
-&nbsp;           },
+               },
 
-&nbsp;           "profile": {
+               "profile": {
 
-&nbsp;               "data": {
+                   "data": {
 
-&nbsp;                   "type": "profile",
+                       "type": "profile",
 
-&nbsp;                   "attributes": {
+                       "attributes": {
 
-&nbsp;                       "email": "sarah.mason@klaviyo-demo.com",
+                           "email": "sarah.mason@klaviyo-demo.com",
 
-&nbsp;                       "phone_number": "+15005550006"
+                           "phone_number": "+15005550006"
 
-&nbsp;                   }
+                       }
 
-&nbsp;               }
+                   }
 
-&nbsp;           }
+               }
 
-&nbsp;       }
+           }
 
-&nbsp;   }
+       }
 
 }`
 
@@ -1288,185 +1290,185 @@ JSON
 
 `{
 
-&nbsp;   "data": {
+       "data": {
 
-&nbsp;       "type": "event",
+           "type": "event",
 
-&nbsp;       "attributes": {
+           "attributes": {
 
-&nbsp;           "properties": {
+               "properties": {
 
-&nbsp;               "OrderId": "1234",
+                   "OrderId": "1234",
 
-&nbsp;               "Reason": "No longer needed",
+                   "Reason": "No longer needed",
 
-&nbsp;               "Categories": \[
+                   "Categories": \[
 
-&nbsp;                   "Fiction",
+                       "Fiction",
 
-&nbsp;                   "Classics",
+                       "Classics",
 
-&nbsp;                   "Children"
+                       "Children"
 
-&nbsp;               ],
+                   ],
 
-&nbsp;               "ItemNames": \[
+                   "ItemNames": \[
 
-&nbsp;                   "Winnie the Pooh",
+                       "Winnie the Pooh",
 
-&nbsp;                   "A Tale of Two Cities"
+                       "A Tale of Two Cities"
 
-&nbsp;               ],
+                   ],
 
-&nbsp;               "Brands": \[
+                   "Brands": \[
 
-&nbsp;                   "Kids Books",
+                       "Kids Books",
 
-&nbsp;                   "Harcourt Classics"
+                       "Harcourt Classics"
 
-&nbsp;               ],
+                   ],
 
-&nbsp;               "Discount Code": "Free Shipping",
+                   "Discount Code": "Free Shipping",
 
-&nbsp;               "Discount Value": 5,
+                   "Discount Value": 5,
 
-&nbsp;               "Items": \[
+                   "Items": \[
 
-&nbsp;                   {
+                       {
 
-&nbsp;                       "ProductID": "1111",
+                           "ProductID": "1111",
 
-&nbsp;                       "SKU": "WINNIEPOOH",
+                           "SKU": "WINNIEPOOH",
 
-&nbsp;                       "ProductName": "Winnie the Pooh",
+                           "ProductName": "Winnie the Pooh",
 
-&nbsp;                       "Quantity": 1,
+                           "Quantity": 1,
 
-&nbsp;                       "ItemPrice": 9.99,
+                           "ItemPrice": 9.99,
 
-&nbsp;                       "RowTotal": 9.99,
+                           "RowTotal": 9.99,
 
-&nbsp;                       "ProductURL": "http://www.example.com/path/to/product",
+                           "ProductURL": "http://www.example.com/path/to/product",
 
-&nbsp;                       "ImageURL": "http://www.example.com/path/to/product/image.png",
+                           "ImageURL": "http://www.example.com/path/to/product/image.png",
 
-&nbsp;                       "Categories": \[
+                           "Categories": \[
 
-&nbsp;                           "Fiction",
+                               "Fiction",
 
-&nbsp;                           "Children"
+                               "Children"
 
-&nbsp;                       ],
+                           ],
 
-&nbsp;                       "Brand": "Kids Books"
+                           "Brand": "Kids Books"
 
-&nbsp;                   },
+                       },
 
-&nbsp;                   {
+                       {
 
-&nbsp;                       "ProductID": "1112",
+                           "ProductID": "1112",
 
-&nbsp;                       "SKU": "TALEOFTWO",
+                           "SKU": "TALEOFTWO",
 
-&nbsp;                       "ProductName": "A Tale of Two Cities",
+                           "ProductName": "A Tale of Two Cities",
 
-&nbsp;                       "Quantity": 1,
+                           "Quantity": 1,
 
-&nbsp;                       "ItemPrice": 19.99,
+                           "ItemPrice": 19.99,
 
-&nbsp;                       "RowTotal": 19.99,
+                           "RowTotal": 19.99,
 
-&nbsp;                       "ProductURL": "http://www.example.com/path/to/product2",
+                           "ProductURL": "http://www.example.com/path/to/product2",
 
-&nbsp;                       "ImageURL": "http://www.example.com/path/to/product/image2.png",
+                           "ImageURL": "http://www.example.com/path/to/product/image2.png",
 
-&nbsp;                       "Categories": \[
+                           "Categories": \[
 
-&nbsp;                           "Fiction",
+                               "Fiction",
 
-&nbsp;                           "Classics"
+                               "Classics"
 
-&nbsp;                       ],
+                           ],
 
-&nbsp;                       "Brand": "Harcourt Classics"
+                           "Brand": "Harcourt Classics"
 
-&nbsp;                   }
+                       }
 
-&nbsp;               ],
+                   ],
 
-&nbsp;               "BillingAddress": {
+                   "BillingAddress": {
 
-&nbsp;                   "FirstName": "John",
+                       "FirstName": "John",
 
-&nbsp;                   "LastName": "Smith",
+                       "LastName": "Smith",
 
-&nbsp;                   "Address1": "123 Abc St",
+                       "Address1": "123 Abc St",
 
-&nbsp;                   "City": "Boston",
+                       "City": "Boston",
 
-&nbsp;                   "RegionCode": "MA",
+                       "RegionCode": "MA",
 
-&nbsp;                   "CountryCode": "US",
+                       "CountryCode": "US",
 
-&nbsp;                   "Zip": "02110",
+                       "Zip": "02110",
 
-&nbsp;                   "Phone": "+15551234567"
+                       "Phone": "+15551234567"
 
-&nbsp;               },
+                   },
 
-&nbsp;               "ShippingAddress": {
+                   "ShippingAddress": {
 
-&nbsp;                   "Address1": "123 Abc St"
+                       "Address1": "123 Abc St"
 
-&nbsp;               }
+                   }
 
-&nbsp;           },
+               },
 
-&nbsp;           "time": "2022-11-10T00:00:00",
+               "time": "2022-11-10T00:00:00",
 
-&nbsp;           "value": 29.98,
+               "value": 29.98,
 
-&nbsp;           "value_currency": "USD",
+               "value_currency": "USD",
 
-&nbsp;           "unique_id": "d47aeda5-1751-4483-a81e-6fcc8ad48711",
+               "unique_id": "d47aeda5-1751-4483-a81e-6fcc8ad48711",
 
-&nbsp;           "metric": {
+               "metric": {
 
-&nbsp;               "data": {
+                   "data": {
 
-&nbsp;                   "type": "metric",
+                       "type": "metric",
 
-&nbsp;                   "attributes": {
+                       "attributes": {
 
-&nbsp;                       "name": "Refunded Order"
+                           "name": "Refunded Order"
 
-&nbsp;                   }
+                       }
 
-&nbsp;               }
+                   }
 
-&nbsp;           },
+               },
 
-&nbsp;           "profile": {
+               "profile": {
 
-&nbsp;               "data": {
+                   "data": {
 
-&nbsp;                   "type": "profile",
+                       "type": "profile",
 
-&nbsp;                   "attributes": {
+                       "attributes": {
 
-&nbsp;                       "email": "sarah.mason@klaviyo-demo.com",
+                           "email": "sarah.mason@klaviyo-demo.com",
 
-&nbsp;                       "phone_number": "+15005550006"
+                           "phone_number": "+15005550006"
 
-&nbsp;                   }
+                       }
 
-&nbsp;               }
+                   }
 
-&nbsp;           }
+               }
 
-&nbsp;       }
+           }
 
-&nbsp;   }
+       }
 
 }`
 

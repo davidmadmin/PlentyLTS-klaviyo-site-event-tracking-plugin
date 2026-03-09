@@ -54,71 +54,71 @@ Example
 
 `{
 
-&nbsp;   "type": "profile",
+       "type": "profile",
 
-&nbsp;   "id": "01H5J755QGM2XPH7WW8K2EYZX3",
+       "id": "01H5J755QGM2XPH7WW8K2EYZX3",
 
-&nbsp;   "attributes": {
+       "attributes": {
 
-&nbsp;       "email": "jason.curtis_180@klaviyo-demo.com",
+           "email": "jason.curtis_180@klaviyo-demo.com",
 
-&nbsp;       "phone_number": "+19103913500",
+           "phone_number": "+19103913500",
 
-&nbsp;       "created": "2023-07-17T15:22:59+00:00",
+           "created": "2023-07-17T15:22:59+00:00",
 
-&nbsp;       "updated": "2023-07-17T15:23:14+00:00",
+           "updated": "2023-07-17T15:23:14+00:00",
 
-&nbsp;       "last_event_date": "2023-07-17T15:22:59+00:00",
+           "last_event_date": "2023-07-17T15:22:59+00:00",
 
-&nbsp;       ...
+           ...
 
-&nbsp;   },
+       },
 
-&nbsp;   "relationships": {
+       "relationships": {
 
-&nbsp;       "lists": {
+           "lists": {
 
-&nbsp;           "links": {
+               "links": {
 
-&nbsp;               "self": "https://a.klaviyo.com/api/profiles/01H5J755QGM2XPH7WW8K2EYZX3/relationships/lists/",
+                   "self": "https://a.klaviyo.com/api/profiles/01H5J755QGM2XPH7WW8K2EYZX3/relationships/lists/",
 
-&nbsp;               "related": "https://a.klaviyo.com/api/profiles/01H5J755QGM2XPH7WW8K2EYZX3/lists/"
+                   "related": "https://a.klaviyo.com/api/profiles/01H5J755QGM2XPH7WW8K2EYZX3/lists/"
 
-&nbsp;           }
+               }
 
-&nbsp;       },
+           },
 
-&nbsp;       "segments": {
+           "segments": {
 
-&nbsp;           "links": {
+               "links": {
 
-&nbsp;               "self": "https://a.klaviyo.com/api/profiles/01H5J755QGM2XPH7WW8K2EYZX3/relationships/segments/",
+                   "self": "https://a.klaviyo.com/api/profiles/01H5J755QGM2XPH7WW8K2EYZX3/relationships/segments/",
 
-&nbsp;               "related": "https://a.klaviyo.com/api/profiles/01H5J755QGM2XPH7WW8K2EYZX3/segments/"
+                   "related": "https://a.klaviyo.com/api/profiles/01H5J755QGM2XPH7WW8K2EYZX3/segments/"
 
-&nbsp;           }
+               }
 
-&nbsp;       },
+           },
 
-&nbsp;       "conversation": {
+           "conversation": {
 
-&nbsp;           "links": {
+               "links": {
 
-&nbsp;               "self": "https://a.klaviyo.com/api/profiles/01H5J755QGM2XPH7WW8K2EYZX3/relationships/conversation/",
+                   "self": "https://a.klaviyo.com/api/profiles/01H5J755QGM2XPH7WW8K2EYZX3/relationships/conversation/",
 
-&nbsp;               "related": "https://a.klaviyo.com/api/profiles/01H5J755QGM2XPH7WW8K2EYZX3/conversation/"
+                   "related": "https://a.klaviyo.com/api/profiles/01H5J755QGM2XPH7WW8K2EYZX3/conversation/"
 
-&nbsp;           }
+               }
 
-&nbsp;       }
+           }
 
-&nbsp;   },
+       },
 
-&nbsp;   "links": {
+       "links": {
 
-&nbsp;       "self": "https://a.klaviyo.com/api/profiles/01H5J755QGM2XPH7WW8K2EYZX3/"
+           "self": "https://a.klaviyo.com/api/profiles/01H5J755QGM2XPH7WW8K2EYZX3/"
 
-&nbsp;   }
+       }
 
 },`
 
@@ -132,39 +132,41 @@ RequestResponse
 
 
 
-`curl --request POST \\
+```bash
+curl --request POST \\
 
-&nbsp;    --url https://a.klaviyo.com/api/profile-import/ \\
+        --url https://a.klaviyo.com/api/profile-import/ \\
 
-&nbsp;    --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
+        --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
 
-&nbsp;    --header 'accept: application/json' \\
+        --header 'accept: application/json' \\
 
-&nbsp;    --header 'content-type: application/json' \\
+        --header 'content-type: application/json' \\
 
-&nbsp;    --header 'revision: 2024-02-15' \\
+        --header 'revision: 2024-02-15' \\
 
-&nbsp;    --data '
+        --data '
 
 {
 
-&nbsp;	"data": {
+    	"data": {
 
-&nbsp;		"type": "profile",
+    		"type": "profile",
 
-&nbsp;		"attributes": {
+    		"attributes": {
 
-&nbsp;			"email": "jason_curtis@klaviyo-demo.com",
+    			"email": "jason_curtis@klaviyo-demo.com",
 
-&nbsp;			"phone_number": "+19103913500"
+    			"phone_number": "+19103913500"
 
-&nbsp;		}
+    		}
 
-&nbsp;	}
+    	}
 
 }
 
-'`
+'
+```
 
 
 
@@ -184,41 +186,43 @@ RequestResponse
 
 
 
-`curl --request POST \\
+```bash
+curl --request POST \\
 
-&nbsp;    --url https://a.klaviyo.com/api/profile-import/ \\
+        --url https://a.klaviyo.com/api/profile-import/ \\
 
-&nbsp;    --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
+        --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
 
-&nbsp;    --header 'accept: application/json' \\
+        --header 'accept: application/json' \\
 
-&nbsp;    --header 'content-type: application/json' \\
+        --header 'content-type: application/json' \\
 
-&nbsp;    --header 'revision: 2024-02-15' \\
+        --header 'revision: 2024-02-15' \\
 
-&nbsp;    --data '
+        --data '
 
 {
 
-&nbsp;	"data": {
+    	"data": {
 
-&nbsp;		"type": "profile",
+    		"type": "profile",
 
-&nbsp;   "id": "01H5J755QGM2XPH7WW8K2EYZX3",
+       "id": "01H5J755QGM2XPH7WW8K2EYZX3",
 
-&nbsp;		"attributes": {
+    		"attributes": {
 
-&nbsp;			"email": "jill_curtis@klaviyo-demo.com",
+    			"email": "jill_curtis@klaviyo-demo.com",
 
-&nbsp;			"phone_number": "+15555555555"
+    			"phone_number": "+15555555555"
 
-&nbsp;		}
+    		}
 
-&nbsp;	}
+    	}
 
 }
 
-'`
+'
+```
 
 
 

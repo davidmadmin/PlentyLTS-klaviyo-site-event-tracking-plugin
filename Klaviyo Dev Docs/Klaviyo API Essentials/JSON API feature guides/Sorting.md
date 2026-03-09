@@ -22,15 +22,17 @@ RequestResponse
 
 
 
-`curl --request GET \\
+```bash
+curl --request GET \\
 
-&nbsp;    --url 'https://a.klaviyo.com/api/events/?sort=datetime' \\
+        --url 'https://a.klaviyo.com/api/events/?sort=datetime' \\
 
-&nbsp;    --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
+        --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
 
-&nbsp;    --header 'accept: application/json' \\
+        --header 'accept: application/json' \\
 
-&nbsp;    --header 'revision: 2023-07-15'`
+        --header 'revision: 2023-07-15'
+```
 
 
 
@@ -42,15 +44,17 @@ RequestResponse
 
 
 
-`curl --request GET \\
+```bash
+curl --request GET \\
 
-&nbsp;    --url 'https://a.klaviyo.com/api/events/?filter=profile\&sort=-datetime' \\
+        --url 'https://a.klaviyo.com/api/events/?filter=profile\&sort=-datetime' \\
 
-&nbsp;    --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
+        --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
 
-&nbsp;    --header 'accept: application/json' \\
+        --header 'accept: application/json' \\
 
-&nbsp;    --header 'revision: 2023-07-15'`
+        --header 'revision: 2023-07-15'
+```
 
 
 
@@ -66,15 +70,17 @@ RequestResponse
 
 
 
-`curl --request GET \\
+```bash
+curl --request GET \\
 
-&nbsp;    --url 'https://a.klaviyo.com/api/campaigns/?filter=equals(messages.channel,’email’)\&sort=created_at' \\
+        --url 'https://a.klaviyo.com/api/campaigns/?filter=equals(messages.channel,’email’)\&sort=created_at' \\
 
-&nbsp;    --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
+        --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
 
-&nbsp;    --header 'accept: application/json' \\
+        --header 'accept: application/json' \\
 
-&nbsp;    --header 'revision: 2023-07-15'`
+        --header 'revision: 2023-07-15'
+```
 
 
 

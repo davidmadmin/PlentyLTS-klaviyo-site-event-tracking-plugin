@@ -60,15 +60,17 @@ RequestResponse
 
 
 
-`curl --request GET \\
+```bash
+curl --request GET \\
 
-&nbsp;    --url 'https://a.klaviyo.com/api/profiles/01HD2CCW560NWG693CYF6KF28S/?include=lists,segments' \\
+        --url 'https://a.klaviyo.com/api/profiles/01HD2CCW560NWG693CYF6KF28S/?include=lists,segments' \\
 
-&nbsp;    --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
+        --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
 
-&nbsp;    --header 'accept: application/json' \\
+        --header 'accept: application/json' \\
 
-&nbsp;    --header 'revision: 2023-10-15'`
+        --header 'revision: 2023-10-15'
+```
 
 
 
@@ -124,15 +126,17 @@ RequestResponse
 
 
 
-`curl --request GET \\
+```bash
+curl --request GET \\
 
-&nbsp;    --url 'https://a.klaviyo.com/api/profiles/{profile_id}/lists' \\
+        --url 'https://a.klaviyo.com/api/profiles/{profile_id}/lists' \\
 
-&nbsp;    --header 'Accept: application/json'
+        --header 'Accept: application/json'
 
-&nbsp;    --header 'Authorization: Klaviyo-API-Key {your-private-api-key}'
+        --header 'Authorization: Klaviyo-API-Key {your-private-api-key}'
 
-&nbsp;    --header 'Revision: YYYY-MM-DD.pre'`
+        --header 'Revision: YYYY-MM-DD.pre'
+```
 
 
 
@@ -160,15 +164,17 @@ RequestResponse
 
 
 
-`curl --request GET \\
+```bash
+curl --request GET \\
 
-&nbsp;    --url 'https://a.klaviyo.com/api/events/{event-ID}/?include=profile' \\
+        --url 'https://a.klaviyo.com/api/events/{event-ID}/?include=profile' \\
 
-&nbsp;    --header 'Accept: application/json'
+        --header 'Accept: application/json'
 
-&nbsp;    --header 'Authorization: Klaviyo-API-Key {your-private-api-key}'
+        --header 'Authorization: Klaviyo-API-Key {your-private-api-key}'
 
-&nbsp;    --header 'Revision: YYYY-MM-DD.pre'`
+        --header 'Revision: YYYY-MM-DD.pre'
+```
 
 
 
@@ -192,27 +198,29 @@ cURL
 
 
 
-`curl --request POST \\
+```bash
+curl --request POST \\
 
-&nbsp;    --url 'https://a.klaviyo.com/api/profiles/{profile_id}/relationships/lists' \\
+        --url 'https://a.klaviyo.com/api/profiles/{profile_id}/relationships/lists' \\
 
-&nbsp;    --header 'Accept: application/json'
+        --header 'Accept: application/json'
 
-&nbsp;    --header 'Authorization: Klaviyo-API-Key {your-private-api-key}'
+        --header 'Authorization: Klaviyo-API-Key {your-private-api-key}'
 
-&nbsp;    --header 'Revision: YYYY-MM-DD.pre'
+        --header 'Revision: YYYY-MM-DD.pre'
 
-&nbsp;    --data '
+        --data '
 
 {
 
-&nbsp;     "type": "list",
+         "type": "list",
 
-&nbsp;     "id": "{list_id}"
+         "id": "{list_id}"
 
 }
 
-’`
+’
+```
 
 
 
@@ -228,25 +236,27 @@ cURL
 
 
 
-`curl --request DELETE \\
+```bash
+curl --request DELETE \\
 
-&nbsp;    --url 'https://a.klaviyo.com/api/profiles/{profile_id}/relationships/lists' \\
+        --url 'https://a.klaviyo.com/api/profiles/{profile_id}/relationships/lists' \\
 
-&nbsp;    --header 'Accept: application/json'
+        --header 'Accept: application/json'
 
-&nbsp;    --header 'Authorization: Klaviyo-API-Key {your-private-api-key}'
+        --header 'Authorization: Klaviyo-API-Key {your-private-api-key}'
 
-&nbsp;    --header 'Revision: YYYY-MM-DD.pre'
+        --header 'Revision: YYYY-MM-DD.pre'
 
-&nbsp;    --data '
+        --data '
 
 {
 
-&nbsp;     "type": "list",
+         "type": "list",
 
-&nbsp;     "id": "{list_id}"
+         "id": "{list_id}"
 
 }
 
-’`
+’
+```
 

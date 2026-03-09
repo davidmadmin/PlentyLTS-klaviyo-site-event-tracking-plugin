@@ -28,21 +28,21 @@ For your account's security, your private API keys should never be used with Cli
 
 To create a private key:
 
-1\. Navigate to your account’s \*Settings\* page and select \[**API keys**](https://www.klaviyo.com/settings/account/api-keys).
+1. Navigate to your account’s \*Settings\* page and select \[**API keys**](https://www.klaviyo.com/settings/account/api-keys).
 
-2\. Under the \*Private API Keys\* section, select **Create Private API Key**.
+2. Under the \*Private API Keys\* section, select **Create Private API Key**.
 
-1\. Provide a name for your private key and add any of the following scopes:
+1. Provide a name for your private key and add any of the following scopes:
 
-• Custom KeyAllows you to decide how much access to give the third party.
+- Custom KeyAllows you to decide how much access to give the third party.
 
-• Read-Only KeyOnly allows third parties to view all data associated with the endpoint.
+- Read-Only KeyOnly allows third parties to view all data associated with the endpoint.
 
-• Full Access KeyAllows third parties to create, delete, or make changes to anything associated with that endpoint.**🚧**
+- Full Access KeyAllows third parties to create, delete, or make changes to anything associated with that endpoint.**🚧**
 
 Note that you cannot add a scope to an existing private key. You also cannot edit a private API key after it’s been created. If you need to remove access to a key based on its current scope, delete it and then create a new key with the correct scope.
 
-1\. When you have finished setting your key’s scopes, select **Create**. To protect your account from unauthorized access, you cannot view your private API keys in Klaviyo. After you have created your private API key, copy it to a secure location.
+1. When you have finished setting your key’s scopes, select **Create**. To protect your account from unauthorized access, you cannot view your private API keys in Klaviyo. After you have created your private API key, copy it to a secure location.
 
 Private keys will have the prefix pk_ followed by a longer alphanumeric string.
 
@@ -58,15 +58,17 @@ cURL
 
 
 
-`curl --request GET \\
+```bash
+curl --request GET \\
 
-&nbsp;    --url https://a.klaviyo.com/api/{endpoint}/ \\
+        --url https://a.klaviyo.com/api/{endpoint}/ \\
 
-&nbsp;    --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
+        --header 'Authorization: Klaviyo-API-Key your-private-api-key' \\
 
-&nbsp;    --header 'accept: application/json' \\
+        --header 'accept: application/json' \\
 
-&nbsp;    --header 'revision: 2024-10-15'`
+        --header 'revision: 2024-10-15'
+```
 
 
 
@@ -80,17 +82,19 @@ Client-side API calls only require a public API key, also known as a `company_i
 
 
 
-`curl --request POST \\
+```bash
+curl --request POST \\
 
-&nbsp;    --url 'https://a.klaviyo.com/client/subscriptions/?company_id=PUBLIC_API_KEY' \\
+        --url 'https://a.klaviyo.com/client/subscriptions/?company_id=PUBLIC_API_KEY' \\
 
-&nbsp;    --header 'content-type: application/json' \\
+        --header 'content-type: application/json' \\
 
-&nbsp;    --header 'revision: 2023-12-15' \\
+        --header 'revision: 2023-12-15' \\
 
-&nbsp;    --data '
+        --data '
 
-&nbsp;    ...`
+        ...
+```
 
 
 
@@ -156,11 +160,11 @@ Segments`segments:read`
 
 **Additional resources**
 
-• \[Make API calls with OAuth](https://developers.klaviyo.com/en/docs/set_up_oauth)
+- \[Make API calls with OAuth](https://developers.klaviyo.com/en/docs/set_up_oauth)
 
-• \[Use Klaviyo's Postman collections](https://developers.klaviyo.com/en/docs/use_klaviyos_postman_collections)
+- \[Use Klaviyo's Postman collections](https://developers.klaviyo.com/en/docs/use_klaviyos_postman_collections)
 
-• \[Introduction to the Klaviyo object](https://developers.klaviyo.com/en/docs/introduction_to_the_klaviyo_object)
+- \[Introduction to the Klaviyo object](https://developers.klaviyo.com/en/docs/introduction_to_the_klaviyo_object)
 
 ## Source
 

@@ -64,13 +64,13 @@ The typical setup for API-based transactional messaging looks like this:
 
 
 
-1\. Define the transactional event in your application
+1. Define the transactional event in your application
 
-2\. Send the event to Klaviyo via the Events API
+2. Send the event to Klaviyo via the Events API
 
-3\. Create a flow in Klaviyo triggered by that event
+3. Create a flow in Klaviyo triggered by that event
 
-4\. Send the transactional email through the flow
+4. Send the transactional email through the flow
 
 
 
@@ -184,53 +184,53 @@ Example payload:
 
 {
 
-&nbsp; "data": {
+     "data": {
 
-&nbsp;   "type": "event",
+       "type": "event",
 
-&nbsp;   "attributes": {
+       "attributes": {
 
-&nbsp;     "metric": {
+         "metric": {
 
-&nbsp;       "data": {
+           "data": {
 
-&nbsp;         "type": "metric",
+             "type": "metric",
 
-&nbsp;         "attributes": {
+             "attributes": {
 
-&nbsp;           "name": "Reset Password Requested"
+               "name": "Reset Password Requested"
 
-&nbsp;         }
+             }
 
-&nbsp;       }
+           }
 
-&nbsp;     },
+         },
 
-&nbsp;     "profile": {
+         "profile": {
 
-&nbsp;       "data": {
+           "data": {
 
-&nbsp;         "type": "profile",
+             "type": "profile",
 
-&nbsp;         "attributes": {
+             "attributes": {
 
-&nbsp;           "email": "\[email protected]"
+               "email": "\[email protected]"
 
-&nbsp;         }
+             }
 
-&nbsp;       }
+           }
 
-&nbsp;     },
+         },
 
-&nbsp;     "properties": {
+         "properties": {
 
-&nbsp;       "reset\_url": "https://example.com/reset-password?token=12345"
+           "reset\_url": "https://example.com/reset-password?token=12345"
 
-&nbsp;     }
+         }
 
-&nbsp;   }
+       }
 
-&nbsp; }
+     }
 
 }
 
@@ -254,13 +254,13 @@ Inside Klaviyo:
 
 
 
-1\. Go to **Flows**
+1. Go to **Flows**
 
-2\. Create a new flow
+2. Create a new flow
 
-3\. Select **Metric Trigger**
+3. Select **Metric Trigger**
 
-4\. Choose the event you created
+4. Choose the event you created
 
 
 
@@ -502,11 +502,11 @@ The process:
 
 
 
-1\. Trigger an event in your application
+1. Trigger an event in your application
 
-2\. Send it to Klaviyo via the Events API
+2. Send it to Klaviyo via the Events API
 
-3\. Create a flow triggered by that event
+3. Create a flow triggered by that event
 
-4\. Send the transactional email
+4. Send the transactional email
 
