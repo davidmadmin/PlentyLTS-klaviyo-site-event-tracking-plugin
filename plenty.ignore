@@ -1,0 +1,45 @@
+# Exclude VCS and local metadata
+.git/
+.gitignore
+.DS_Store
+Thumbs.db
+
+# Exclude repository/process documentation
+AGENTS.md
+README.md
+Klaviyo Dev Docs/
+Plenty-native Plugins Docs in Markdown/
+Documentation/
+docs/
+doc/
+research/
+notes/
+
+# Exclude local temporary and development artifacts
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.orig
+*~
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Exclude local environment/editor files
+.env
+.env.*
+.vscode/
+.idea/
+
+# Exclude non-runtime dependencies and development-only directories
+node_modules/
+tests/
+vendor/
+composer.lock
+
+# Exclude generated source artifacts not required in runtime package
+**/resources/css/*.css
+**/resources/css/*.css.map
