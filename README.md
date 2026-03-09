@@ -1,18 +1,15 @@
+🟢 Implemented · 🟡 In progress/scaffolded · 🔴 Not implemented
+
 # ![Klaviyo On-site Event Tracking plugin logo](meta/images/Klaviyo-On-site-Event-Tracking-plugin-logo.png)
 
 # Klaviyo Site Event Tracking Plugin (PlentyLTS)
+
 
 > Enable Klaviyo on-site tracking in plentyShop LTS with a configurable, privacy-aware, and production-ready plugin integration.
 
 ## Quick overview
 
 This plugin is intended to implement **all commonly suggested Klaviyo on-site events** so storefront behavior can be tied to customer profiles and used for segmentation, flows, and analytics.
-
-### Status legend
-
-- 🟢 **Implemented**: Event is fully tracked and sent to Klaviyo.
-- 🟡 **In progress / scaffolded**: Technical hook/config exists, but event logic is not production-complete.
-- 🔴 **Not implemented**: Planned, but no functional tracking yet.
 
 ## Scope: Klaviyo on-site metrics/events
 
