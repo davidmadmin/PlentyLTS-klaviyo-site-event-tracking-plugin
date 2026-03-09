@@ -8,8 +8,8 @@
   "author": "Project Contributors",
   "email": "dev@example.com",
   "serviceProvider": "KlaviyoSiteEventTracking\\Providers\\KlaviyoSiteEventTrackingServiceProvider",
-  "authorIcon": "icon_author_xs.png",
-  "pluginIcon": "icon_plugin_xs.png",
+  "authorIcon": "David_Abdin_author_icon.jpg",
+  "pluginIcon": "Klaviyo-On-site-Event-Tracking-plugin-logo.png",
   "dataProviders": [
     {
       "key": "KlaviyoSiteEventTracking\\Containers\\KlaviyoTrackingContainer",
