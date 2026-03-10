@@ -20,13 +20,13 @@ The table below is optimized for a quick implementation and product-status scan.
 | 🟢 | **Logged In** | Lifecycle stage and re-engagement qualifier | Successful account login |
 | 🟢 | **Created Account** | New-customer lifecycle start | Successful account registration |
 | 🟢 | **Signed Up for Newsletter** | Lead acquisition and welcome-flow trigger | Newsletter subscription success (with checkout email-capture fallback) |
+| 🟢 | **Viewed Product** | Product interest and browse intent | PDP view with product identifiers and metadata |
+| 🟢 | **Added to Cart** | Purchase intent signal for abandoned-cart journeys | Add-to-cart action from PDP/listing/quick-buy |
+| 🟢 | **Started Checkout** | Funnel entry and checkout abandonment flows | First transition from cart to checkout |
+| 🟢 | **Placed Order** | Conversion tracking and post-purchase automation | Successful order placement confirmation |
 | 🔴 | **Active on Site** | Baseline site engagement and profile activity | Any meaningful page interaction/session heartbeat |
-| 🔴 | **Viewed Product** | Product interest and browse intent | PDP view with product identifiers and metadata |
-| 🔴 | **Added to Cart** | Purchase intent signal for abandoned-cart journeys | Add-to-cart action from PDP/listing/quick-buy |
 | 🔴 | **Removed from Cart** | Cart friction insight and drop-off analysis | Remove-line-item action in cart/minicart |
-| 🔴 | **Started Checkout** | Funnel entry and checkout abandonment flows | First transition from cart to checkout |
 | 🔴 | **Checkout Step Progression** | Diagnose checkout friction points | Movement between checkout steps (address, shipping, payment, review) |
-| 🔴 | **Placed Order** | Conversion tracking and post-purchase automation | Successful order placement confirmation |
 | 🔴 | **Refunded Order** | Revenue quality and customer lifecycle signals | Order status/payment reversal recognized by storefront/account event feed |
 | 🔴 | **Viewed Category / Listing** | Discovery behavior and merchandising effectiveness | Category/listing page view with category context |
 | 🔴 | **Submitted Search** | Demand and intent intelligence | On-site search submit with query + result count |
@@ -47,7 +47,7 @@ At this time, the repository provides a **foundation scaffold**, not a finished 
 - 🟡 Container/template/script entrypoint with Klaviyo bootstrap wiring
 - 🟡 Production Klaviyo JavaScript bootstrap and reusable identify/track API wrappers implemented
 - 🟢 Frontend identity hooks implemented for login, registration, and newsletter/checkout email-capture flows (with source context + API namespace guards)
-- 🟡 Broader storefront event mapping/business logic remains pending
+- 🟡 Broader storefront event mapping/business logic remains partially pending (non-core events still open)
 
 ## Planned rollout approach
 
