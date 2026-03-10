@@ -19,6 +19,7 @@
   or (logErrorsOnlyConfig|string|lower in truthyValues) %}
 
 <script>
+  window.__KlaviyoSettingsInjected = true;
   window.KlaviyoSiteEventTracking = window.KlaviyoSiteEventTracking || {};
   window.KlaviyoSiteEventTracking.integrationMode = "{{ integrationMode|e('js') }}";
   window.KlaviyoSiteEventTracking.publicApiKey = "{{ publicApiKey|e('js') }}";
@@ -27,4 +28,6 @@
   window.KlaviyoSiteEventTracking.logTrackCalls = {{ logTrackCalls ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.logErrorsOnly = {{ logErrorsOnly ? 'true' : 'false' }};
 </script>
-<script src="{{ plugin_path('KlaviyoSiteEventTracking') }}/js/klaviyo-tracking-placeholder.js"></script>
+<script
+  src="{{ plugin_path('KlaviyoSiteEventTracking') }}/js/klaviyo-tracking-placeholder.js"
+  data-klaviyo-site-event-tracking="placeholder"></script>

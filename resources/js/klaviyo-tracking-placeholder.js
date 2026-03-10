@@ -2,6 +2,17 @@
   const settings = window.KlaviyoSiteEventTracking || {};
   const integrationMode = settings.integrationMode || "plugin";
   const publicApiKey = (settings.publicApiKey || "").trim();
+  const startupHealthMarker = {
+    loadedAt: new Date().toISOString(),
+    version: "0.1.1",
+    integrationMode: integrationMode,
+    hasSettingsObject: !!window.KlaviyoSiteEventTracking,
+    hasPublicApiKey: !!publicApiKey,
+    scriptTagPresent: !!document.querySelector('script[data-klaviyo-site-event-tracking="placeholder"]'),
+  };
+
+  window.__KlaviyoSiteEventTrackingHealth = startupHealthMarker;
+  console.info("[KlaviyoSiteEventTracking] bootstrap loaded", startupHealthMarker);
 
   const debugEnabled = settings.enableDebugLogging === true;
   const logErrorsOnly = settings.logErrorsOnly === true;
