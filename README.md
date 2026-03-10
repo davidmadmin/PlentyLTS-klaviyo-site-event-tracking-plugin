@@ -16,6 +16,10 @@ The table below is optimized for a quick implementation and product-status scan.
 
 | Status | Event / Metric | Why it matters | Trigger (Plenty storefront) |
 |---|---|---|---|
+| 🟢 | **Identified Profile (Identify)** | Connect anonymous behavior to a known person | Login/registration/newsletter-or-checkout email capture updates profile identifiers |
+| 🟢 | **Logged In** | Lifecycle stage and re-engagement qualifier | Successful account login |
+| 🟢 | **Created Account** | New-customer lifecycle start | Successful account registration |
+| 🟢 | **Signed Up for Newsletter** | Lead acquisition and welcome-flow trigger | Newsletter subscription success (with checkout email-capture fallback) |
 | 🔴 | **Active on Site** | Baseline site engagement and profile activity | Any meaningful page interaction/session heartbeat |
 | 🔴 | **Viewed Product** | Product interest and browse intent | PDP view with product identifiers and metadata |
 | 🔴 | **Added to Cart** | Purchase intent signal for abandoned-cart journeys | Add-to-cart action from PDP/listing/quick-buy |
@@ -28,10 +32,6 @@ The table below is optimized for a quick implementation and product-status scan.
 | 🔴 | **Submitted Search** | Demand and intent intelligence | On-site search submit with query + result count |
 | 🔴 | **Viewed Content Page** | Non-product engagement context | CMS/content page view (guides, service pages, etc.) |
 | 🔴 | **Clicked Promotion / Banner** | Campaign and merchandising interaction | Click on promo blocks, hero banners, teaser components |
-| 🔴 | **Signed Up for Newsletter** | Lead acquisition and welcome-flow trigger | Newsletter subscription success event |
-| 🔴 | **Identified Profile (Identify)** | Connect anonymous behavior to a known person | Login/registration/email capture updates profile identifiers |
-| 🔴 | **Logged In** | Lifecycle stage and re-engagement qualifier | Successful account login |
-| 🔴 | **Created Account** | New-customer lifecycle start | Successful account registration |
 | 🔴 | **Added to Wishlist** | High-intent product affinity signal | Wishlist add action |
 | 🔴 | **Removed from Wishlist** | Intent change / product preference shifts | Wishlist remove action |
 | 🔴 | **Viewed Cart** | Mid-funnel behavior context | Cart page or minicart expanded with line items present |
@@ -45,8 +45,9 @@ At this time, the repository provides a **foundation scaffold**, not a finished 
 - 🟡 Plugin skeleton and metadata (`plugin.json`)
 - 🟡 Configuration for integration mode (`config.json`)
 - 🟡 Container/template/script entrypoint with Klaviyo bootstrap wiring
-- 🟡 Production Klaviyo JavaScript bootstrap and reusable identify/track API wrappers implemented (storefront event dispatching still pending)
-- 🔴 No event mapping/business logic for storefront actions yet
+- 🟡 Production Klaviyo JavaScript bootstrap and reusable identify/track API wrappers implemented
+- 🟢 Frontend identity hooks implemented for login, registration, and newsletter/checkout email-capture flows (with source context + API namespace guards)
+- 🟡 Broader storefront event mapping/business logic remains pending
 
 ## Planned rollout approach
 

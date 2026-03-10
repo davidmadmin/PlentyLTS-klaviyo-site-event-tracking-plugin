@@ -12,6 +12,11 @@
   const maxRetryAttempts = 8;
 
   const pendingCalls = [];
+  const knownSubmissionProfiles = {
+    login: null,
+    registration: null,
+    newsletter: null,
+  };
 
   const warn = function (message) {
     console.warn("[KlaviyoSiteEventTracking] " + message);
@@ -202,6 +207,303 @@
   window[apiNamespaceName] = window[apiNamespaceName] || {};
   window[apiNamespaceName].identifyUser = identifyUser;
   window[apiNamespaceName].trackEvent = trackEvent;
+
+  const normalizeText = function (value) {
+    if (typeof value !== "string") {
+      return "";
+    }
+
+    return value.trim();
+  };
+
+  const pickFirstValue = function (obj, keys) {
+    if (!obj || typeof obj !== "object") {
+      return "";
+    }
+
+    for (let index = 0; index < keys.length; index += 1) {
+      const key = keys[index];
+      const value = obj[key];
+      if (typeof value === "string" && value.trim()) {
+        return value.trim();
+      }
+      if (typeof value === "number" && Number.isFinite(value)) {
+        return String(value);
+      }
+    }
+
+    return "";
+  };
+
+  const extractProfile = function (rawValue) {
+    if (!rawValue || typeof rawValue !== "object") {
+      return {};
+    }
+
+    const nestedCustomer =
+      rawValue.customer || rawValue.user || rawValue.contact || rawValue.data || rawValue.profile || null;
+
+    const email = normalizeText(
+      pickFirstValue(rawValue, ["email", "emailAddress", "mail"]) ||
+        pickFirstValue(nestedCustomer, ["email", "emailAddress", "mail"])
+    );
+
+    const externalId = normalizeText(
+      pickFirstValue(rawValue, ["external_id", "externalId", "customerId", "contactId", "id"]) ||
+        pickFirstValue(nestedCustomer, ["external_id", "externalId", "customerId", "contactId", "id"])
+    );
+
+    const firstName = normalizeText(
+      pickFirstValue(rawValue, ["first_name", "firstName", "name1"]) ||
+        pickFirstValue(nestedCustomer, ["first_name", "firstName", "name1"])
+    );
+
+    const lastName = normalizeText(
+      pickFirstValue(rawValue, ["last_name", "lastName", "name2"]) ||
+        pickFirstValue(nestedCustomer, ["last_name", "lastName", "name2"])
+    );
+
+    const profile = {};
+
+    if (email) {
+      profile.email = email;
+    }
+
+    if (externalId) {
+      profile.external_id = externalId;
+    }
+
+    if (firstName) {
+      profile.first_name = firstName;
+    }
+
+    if (lastName) {
+      profile.last_name = lastName;
+    }
+
+    return profile;
+  };
+
+  const mergeProfiles = function (baseProfile, fallbackProfile) {
+    return Object.assign({}, fallbackProfile || {}, baseProfile || {});
+  };
+
+  const identifyFromSource = function (source, profileData, fallbackProfile) {
+    const api =
+      window[apiNamespaceName] &&
+      typeof window[apiNamespaceName].identifyUser === "function"
+        ? window[apiNamespaceName]
+        : null;
+
+    if (!api) {
+      return false;
+    }
+
+    const profile = mergeProfiles(extractProfile(profileData), extractProfile(fallbackProfile));
+
+    if (!profile.email && !profile.external_id) {
+      return false;
+    }
+
+    api.identifyUser(profile, {
+      source: source,
+    });
+
+    return true;
+  };
+
+  const stashSubmissionProfile = function (source, formElement) {
+    if (!formElement || typeof formElement.querySelector !== "function") {
+      return;
+    }
+
+    const getInputValue = function (selectors) {
+      for (let index = 0; index < selectors.length; index += 1) {
+        const input = formElement.querySelector(selectors[index]);
+        if (input && typeof input.value === "string" && input.value.trim()) {
+          return input.value.trim();
+        }
+      }
+
+      return "";
+    };
+
+    const payload = {
+      email: getInputValue([
+        "input[type='email']",
+        "input[name='email']",
+        "input[name='username']",
+        "input[name='login']",
+      ]),
+      first_name: getInputValue(["input[name='firstName']", "input[name='first_name']"]),
+      last_name: getInputValue(["input[name='lastName']", "input[name='last_name']"]),
+    };
+
+    knownSubmissionProfiles[source] = payload;
+  };
+
+  const detectSourceFromUrl = function (url) {
+    const normalizedUrl = (url || "").toLowerCase();
+
+    if (normalizedUrl.indexOf("newsletter") >= 0 || normalizedUrl.indexOf("subscribe") >= 0) {
+      return "newsletter";
+    }
+
+    if (normalizedUrl.indexOf("register") >= 0 || normalizedUrl.indexOf("registration") >= 0) {
+      return "registration";
+    }
+
+    if (normalizedUrl.indexOf("login") >= 0 || normalizedUrl.indexOf("authenticate") >= 0) {
+      return "login";
+    }
+
+    if (normalizedUrl.indexOf("checkout") >= 0 && normalizedUrl.indexOf("contact") >= 0) {
+      return "newsletter";
+    }
+
+    return "";
+  };
+
+  const detectSourceFromForm = function (formElement) {
+    if (!formElement) {
+      return "";
+    }
+
+    const action = (formElement.getAttribute("action") || "").toLowerCase();
+    const className = (formElement.className || "").toLowerCase();
+    const combined = action + " " + className;
+
+    if (combined.indexOf("newsletter") >= 0 || combined.indexOf("subscribe") >= 0) {
+      return "newsletter";
+    }
+
+    if (combined.indexOf("register") >= 0 || combined.indexOf("registration") >= 0) {
+      return "registration";
+    }
+
+    if (combined.indexOf("login") >= 0 || combined.indexOf("signin") >= 0) {
+      return "login";
+    }
+
+    return "";
+  };
+
+  const registerDomSubmissionHooks = function () {
+    document.addEventListener(
+      "submit",
+      function (event) {
+        const source = detectSourceFromForm(event.target);
+        if (!source) {
+          return;
+        }
+
+        stashSubmissionProfile(source, event.target);
+      },
+      true
+    );
+  };
+
+  const registerCustomEventHooks = function () {
+    const customEventToSourceMap = {
+      "ceres:login:success": "login",
+      "ceres:registration:success": "registration",
+      "ceres:newsletter:success": "newsletter",
+    };
+
+    Object.keys(customEventToSourceMap).forEach(function (eventName) {
+      window.addEventListener(eventName, function (event) {
+        const source = customEventToSourceMap[eventName];
+        identifyFromSource(source, event.detail || {}, knownSubmissionProfiles[source]);
+      });
+    });
+  };
+
+  const registerNetworkHooks = function () {
+    if (typeof window.fetch === "function") {
+      const originalFetch = window.fetch;
+
+      window.fetch = function () {
+        const requestUrl =
+          typeof arguments[0] === "string"
+            ? arguments[0]
+            : arguments[0] && arguments[0].url
+            ? arguments[0].url
+            : "";
+
+        return originalFetch
+          .apply(this, arguments)
+          .then(function (response) {
+            const source = detectSourceFromUrl(requestUrl);
+
+            if (!source || !response || response.ok !== true) {
+              return response;
+            }
+
+            const contentType = response.headers ? response.headers.get("content-type") || "" : "";
+            if (contentType.indexOf("application/json") < 0) {
+              identifyFromSource(source, {}, knownSubmissionProfiles[source]);
+              return response;
+            }
+
+            response
+              .clone()
+              .json()
+              .then(function (payload) {
+                identifyFromSource(source, payload, knownSubmissionProfiles[source]);
+              })
+              .catch(function () {
+                identifyFromSource(source, {}, knownSubmissionProfiles[source]);
+              });
+
+            return response;
+          })
+          .catch(function (error) {
+            throw error;
+          });
+      };
+    }
+
+    if (typeof window.XMLHttpRequest === "function") {
+      const originalOpen = window.XMLHttpRequest.prototype.open;
+      const originalSend = window.XMLHttpRequest.prototype.send;
+
+      window.XMLHttpRequest.prototype.open = function (method, url) {
+        this.__klaviyoTrackingUrl = url;
+        return originalOpen.apply(this, arguments);
+      };
+
+      window.XMLHttpRequest.prototype.send = function () {
+        this.addEventListener("load", function () {
+          const source = detectSourceFromUrl(this.__klaviyoTrackingUrl || "");
+
+          if (!source || this.status < 200 || this.status >= 300) {
+            return;
+          }
+
+          let payload = {};
+
+          if (typeof this.responseText === "string" && this.responseText) {
+            try {
+              payload = JSON.parse(this.responseText);
+            } catch (error) {
+              payload = {};
+            }
+          }
+
+          identifyFromSource(source, payload, knownSubmissionProfiles[source]);
+        });
+
+        return originalSend.apply(this, arguments);
+      };
+    }
+  };
+
+  if (window.__KlaviyoSiteEventTrackingIdentityHooksInitialized !== true) {
+    window.__KlaviyoSiteEventTrackingIdentityHooksInitialized = true;
+    registerDomSubmissionHooks();
+    registerCustomEventHooks();
+    registerNetworkHooks();
+  }
 
   if (window.__KlaviyoSiteEventTrackingInitialized === true) {
     debugLog("Bootstrap already initialized. Skipping duplicate initialization.");
