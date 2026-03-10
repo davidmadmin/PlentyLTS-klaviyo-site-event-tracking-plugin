@@ -1,9 +1,22 @@
 {% set integrationMode = config("KlaviyoSiteEventTracking.tracking.integrationMode")|default("plugin") %}
 {% set publicApiKey = config("KlaviyoSiteEventTracking.tracking.publicApiKey")|default("") %}
-{% set enableDebugLogging = config("KlaviyoSiteEventTracking.tracking.enableDebugLogging") == "1" %}
-{% set logIdentifyCalls = config("KlaviyoSiteEventTracking.tracking.logIdentifyCalls") == "1" %}
-{% set logTrackCalls = config("KlaviyoSiteEventTracking.tracking.logTrackCalls") == "1" %}
-{% set logErrorsOnly = config("KlaviyoSiteEventTracking.tracking.logErrorsOnly") == "1" %}
+{% set truthyValues = ["1", "true", "on", "yes"] %}
+
+{% set enableDebugLoggingConfig = config("KlaviyoSiteEventTracking.tracking.enableDebugLogging") %}
+{% set enableDebugLogging = enableDebugLoggingConfig is same as(true)
+  or (enableDebugLoggingConfig|string|lower in truthyValues) %}
+
+{% set logIdentifyCallsConfig = config("KlaviyoSiteEventTracking.tracking.logIdentifyCalls") %}
+{% set logIdentifyCalls = logIdentifyCallsConfig is same as(true)
+  or (logIdentifyCallsConfig|string|lower in truthyValues) %}
+
+{% set logTrackCallsConfig = config("KlaviyoSiteEventTracking.tracking.logTrackCalls") %}
+{% set logTrackCalls = logTrackCallsConfig is same as(true)
+  or (logTrackCallsConfig|string|lower in truthyValues) %}
+
+{% set logErrorsOnlyConfig = config("KlaviyoSiteEventTracking.tracking.logErrorsOnly") %}
+{% set logErrorsOnly = logErrorsOnlyConfig is same as(true)
+  or (logErrorsOnlyConfig|string|lower in truthyValues) %}
 
 <script>
   window.KlaviyoSiteEventTracking = window.KlaviyoSiteEventTracking || {};
