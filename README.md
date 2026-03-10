@@ -45,7 +45,7 @@ At this time, the repository provides a **foundation scaffold**, not a finished 
 - 🟡 Plugin skeleton and metadata (`plugin.json`)
 - 🟡 Configuration for integration mode (`config.json`)
 - 🟡 Container/template/script entrypoint with Klaviyo bootstrap wiring
-- 🟡 Production Klaviyo JavaScript bootstrap implemented (event dispatching still pending)
+- 🟡 Production Klaviyo JavaScript bootstrap and reusable identify/track API wrappers implemented (storefront event dispatching still pending)
 - 🔴 No event mapping/business logic for storefront actions yet
 
 ## Planned rollout approach
