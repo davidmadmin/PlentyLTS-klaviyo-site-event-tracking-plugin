@@ -521,15 +521,53 @@
   const detectSourceFromUrl = function (url) {
     const normalizedUrl = (url || "").toLowerCase();
 
-    if (normalizedUrl.indexOf("newsletter") >= 0 || normalizedUrl.indexOf("subscribe") >= 0) {
+    const newsletterKeywords = [
+      "newsletter",
+      "subscribe",
+      "subscription",
+      "abonnieren",
+      "anmeldung-newsletter",
+      "boletin",
+      "suscribir",
+    ];
+    const registrationKeywords = [
+      "register",
+      "registration",
+      "signup",
+      "sign-up",
+      "create-account",
+      "konto-erstellen",
+      "registrieren",
+      "anmeldung",
+      "inscription",
+    ];
+    const loginKeywords = [
+      "login",
+      "authenticate",
+      "auth",
+      "signin",
+      "sign-in",
+      "account/login",
+      "anmelden",
+      "connexion",
+      "iniciar-sesion",
+    ];
+
+    const containsAnyKeyword = function (keywords) {
+      return keywords.some(function (keyword) {
+        return normalizedUrl.indexOf(keyword) >= 0;
+      });
+    };
+
+    if (containsAnyKeyword(newsletterKeywords)) {
       return "newsletter";
     }
 
-    if (normalizedUrl.indexOf("register") >= 0 || normalizedUrl.indexOf("registration") >= 0) {
+    if (containsAnyKeyword(registrationKeywords)) {
       return "registration";
     }
 
-    if (normalizedUrl.indexOf("login") >= 0 || normalizedUrl.indexOf("authenticate") >= 0) {
+    if (containsAnyKeyword(loginKeywords)) {
       return "login";
     }
 
@@ -547,17 +585,46 @@
 
     const action = (formElement.getAttribute("action") || "").toLowerCase();
     const className = (formElement.className || "").toLowerCase();
-    const combined = action + " " + className;
+    const dataRoute = (formElement.getAttribute("data-route") || "").toLowerCase();
+    const formId = (formElement.getAttribute("id") || "").toLowerCase();
+    const combined = action + " " + className + " " + dataRoute + " " + formId;
 
-    if (combined.indexOf("newsletter") >= 0 || combined.indexOf("subscribe") >= 0) {
+    const containsAnyKeyword = function (keywords) {
+      return keywords.some(function (keyword) {
+        return combined.indexOf(keyword) >= 0;
+      });
+    };
+
+    const newsletterKeywords = ["newsletter", "subscribe", "abonnieren", "suscribir", "boletin"];
+    const registrationKeywords = [
+      "register",
+      "registration",
+      "signup",
+      "create-account",
+      "registrieren",
+      "konto-erstellen",
+      "inscription",
+    ];
+    const loginKeywords = [
+      "login",
+      "signin",
+      "sign-in",
+      "authenticate",
+      "auth",
+      "anmelden",
+      "connexion",
+      "iniciar-sesion",
+    ];
+
+    if (containsAnyKeyword(newsletterKeywords)) {
       return "newsletter";
     }
 
-    if (combined.indexOf("register") >= 0 || combined.indexOf("registration") >= 0) {
+    if (containsAnyKeyword(registrationKeywords)) {
       return "registration";
     }
 
-    if (combined.indexOf("login") >= 0 || combined.indexOf("signin") >= 0) {
+    if (containsAnyKeyword(loginKeywords)) {
       return "login";
     }
 
@@ -582,14 +649,41 @@
   const registerCustomEventHooks = function () {
     const customEventToSourceMap = {
       "ceres:login:success": "login",
+      "ceres:auth:login:success": "login",
+      "ceres:auth:signin:success": "login",
+      "ceres:user:login:success": "login",
+      "vue:auth:login:success": "login",
+      "vue:user:login:success": "login",
       "ceres:registration:success": "registration",
+      "ceres:register:success": "registration",
+      "ceres:auth:register:success": "registration",
+      "ceres:user:register:success": "registration",
+      "vue:registration:success": "registration",
       "ceres:newsletter:success": "newsletter",
+      "ceres:newsletter:subscribe:success": "newsletter",
+      "ceres:newsletter:registration:success": "newsletter",
+      "vue:newsletter:success": "newsletter",
+      "newsletter:success": "newsletter",
     };
 
     Object.keys(customEventToSourceMap).forEach(function (eventName) {
       window.addEventListener(eventName, function (event) {
         const source = customEventToSourceMap[eventName];
-        identifyFromSource(source, event.detail || {}, knownSubmissionProfiles[source]);
+        const eventPayload = event && event.detail ? event.detail : {};
+        const extractedProfile = mergeProfiles(
+          extractProfile(eventPayload),
+          extractProfile(knownSubmissionProfiles[source])
+        );
+
+        identifyStatusLog("Observed candidate auth/newsletter lifecycle event.", {
+          eventName: eventName,
+          source: source,
+          profileExtracted: !!(extractedProfile.email || extractedProfile.external_id),
+          payload: sanitizeForLog(eventPayload, 0),
+          fallbackProfile: sanitizeForLog(knownSubmissionProfiles[source], 0),
+        });
+
+        identifyFromSource(source, eventPayload, knownSubmissionProfiles[source]);
       });
     });
   };
