@@ -74,6 +74,23 @@ Current config key:
   - `gtm`: Klaviyo JS handled externally (Google Tag Manager)
   - `plugin`: Klaviyo JS handled by this plugin
 
+## 403 troubleshooting
+
+If profile identify calls appear to work but event tracking fails (for example `403` responses on Klaviyo `/client/events`), use the plugin debug diagnostics:
+
+1. Enable `tracking.enableDebugLogging`.
+2. Optionally keep `tracking.logErrorsOnly` enabled to focus only on failures.
+3. Reproduce one identify flow and one event flow in the storefront.
+4. Inspect browser console output for structured diagnostics from `KlaviyoSiteEventTracking` that include:
+   - HTTP status
+   - endpoint path (`/client/events` or `/client/profiles`)
+   - response payload excerpt (when readable)
+   - request `company_id`
+5. If you see profiles succeeding but events failing, follow the targeted hint:
+   - **"Check public key permissions for event tracking in Klaviyo key settings."**
+
+This usually indicates that the public key can resolve profiles but does not have the required permission scope for event ingestion.
+
 ## Notes
 
 - Event names and payload contracts should align with the latest Klaviyo JavaScript API guidance.

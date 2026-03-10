@@ -26,6 +26,12 @@
 
   window.__KlaviyoSiteEventTrackingCommerceState = commerceState;
 
+  const klaviyoClientDiagnosticsState = window.__KlaviyoSiteEventTrackingDiagnosticsState || {
+    profilesSucceeded: false,
+  };
+
+  window.__KlaviyoSiteEventTrackingDiagnosticsState = klaviyoClientDiagnosticsState;
+
   const warn = function (message) {
     console.warn("[KlaviyoSiteEventTracking] " + message);
   };
@@ -85,6 +91,76 @@
     });
 
     return sanitized;
+  };
+
+  const detectKlaviyoClientEndpoint = function (url) {
+    const normalizedUrl = String(url || "").toLowerCase();
+
+    if (normalizedUrl.indexOf("/client/events") >= 0) {
+      return "/client/events";
+    }
+
+    if (normalizedUrl.indexOf("/client/profiles") >= 0) {
+      return "/client/profiles";
+    }
+
+    return "";
+  };
+
+  const extractCompanyIdFromUrl = function (url) {
+    try {
+      const parsed = new URL(String(url || ""), window.location.origin);
+      return (parsed.searchParams.get("company_id") || "").trim();
+    } catch (error) {
+      const match = String(url || "").match(/[?&]company_id=([^&]+)/i);
+      return match && match[1] ? decodeURIComponent(match[1]) : "";
+    }
+  };
+
+  const extractResponseExcerpt = function (bodyText) {
+    if (typeof bodyText !== "string") {
+      return "";
+    }
+
+    const compact = bodyText.trim();
+    if (!compact) {
+      return "";
+    }
+
+    return compact.length > 280 ? compact.slice(0, 280) + "…" : compact;
+  };
+
+  const observeKlaviyoClientResponse = function (requestUrl, status, responseBodyText) {
+    if (!debugEnabled) {
+      return;
+    }
+
+    const endpointPath = detectKlaviyoClientEndpoint(requestUrl);
+    if (!endpointPath || typeof status !== "number") {
+      return;
+    }
+
+    if (endpointPath === "/client/profiles" && status >= 200 && status < 300) {
+      klaviyoClientDiagnosticsState.profilesSucceeded = true;
+      return;
+    }
+
+    if (status < 400) {
+      return;
+    }
+
+    errorLog("Klaviyo client request failed.", {
+      httpStatus: status,
+      endpointPath: endpointPath,
+      errorPayloadExcerpt: extractResponseExcerpt(responseBodyText),
+      company_id: extractCompanyIdFromUrl(requestUrl),
+    });
+
+    if (endpointPath === "/client/events" && klaviyoClientDiagnosticsState.profilesSucceeded) {
+      errorLog(
+        "Klaviyo hint: Check public key permissions for event tracking in Klaviyo key settings."
+      );
+    }
   };
 
   const isKlaviyoReady = function () {
@@ -682,6 +758,22 @@
         return originalFetch
           .apply(this, arguments)
           .then(function (response) {
+            if (response && typeof response.status === "number") {
+              if (response.status >= 400 && detectKlaviyoClientEndpoint(requestUrl)) {
+                response
+                  .clone()
+                  .text()
+                  .then(function (responseBodyText) {
+                    observeKlaviyoClientResponse(requestUrl, response.status, responseBodyText);
+                  })
+                  .catch(function () {
+                    observeKlaviyoClientResponse(requestUrl, response.status, "");
+                  });
+              } else {
+                observeKlaviyoClientResponse(requestUrl, response.status, "");
+              }
+            }
+
             const source = detectSourceFromUrl(requestUrl);
 
             if (!source || !response || response.ok !== true) {
@@ -749,6 +841,12 @@
 
       window.XMLHttpRequest.prototype.send = function () {
         this.addEventListener("load", function () {
+          observeKlaviyoClientResponse(
+            this.__klaviyoTrackingUrl || "",
+            Number(this.status || 0),
+            typeof this.responseText === "string" ? this.responseText : ""
+          );
+
           const source = detectSourceFromUrl(this.__klaviyoTrackingUrl || "");
 
           if (!source || this.status < 200 || this.status >= 300) {
