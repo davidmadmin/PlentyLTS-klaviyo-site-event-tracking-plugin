@@ -18,6 +18,14 @@
     newsletter: null,
   };
 
+  const commerceState = window.__KlaviyoSiteEventTrackingCommerceState || {
+    viewedProductKeys: {},
+    startedCheckoutTracked: false,
+    placedOrderKeys: {},
+  };
+
+  window.__KlaviyoSiteEventTrackingCommerceState = commerceState;
+
   const warn = function (message) {
     console.warn("[KlaviyoSiteEventTracking] " + message);
   };
@@ -418,6 +426,247 @@
     });
   };
 
+  const asNumber = function (value) {
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value;
+    }
+
+    if (typeof value === "string") {
+      const normalized = value.replace(/,/g, ".").replace(/[^0-9.-]/g, "");
+      if (!normalized) {
+        return null;
+      }
+
+      const parsed = Number(normalized);
+      if (Number.isFinite(parsed)) {
+        return parsed;
+      }
+    }
+
+    return null;
+  };
+
+  const firstDefined = function (obj, keys) {
+    if (!obj || typeof obj !== "object") {
+      return null;
+    }
+
+    for (let index = 0; index < keys.length; index += 1) {
+      const value = obj[keys[index]];
+      if (typeof value !== "undefined" && value !== null && value !== "") {
+        return value;
+      }
+    }
+
+    return null;
+  };
+
+  const extractCurrency = function (payload) {
+    const value = firstDefined(payload, ["currency", "currencyCode", "currency_code"]);
+    return normalizeText(String(value || "")).toUpperCase();
+  };
+
+  const mapProductPayload = function (payload) {
+    const source = payload && typeof payload === "object" ? payload : {};
+    const price = asNumber(firstDefined(source, ["price", "unitPrice", "unit_price", "salesPrice", "value"]));
+    const quantity = asNumber(firstDefined(source, ["quantity", "qty", "amount"])) || 1;
+    const currency = extractCurrency(source);
+
+    const mapped = {
+      ProductID: normalizeText(String(firstDefined(source, ["productId", "itemId", "id", "variationId"]) || "")),
+      SKU: normalizeText(String(firstDefined(source, ["sku", "itemNo", "variationNumber", "number"]) || "")),
+      ProductName: normalizeText(String(firstDefined(source, ["name", "itemName", "productName", "title"]) || "")),
+      Quantity: quantity,
+    };
+
+    if (price !== null) {
+      mapped.Price = price;
+      mapped.Value = price * quantity;
+    }
+
+    if (currency) {
+      mapped.Currency = currency;
+    }
+
+    return mapped;
+  };
+
+  const mapCartPayload = function (payload) {
+    const source = payload && typeof payload === "object" ? payload : {};
+    const mapped = {
+      CartID: normalizeText(String(firstDefined(source, ["basketId", "cartId", "id"]) || "")),
+      ProductID: normalizeText(String(firstDefined(source, ["productId", "itemId", "id", "variationId"]) || "")),
+      SKU: normalizeText(String(firstDefined(source, ["sku", "itemNo", "variationNumber", "number"]) || "")),
+    };
+
+    const quantity = asNumber(firstDefined(source, ["quantity", "qty", "amount"]));
+    const unitPrice = asNumber(firstDefined(source, ["price", "unitPrice", "unit_price", "salesPrice"]));
+    const total = asNumber(firstDefined(source, ["value", "total", "totalAmount"]));
+    const currency = extractCurrency(source);
+
+    if (quantity !== null) {
+      mapped.Quantity = quantity;
+    }
+
+    if (unitPrice !== null) {
+      mapped.Price = unitPrice;
+    }
+
+    if (total !== null) {
+      mapped.Value = total;
+    } else if (unitPrice !== null && quantity !== null) {
+      mapped.Value = unitPrice * quantity;
+    }
+
+    if (currency) {
+      mapped.Currency = currency;
+    }
+
+    return mapped;
+  };
+
+  const mapOrderPayload = function (payload) {
+    const source = payload && typeof payload === "object" ? payload : {};
+    const mapped = {
+      OrderID: normalizeText(String(firstDefined(source, ["orderId", "id", "number", "orderNumber"]) || "")),
+      CartID: normalizeText(String(firstDefined(source, ["basketId", "cartId"]) || "")),
+      Currency: extractCurrency(source),
+    };
+
+    const value = asNumber(firstDefined(source, ["value", "total", "amount", "orderTotal", "totalAmount"]));
+    if (value !== null) {
+      mapped.Value = value;
+    }
+
+    const items = Array.isArray(source.items) ? source.items : [];
+    if (items.length > 0) {
+      mapped.Items = items.map(function (item) {
+        return {
+          ProductID: normalizeText(String(firstDefined(item, ["productId", "itemId", "id", "variationId"]) || "")),
+          SKU: normalizeText(String(firstDefined(item, ["sku", "itemNo", "variationNumber", "number"]) || "")),
+          Quantity: asNumber(firstDefined(item, ["quantity", "qty", "amount"])) || 1,
+          Price: asNumber(firstDefined(item, ["price", "unitPrice", "unit_price", "salesPrice"])),
+        };
+      });
+    }
+
+    return mapped;
+  };
+
+  const callTrackEvent = function (metricName, properties, context) {
+    const api =
+      window[apiNamespaceName] &&
+      typeof window[apiNamespaceName].trackEvent === "function"
+        ? window[apiNamespaceName]
+        : null;
+
+    if (!api) {
+      return false;
+    }
+
+    return api.trackEvent(metricName, properties, context);
+  };
+
+  const getProductViewKey = function (productProperties, source) {
+    return [source || "dom", productProperties.ProductID || "", productProperties.SKU || "", window.location.pathname || ""]
+      .join("::")
+      .toLowerCase();
+  };
+
+  const trackViewedProduct = function (payload, source) {
+    const properties = mapProductPayload(payload);
+    if (!properties.ProductID && !properties.SKU) {
+      return;
+    }
+
+    const dedupeKey = getProductViewKey(properties, source);
+    if (commerceState.viewedProductKeys[dedupeKey]) {
+      return;
+    }
+
+    commerceState.viewedProductKeys[dedupeKey] = true;
+    callTrackEvent("Viewed Product", properties, {
+      source: source || "product-view",
+    });
+  };
+
+  const trackAddedToCart = function (payload, source) {
+    const properties = mapCartPayload(payload);
+    if (!properties.ProductID && !properties.SKU) {
+      return;
+    }
+
+    callTrackEvent("Added to Cart", properties, {
+      source: source || "add-to-cart",
+    });
+  };
+
+  const trackStartedCheckout = function (payload, source) {
+    if (commerceState.startedCheckoutTracked) {
+      return;
+    }
+
+    commerceState.startedCheckoutTracked = true;
+    callTrackEvent("Started Checkout", mapCartPayload(payload), {
+      source: source || "checkout",
+    });
+  };
+
+  const trackPlacedOrder = function (payload, source) {
+    const properties = mapOrderPayload(payload);
+    const dedupeKey = normalizeText(String(properties.OrderID || window.location.pathname || ""));
+
+    if (!dedupeKey) {
+      return;
+    }
+
+    if (commerceState.placedOrderKeys[dedupeKey]) {
+      return;
+    }
+
+    commerceState.placedOrderKeys[dedupeKey] = true;
+    callTrackEvent("Placed Order", properties, {
+      source: source || "order-success",
+    });
+  };
+
+  const registerCommerceEventHooks = function () {
+    window.addEventListener("ceres:product:loaded", function (event) {
+      trackViewedProduct(event.detail || {}, "ceres:product:loaded");
+    });
+
+    window.addEventListener("ceres:item:added-to-cart", function (event) {
+      trackAddedToCart(event.detail || {}, "ceres:item:added-to-cart");
+    });
+
+    window.addEventListener("ceres:checkout:started", function (event) {
+      trackStartedCheckout(event.detail || {}, "ceres:checkout:started");
+    });
+
+    window.addEventListener("ceres:checkout:order-placed", function (event) {
+      trackPlacedOrder(event.detail || {}, "ceres:checkout:order-placed");
+    });
+
+    const locationPath = (window.location.pathname || "").toLowerCase();
+    const productElement = document.querySelector("[data-product-id],[data-item-id],[data-variation-id]");
+
+    if (productElement && (locationPath.indexOf("item") >= 0 || locationPath.indexOf("product") >= 0)) {
+      trackViewedProduct(
+        {
+          productId:
+            productElement.getAttribute("data-product-id") ||
+            productElement.getAttribute("data-item-id") ||
+            productElement.getAttribute("data-variation-id") ||
+            "",
+          sku: productElement.getAttribute("data-sku") || "",
+          price: productElement.getAttribute("data-price") || "",
+          currency: productElement.getAttribute("data-currency") || "",
+        },
+        "dom:product-element"
+      );
+    }
+  };
+
   const registerNetworkHooks = function () {
     if (typeof window.fetch === "function") {
       const originalFetch = window.fetch;
@@ -436,6 +685,14 @@
             const source = detectSourceFromUrl(requestUrl);
 
             if (!source || !response || response.ok !== true) {
+              if (
+                response &&
+                response.ok === true &&
+                requestUrl.toLowerCase().indexOf("checkout") >= 0 &&
+                requestUrl.toLowerCase().indexOf("order") < 0
+              ) {
+                trackStartedCheckout({}, "network:fetch-checkout");
+              }
               return response;
             }
 
@@ -450,9 +707,27 @@
               .json()
               .then(function (payload) {
                 identifyFromSource(source, payload, knownSubmissionProfiles[source]);
+
+                const normalizedUrl = requestUrl.toLowerCase();
+                if (normalizedUrl.indexOf("basket") >= 0 && normalizedUrl.indexOf("items") >= 0) {
+                  trackAddedToCart(payload, "network:fetch-basket-items");
+                }
+
+                if (normalizedUrl.indexOf("checkout") >= 0 && normalizedUrl.indexOf("order") < 0) {
+                  trackStartedCheckout(payload, "network:fetch-checkout");
+                }
+
+                if (normalizedUrl.indexOf("order") >= 0 && normalizedUrl.indexOf("success") >= 0) {
+                  trackPlacedOrder(payload, "network:fetch-order-success");
+                }
               })
               .catch(function () {
                 identifyFromSource(source, {}, knownSubmissionProfiles[source]);
+
+                const normalizedUrl = requestUrl.toLowerCase();
+                if (normalizedUrl.indexOf("checkout") >= 0 && normalizedUrl.indexOf("order") < 0) {
+                  trackStartedCheckout({}, "network:fetch-checkout");
+                }
               });
 
             return response;
@@ -491,6 +766,19 @@
           }
 
           identifyFromSource(source, payload, knownSubmissionProfiles[source]);
+
+          const normalizedUrl = (this.__klaviyoTrackingUrl || "").toLowerCase();
+          if (normalizedUrl.indexOf("basket") >= 0 && normalizedUrl.indexOf("items") >= 0) {
+            trackAddedToCart(payload, "network:xhr-basket-items");
+          }
+
+          if (normalizedUrl.indexOf("checkout") >= 0 && normalizedUrl.indexOf("order") < 0) {
+            trackStartedCheckout(payload, "network:xhr-checkout");
+          }
+
+          if (normalizedUrl.indexOf("order") >= 0 && normalizedUrl.indexOf("success") >= 0) {
+            trackPlacedOrder(payload, "network:xhr-order-success");
+          }
         });
 
         return originalSend.apply(this, arguments);
@@ -502,6 +790,7 @@
     window.__KlaviyoSiteEventTrackingIdentityHooksInitialized = true;
     registerDomSubmissionHooks();
     registerCustomEventHooks();
+    registerCommerceEventHooks();
     registerNetworkHooks();
   }
 
