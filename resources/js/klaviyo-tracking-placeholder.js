@@ -7,7 +7,8 @@
   const logErrorsOnly = settings.logErrorsOnly === true;
   const logIdentifyCalls = settings.logIdentifyCalls === true;
   const logTrackCalls = settings.logTrackCalls === true;
-  const identifyDiagnosticsEnabled = logIdentifyCalls && !logErrorsOnly;
+  const statusDiagnosticsEnabled = debugEnabled && !logErrorsOnly;
+  const identifyDiagnosticsEnabled = statusDiagnosticsEnabled && logIdentifyCalls;
   const apiNamespaceName = "KlaviyoSiteEventTrackingApi";
   const retryDelayMs = 250;
   const maxRetryAttempts = 8;
@@ -72,7 +73,7 @@
   };
 
   const identifyStatusLog = function (message, payload) {
-    if (!identifyDiagnosticsEnabled) {
+    if (!statusDiagnosticsEnabled) {
       return;
     }
 
@@ -327,7 +328,7 @@
     klaviyoClientDiagnosticsState.lastIdentifyContext = callContext;
     klaviyoClientDiagnosticsState.lastIdentifyTimestamp = new Date().toISOString();
 
-    if (debugEnabled && !logErrorsOnly && logIdentifyCalls) {
+    if (identifyDiagnosticsEnabled) {
       debugLog("identifyUser called.", {
         profile: sanitizeForLog(payload, 0),
         context: sanitizeForLog(callContext, 0),

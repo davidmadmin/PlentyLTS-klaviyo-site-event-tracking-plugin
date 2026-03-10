@@ -79,7 +79,10 @@ Current config key:
 If profile identify calls appear to work but event tracking fails (for example `403` responses on Klaviyo `/client/events`), use the plugin debug diagnostics:
 
 1. Enable `tracking.enableDebugLogging`.
-2. Optionally keep `tracking.logErrorsOnly` enabled to focus only on failures.
+2. Use debug toggles based on what you need to inspect:
+   - `tracking.logErrorsOnly = true`: only error output (suppresses bootstrap/status snapshots and per-call payload debug logs).
+   - `tracking.logErrorsOnly = false`: allow non-error diagnostics.
+   - `tracking.logIdentifyCalls = true`: include detailed identify payload logs (`identifyUser called...`).
 3. Reproduce one identify flow and one event flow in the storefront.
 4. Inspect browser console output for structured diagnostics from `KlaviyoSiteEventTracking` that include:
    - HTTP status
