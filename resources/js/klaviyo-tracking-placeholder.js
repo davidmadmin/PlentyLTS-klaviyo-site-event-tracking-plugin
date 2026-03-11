@@ -31,7 +31,7 @@
   const logErrorsOnly = isEnabled(settings.logErrorsOnly, false);
   const logPluginHeartbeat = isEnabled(settings.logPluginHeartbeat, true);
   const logIdentifyCalls = isEnabled(settings.logIdentifyCalls, false);
-  const logTrackCalls = isEnabled(settings.logTrackCalls, false);
+  const logTrackCalls = isEnabled(settings.logTrackCalls, true);
   const identifyPollAttempts = 8;
   const identifyPollIntervalMs = 1500;
 
@@ -475,11 +475,11 @@
     return [];
   };
 
-  const normalizedAbsoluteUrl = function (value) {
+  const normalizedAbsoluteUrl = function (value, fallbackToCurrentPage) {
     const candidate = normalizedString(value);
 
     if (!candidate) {
-      return window.location ? window.location.href : "";
+      return fallbackToCurrentPage && window.location ? window.location.href : "";
     }
 
     try {
@@ -487,6 +487,20 @@
     } catch (error) {
       return candidate;
     }
+  };
+
+  const firstDefinedNumber = function (values) {
+    if (!Array.isArray(values)) {
+      return null;
+    }
+
+    for (let i = 0; i < values.length; i += 1) {
+      if (values[i] !== null) {
+        return values[i];
+      }
+    }
+
+    return null;
   };
 
   const extractCategories = function (candidate) {
@@ -587,15 +601,17 @@
       normalizedString(getNestedValue(candidate, ["variation", "images", 0, "url"])) ||
       normalizedString(getNestedValue(candidate, ["imageUrl"]));
 
-    const price =
-      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "price", "value"])) ||
-      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "price", "gross"])) ||
-      normalizedNumber(getNestedValue(candidate, ["variation", "salesPrices", 0, "price"])) ||
-      normalizedNumber(getNestedValue(candidate, ["price"]));
-    const compareAtPrice =
-      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "rrp", "price"])) ||
-      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "rrp", "price", "value"])) ||
-      normalizedNumber(getNestedValue(candidate, ["compareAtPrice"]));
+    const price = firstDefinedNumber([
+      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "price", "value"])),
+      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "price", "gross"])),
+      normalizedNumber(getNestedValue(candidate, ["variation", "salesPrices", 0, "price"])),
+      normalizedNumber(getNestedValue(candidate, ["price"])),
+    ]);
+    const compareAtPrice = firstDefinedNumber([
+      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "rrp", "price"])),
+      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "rrp", "price", "value"])),
+      normalizedNumber(getNestedValue(candidate, ["compareAtPrice"])),
+    ]);
 
     if (!productId && !variationId && !productName) {
       return null;
@@ -606,8 +622,8 @@
       ProductID: variationId || productId,
       SKU: sku,
       Categories: extractCategories(candidate),
-      ImageURL: normalizedAbsoluteUrl(imageUrl),
-      URL: normalizedAbsoluteUrl(window.location ? window.location.href : ""),
+      ImageURL: normalizedAbsoluteUrl(imageUrl, false),
+      URL: normalizedAbsoluteUrl(window.location ? window.location.href : "", true),
       Brand: brand,
       Price: price,
       CompareAtPrice: compareAtPrice,
@@ -637,8 +653,8 @@
       ProductID: variationId || productId,
       SKU: normalizedString(root.getAttribute("data-kse-sku")),
       Categories: normalizedArray(root.getAttribute("data-kse-categories")),
-      ImageURL: normalizedAbsoluteUrl(root.getAttribute("data-kse-image-url")),
-      URL: normalizedAbsoluteUrl(root.getAttribute("data-kse-url") || window.location.href),
+      ImageURL: normalizedAbsoluteUrl(root.getAttribute("data-kse-image-url"), false),
+      URL: normalizedAbsoluteUrl(root.getAttribute("data-kse-url") || window.location.href, true),
       Brand: normalizedString(root.getAttribute("data-kse-brand")),
       Price: normalizedNumber(root.getAttribute("data-kse-price")),
       CompareAtPrice: normalizedNumber(root.getAttribute("data-kse-compare-at-price")),
@@ -745,7 +761,15 @@
   };
 
   const trackViewedProduct = function (trigger) {
-    if (!isProductPagePath()) {
+    const isDetectedProductPage = isProductPagePath();
+
+    trackLog("Viewed Product page detection evaluated.", {
+      trigger: trigger,
+      isProductPage: isDetectedProductPage,
+      path: window.location ? window.location.pathname : "",
+    });
+
+    if (!isDetectedProductPage) {
       trackLog("Viewed Product skipped (not a detected product page path).", {
         trigger: trigger,
         path: window.location ? window.location.pathname : "",
@@ -772,9 +796,17 @@
       return;
     }
 
-    window.__KlaviyoSiteEventTrackingLastViewedProductKey = dedupKey;
+    const didTrack = trackEvent("Viewed Product", payload, trigger + "|" + dedupKey);
 
-    trackEvent("Viewed Product", payload, trigger + "|" + dedupKey);
+    if (!didTrack) {
+      trackLog("Viewed Product dedupe key not updated because track dispatch failed.", {
+        trigger: trigger,
+        dedupKey: dedupKey,
+      });
+      return;
+    }
+
+    window.__KlaviyoSiteEventTrackingLastViewedProductKey = dedupKey;
     trackViewedItem(payload, trigger + "|" + dedupKey);
   };
 

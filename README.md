@@ -84,7 +84,7 @@ Plugin config is now split into dedicated tabs:
   - `tracking.logIdentifyCalls`
     - Emits identify diagnostics (`console.info`) for resolution attempts, lifecycle/auth triggers, successful identify calls, and deduped identify skips
   - `tracking.logTrackCalls`
-    - Emits track diagnostics (`console.info`) for Viewed Product dispatch, dedupe skips, payload-missing skips, and `trackViewedItem` calls
+    - Enabled by default; emits track diagnostics (`console.info`) for product-page detection checks, Viewed Product dispatch, dedupe skips, payload-missing skips, and `trackViewedItem` calls
   - `tracking.logErrorsOnly`
     - When `true`, suppresses info/debug logs and keeps warnings/errors visible
 
@@ -100,7 +100,7 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 | `tracking.logPluginHeartbeat` | boolean | Enabled by default; emits a startup `console.info` heartbeat with API-key detection status and the detected key value (if present). | Independent from `enableDebugLogging`; can be disabled if too noisy. |
 | `tracking.logErrorsOnly` | boolean | Suppresses plugin `console.info` logs (including heartbeat) even if other logging toggles are enabled. | `console.warn` messages still appear. |
 | `tracking.logIdentifyCalls` | boolean | Emits identify diagnostics (`console.info`) for no-email resolution, lifecycle/auth trigger attempts, successful identify calls, and duplicate-skip decisions. | Suppressed when `tracking.logErrorsOnly = true`. Also accepts common truthy/falsey string values (`"true"`, `"false"`, `"yes"`, `"no"`, etc.) for safer config parsing. |
-| `tracking.logTrackCalls` | boolean | Emits track diagnostics (`console.info`) for Viewed Product trigger sources, dedupe skips, payload-missing skips, and successful `track` / `trackViewedItem` dispatches. | Suppressed when `tracking.logErrorsOnly = true`. |
+| `tracking.logTrackCalls` | boolean | Enabled by default; emits track diagnostics (`console.info`) for product-page detection checks, Viewed Product trigger sources, dedupe skips, payload-missing skips, and successful `track` / `trackViewedItem` dispatches. | Suppressed when `tracking.logErrorsOnly = true`. |
 
 ### Expected console output by condition
 
@@ -169,6 +169,10 @@ If identify execution throws at runtime, expected warning:
 If `tracking.logTrackCalls = true` and `tracking.logErrorsOnly = false`, expected Viewed Product diagnostics include:
 
 ```text
+[KlaviyoSiteEventTracking] Viewed Product page detection evaluated. { trigger: "bootstrap", isProductPage: true|false, path: "/..." }
+```
+
+```text
 [KlaviyoSiteEventTracking] Viewed Product skipped (required payload fields missing). { trigger: "bootstrap" }
 ```
 
@@ -178,6 +182,10 @@ If `tracking.logTrackCalls = true` and `tracking.logErrorsOnly = false`, expecte
 
 ```text
 [KlaviyoSiteEventTracking] Viewed Product skipped (deduped). { trigger: "variation_change", dedupKey: "<product|variation|path>" }
+```
+
+```text
+[KlaviyoSiteEventTracking] Viewed Product dedupe key not updated because track dispatch failed. { trigger: "variation_click", dedupKey: "<product|variation|path>" }
 ```
 
 ```text
