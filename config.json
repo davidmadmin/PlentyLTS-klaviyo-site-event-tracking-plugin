@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "menu": {
-    "tracking": {
-      "label": "Config.trackingLabel",
+    "setup": {
+      "label": "Config.setupLabel",
       "fullWidth": true,
       "formFields": {
         "tracking.integrationMode": {
@@ -32,7 +32,13 @@
             "tooltip": "Config.publicApiKeyTooltip",
             "defaultValue": ""
           }
-        },
+        }
+      }
+    },
+    "debugging": {
+      "label": "Config.debuggingLabel",
+      "fullWidth": true,
+      "formFields": {
         "tracking.enableDebugLogging": {
           "type": "checkBox",
           "required": false,
