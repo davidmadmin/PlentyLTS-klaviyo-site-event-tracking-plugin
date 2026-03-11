@@ -380,18 +380,92 @@
     poll();
   };
 
+  const scheduleIdentifyFlow = function (trigger, delayMs) {
+    const waitMs = typeof delayMs === "number" ? delayMs : 0;
+
+    window.setTimeout(function () {
+      runIdentifyFlow(trigger);
+    }, waitMs);
+  };
+
+  const runAuthTransitionIdentifyFlow = function (trigger) {
+    scheduleIdentifyFlow(trigger);
+    scheduleIdentifyFlow(trigger + "_delayed", 900);
+  };
+
+  const addLifecycleEventListener = function (target, eventName, trigger) {
+    if (!target || typeof target.addEventListener !== "function") {
+      return;
+    }
+
+    target.addEventListener(eventName, function () {
+      scheduleIdentifyFlow(trigger);
+    });
+  };
+
+  const registerHistoryRouteHooks = function () {
+    if (window.__KlaviyoSiteEventTrackingHistoryHooksRegistered === true) {
+      return;
+    }
+
+    window.__KlaviyoSiteEventTrackingHistoryHooksRegistered = true;
+
+    const wrapHistoryMethod = function (methodName) {
+      if (!window.history || typeof window.history[methodName] !== "function") {
+        return;
+      }
+
+      const originalMethod = window.history[methodName];
+
+      window.history[methodName] = function () {
+        const returnValue = originalMethod.apply(window.history, arguments);
+        scheduleIdentifyFlow("route_history_" + methodName);
+
+        if (window.location && /\/((my-)?account)(\/|$)/i.test(window.location.pathname || "")) {
+          scheduleIdentifyFlow("account_route_history_" + methodName);
+        }
+
+        return returnValue;
+      };
+    };
+
+    wrapHistoryMethod("pushState");
+    wrapHistoryMethod("replaceState");
+  };
+
   const registerIdentifyListeners = function () {
     document.addEventListener("submit", function () {
-      window.setTimeout(function () {
-        runIdentifyFlow("form_submit");
-      }, 700);
+      scheduleIdentifyFlow("form_submit", 700);
     });
 
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "visible") {
-        runIdentifyFlow("visibility_visible");
+        scheduleIdentifyFlow("visibility_visible");
       }
     });
+
+    addLifecycleEventListener(window, "popstate", "route_popstate");
+    addLifecycleEventListener(window, "hashchange", "route_hashchange");
+
+    addLifecycleEventListener(document, "ceres:route-changed", "route_ceres");
+    addLifecycleEventListener(document, "vue:route-changed", "route_vue");
+    addLifecycleEventListener(document, "afterRouteChanged", "route_after_changed");
+
+    addLifecycleEventListener(document, "account:view-changed", "account_route");
+    addLifecycleEventListener(document, "account:overview-loaded", "account_overview");
+
+    [
+      ["login:success", "login_success"],
+      ["user:login:success", "login_success_user"],
+      ["auth:success", "auth_success"],
+      ["registration:success", "registration_success"],
+    ].forEach(function (eventConfig) {
+      document.addEventListener(eventConfig[0], function () {
+        runAuthTransitionIdentifyFlow(eventConfig[1]);
+      });
+    });
+
+    registerHistoryRouteHooks();
   };
 
   const scriptSource =

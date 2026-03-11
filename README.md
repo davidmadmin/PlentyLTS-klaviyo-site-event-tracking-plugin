@@ -81,7 +81,7 @@ Plugin config is now split into dedicated tabs:
   - `tracking.logPluginHeartbeat`
     - Enabled by default; writes a bootstrap heartbeat info log that reports whether `publicApiKey` was detected and includes the key value when available
   - `tracking.logIdentifyCalls`
-    - Emits identify diagnostics (`console.info`) for resolution attempts, successful identify calls, and deduped identify skips
+    - Emits identify diagnostics (`console.info`) for resolution attempts, lifecycle/auth triggers, successful identify calls, and deduped identify skips
   - `tracking.logTrackCalls`
     - Reserved for future track payload logging; currently no track events are emitted yet
   - `tracking.logErrorsOnly`
@@ -98,7 +98,7 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 | `tracking.enableDebugLogging` | boolean | Enables plugin `console.info` logs that confirm init path and script handling decisions. | Base switch for debug output. |
 | `tracking.logPluginHeartbeat` | boolean | Enabled by default; emits a startup `console.info` heartbeat with API-key detection status and the detected key value (if present). | Independent from `enableDebugLogging`; can be disabled if too noisy. |
 | `tracking.logErrorsOnly` | boolean | Suppresses plugin `console.info` logs (including heartbeat) even if other logging toggles are enabled. | `console.warn` messages still appear. |
-| `tracking.logIdentifyCalls` | boolean | Emits identify diagnostics (`console.info`) for no-email resolution, successful identify calls, and duplicate-skip decisions. | Suppressed when `tracking.logErrorsOnly = true`. Also accepts common truthy/falsey string values (`"true"`, `"false"`, `"yes"`, `"no"`, etc.) for safer config parsing. |
+| `tracking.logIdentifyCalls` | boolean | Emits identify diagnostics (`console.info`) for no-email resolution, lifecycle/auth trigger attempts, successful identify calls, and duplicate-skip decisions. | Suppressed when `tracking.logErrorsOnly = true`. Also accepts common truthy/falsey string values (`"true"`, `"false"`, `"yes"`, `"no"`, etc.) for safer config parsing. |
 | `tracking.logTrackCalls` | boolean | No runtime effect yet in current scaffold. | Will be used once event `track` dispatch is implemented. |
 
 ### Expected console output by condition
@@ -142,8 +142,17 @@ If `tracking.logIdentifyCalls = true` and `tracking.logErrorsOnly = false`, expe
 [KlaviyoSiteEventTracking] No identifiable customer email resolved. { trigger: "poll_1" }
 ```
 
+
 ```text
-[KlaviyoSiteEventTracking] Klaviyo identify executed. { email: "[email protected]", source: "identity_endpoint:poll_2", usingKlaviyoObject: true|false }
+[KlaviyoSiteEventTracking] No identifiable customer email resolved. { trigger: "account_route" }
+```
+
+```text
+[KlaviyoSiteEventTracking] No identifiable customer email resolved. { trigger: "login_success_delayed" }
+```
+
+```text
+[KlaviyoSiteEventTracking] Klaviyo identify executed. { email: "[email protected]", source: "runtime_state:login_success", usingKlaviyoObject: true|false }
 ```
 
 ```text
