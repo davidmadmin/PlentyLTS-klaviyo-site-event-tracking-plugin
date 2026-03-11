@@ -665,13 +665,39 @@
   };
 
   const isProductPagePath = function () {
+    const appState = window.App && typeof window.App === "object" ? window.App : null;
+
+    if (appState && appState.isItemView === true) {
+      return {
+        isProductPage: true,
+        detectionSource: "runtime_app_isItemView",
+      };
+    }
+
+    const templateType = normalizedString(appState && appState.templateType).toLowerCase();
+
+    if (templateType === "item") {
+      return {
+        isProductPage: true,
+        detectionSource: "runtime_app_templateType",
+      };
+    }
+
     if (!window.location || typeof window.location.pathname !== "string") {
-      return false;
+      return {
+        isProductPage: false,
+        detectionSource: "none",
+      };
     }
 
     const path = window.location.pathname.toLowerCase();
 
-    return /\/p\//.test(path) || /\/item\//.test(path) || /\/_\d+_\d+$/.test(path);
+    const isPathMatch = /\/p\//.test(path) || /\/item\//.test(path) || /\/_\d+_\d+\/?$/.test(path);
+
+    return {
+      isProductPage: isPathMatch,
+      detectionSource: isPathMatch ? "path_regex" : "none",
+    };
   };
 
   const resolveViewedProductPayload = function () {
@@ -761,11 +787,13 @@
   };
 
   const trackViewedProduct = function (trigger) {
-    const isDetectedProductPage = isProductPagePath();
+    const pageDetection = isProductPagePath();
+    const isDetectedProductPage = !!(pageDetection && pageDetection.isProductPage);
 
     trackLog("Viewed Product page detection evaluated.", {
       trigger: trigger,
       isProductPage: isDetectedProductPage,
+      detectionSource: pageDetection && pageDetection.detectionSource ? pageDetection.detectionSource : "none",
       path: window.location ? window.location.pathname : "",
     });
 

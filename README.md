@@ -169,7 +169,7 @@ If identify execution throws at runtime, expected warning:
 If `tracking.logTrackCalls = true` and `tracking.logErrorsOnly = false`, expected Viewed Product diagnostics include:
 
 ```text
-[KlaviyoSiteEventTracking] Viewed Product page detection evaluated. { trigger: "bootstrap", isProductPage: true|false, path: "/..." }
+[KlaviyoSiteEventTracking] Viewed Product page detection evaluated. { trigger: "bootstrap", isProductPage: true|false, detectionSource: "runtime_app_isItemView"|"runtime_app_templateType"|"path_regex"|"none", path: "/..." }
 ```
 
 ```text
@@ -192,7 +192,11 @@ If `tracking.logTrackCalls = true` and `tracking.logErrorsOnly = false`, expecte
 [KlaviyoSiteEventTracking] Klaviyo trackViewedItem executed. { trigger: "variation_click|<dedup-key>", itemId: "..." }
 ```
 
-Viewed Product tracking is triggered when the current route looks like a PDP and either:
+Viewed Product tracking now first checks Plenty runtime item-view flags (`window.App.isItemView === true` or `window.App.templateType === "item"`, case-insensitive) and only then falls back to PDP URL heuristics.
+
+Fallback URL detection still supports common PDP routes (`/p/`, `/item/`) and SEO item suffixes like `..._1514_10645` with or without a trailing slash.
+
+Once PDP detection passes, tracking dispatch proceeds when either:
 
 - the storefront runtime state resolves valid product data (`ProductID`, `ProductName`, `URL`), or
 - optional DOM fallback attributes (`data-kse-product-id`, `data-kse-variation-id`, `data-kse-product-name`, etc.) are present.
