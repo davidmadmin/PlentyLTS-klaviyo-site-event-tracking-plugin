@@ -16,6 +16,7 @@ The table below is optimized for a quick implementation and product-status scan.
 
 | Status | Event / Metric | Why it matters | Trigger (Plenty storefront) |
 |---|---|---|---|
+| 🟢 | **Identified Profile (Identify)** | Connect anonymous behavior to a known person | Logged-in session or post-login resolution identifies profile by email |
 | 🔴 | **Active on Site** | Baseline site engagement and profile activity | Any meaningful page interaction/session heartbeat |
 | 🔴 | **Viewed Product** | Product interest and browse intent | PDP view with product identifiers and metadata |
 | 🔴 | **Added to Cart** | Purchase intent signal for abandoned-cart journeys | Add-to-cart action from PDP/listing/quick-buy |
@@ -29,7 +30,6 @@ The table below is optimized for a quick implementation and product-status scan.
 | 🔴 | **Viewed Content Page** | Non-product engagement context | CMS/content page view (guides, service pages, etc.) |
 | 🔴 | **Clicked Promotion / Banner** | Campaign and merchandising interaction | Click on promo blocks, hero banners, teaser components |
 | 🔴 | **Signed Up for Newsletter** | Lead acquisition and welcome-flow trigger | Newsletter subscription success event |
-| 🔴 | **Identified Profile (Identify)** | Connect anonymous behavior to a known person | Login/registration/email capture updates profile identifiers |
 | 🔴 | **Logged In** | Lifecycle stage and re-engagement qualifier | Successful account login |
 | 🔴 | **Created Account** | New-customer lifecycle start | Successful account registration |
 | 🔴 | **Added to Wishlist** | High-intent product affinity signal | Wishlist add action |
@@ -40,19 +40,18 @@ The table below is optimized for a quick implementation and product-status scan.
 
 ## Current implementation state (repository)
 
-At this time, the repository provides a **foundation scaffold**, not a finished tracking implementation:
+At this time, the repository provides a **partial implementation** with bootstrap and identity support:
 
-- 🟡 Plugin skeleton and metadata (`plugin.json`)
-- 🟡 Configuration for integration mode (`config.json`)
-- 🟡 Container/template/script entrypoint with Klaviyo bootstrap wiring
-- 🟡 Production Klaviyo JavaScript bootstrap implemented (event dispatching still pending)
-- 🔴 No event mapping/business logic for storefront actions yet
+- 🟢 Klaviyo JavaScript bootstrap implemented for plugin and GTM modes
+- 🟢 Frontend identify flow implemented (email-based profile identification for logged-in users)
+- 🟡 Configuration and debug logging controls are available and evolving
+- 🔴 Most storefront business event mappings are still pending
 
 ## Planned rollout approach
 
 1. **Bootstrap + identity layer**
    - Load and validate Klaviyo JS in plugin mode
-   - Implement profile identify flow and consent-aware guards
+   - Harden profile identify flow and consent-aware guards
 2. **Core commerce events**
    - Viewed Product, Added to Cart, Started Checkout, Placed Order
 3. **Funnel and UX enrichment**
@@ -82,7 +81,7 @@ Plugin config is now split into dedicated tabs:
   - `tracking.logPluginHeartbeat`
     - Enabled by default; writes a bootstrap heartbeat info log that reports whether `publicApiKey` was detected and includes the key value when available
   - `tracking.logIdentifyCalls`
-    - Emits an identify-status placeholder `console.warn` log indicating identify logging is enabled and that identified/not-identified resolution is not implemented yet
+    - Emits identify diagnostics (`console.info`) for resolution attempts, successful identify calls, and deduped identify skips
   - `tracking.logTrackCalls`
     - Reserved for future track payload logging; currently no track events are emitted yet
   - `tracking.logErrorsOnly`
@@ -99,7 +98,7 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 | `tracking.enableDebugLogging` | boolean | Enables plugin `console.info` logs that confirm init path and script handling decisions. | Base switch for debug output. |
 | `tracking.logPluginHeartbeat` | boolean | Enabled by default; emits a startup `console.info` heartbeat with API-key detection status and the detected key value (if present). | Independent from `enableDebugLogging`; can be disabled if too noisy. |
 | `tracking.logErrorsOnly` | boolean | Suppresses plugin `console.info` logs (including heartbeat) even if other logging toggles are enabled. | `console.warn` messages still appear. |
-| `tracking.logIdentifyCalls` | boolean | Emits an identify-status placeholder `console.warn` log when enabled. | Also accepts common truthy/falsey string values (`"true"`, `"false"`, `"yes"`, `"no"`, etc.) for safer config parsing. |
+| `tracking.logIdentifyCalls` | boolean | Emits identify diagnostics (`console.info`) for no-email resolution, successful identify calls, and duplicate-skip decisions. | Suppressed when `tracking.logErrorsOnly = true`. Also accepts common truthy/falsey string values (`"true"`, `"false"`, `"yes"`, `"no"`, etc.) for safer config parsing. |
 | `tracking.logTrackCalls` | boolean | No runtime effect yet in current scaffold. | Will be used once event `track` dispatch is implemented. |
 
 ### Expected console output by condition
@@ -137,13 +136,25 @@ Expected log (if Klaviyo script already exists on page):
 [KlaviyoSiteEventTracking] Klaviyo onsite script is already present. Skipping injection. { hasManagedScript: true|false, hasKlaviyoScript: true|false }
 ```
 
-If `tracking.logIdentifyCalls = true` (independent from `tracking.enableDebugLogging`), expected placeholder identify-status warning log:
+If `tracking.logIdentifyCalls = true` and `tracking.logErrorsOnly = false`, expected identify diagnostics include:
 
 ```text
-[KlaviyoSiteEventTracking] Identify status placeholder. identify logging is enabled, but user identified/not-identified resolution is not implemented yet. { identifyEnabled: true, identifiedStatus: "unknown_placeholder" }
+[KlaviyoSiteEventTracking] No identifiable customer email resolved. { trigger: "poll_1" }
 ```
 
-This placeholder log is intentionally emitted as `console.warn` so it remains visible even when console output is filtered to warnings/errors.
+```text
+[KlaviyoSiteEventTracking] Klaviyo identify executed. { email: "[email protected]", source: "identity_endpoint:poll_2", usingKlaviyoObject: true|false }
+```
+
+```text
+[KlaviyoSiteEventTracking] Identify skipped (already identified for this browser session). { email: "[email protected]", source: "runtime_state:visibility_visible" }
+```
+
+If identify execution throws at runtime, expected warning:
+
+```text
+[KlaviyoSiteEventTracking] Failed to execute Klaviyo identify call. { source: "...", message: "..." }
+```
 
 #### 2) Debug enabled, GTM mode
 
