@@ -79,6 +79,8 @@ Plugin config is now split into dedicated tabs:
 - **Debugging tab**
   - `tracking.enableDebugLogging`
     - Enables informational console diagnostics from this plugin
+  - `tracking.logPluginHeartbeat`
+    - Enabled by default; writes a bootstrap heartbeat info log that reports whether `publicApiKey` was detected and includes the key value when available
   - `tracking.logIdentifyCalls`
     - Reserved for future identify payload logging; currently no identify events are emitted yet
   - `tracking.logTrackCalls`
@@ -95,7 +97,8 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 | Option | Type | Current effect | Notes |
 |---|---|---|---|
 | `tracking.enableDebugLogging` | boolean | Enables plugin `console.info` logs that confirm init path and script handling decisions. | Base switch for debug output. |
-| `tracking.logErrorsOnly` | boolean | Suppresses plugin `console.info` logs even if debug is enabled. | `console.warn` messages still appear. |
+| `tracking.logPluginHeartbeat` | boolean | Enabled by default; emits a startup `console.info` heartbeat with API-key detection status and the detected key value (if present). | Independent from `enableDebugLogging`; can be disabled if too noisy. |
+| `tracking.logErrorsOnly` | boolean | Suppresses plugin `console.info` logs (including heartbeat) even if other logging toggles are enabled. | `console.warn` messages still appear. |
 | `tracking.logIdentifyCalls` | boolean | No runtime effect yet in current scaffold. | Will be used once `identify` dispatch is implemented. |
 | `tracking.logTrackCalls` | boolean | No runtime effect yet in current scaffold. | Will be used once event `track` dispatch is implemented. |
 
@@ -107,16 +110,22 @@ All plugin messages are prefixed with:
 [KlaviyoSiteEventTracking]
 ```
 
-#### 1) Debug enabled, plugin mode, valid public API key
+#### 1) Heartbeat enabled (default), plugin mode, valid public API key
 
 Recommended config:
 
 - `tracking.integrationMode = plugin`
 - `tracking.publicApiKey = <your-site-id>`
-- `tracking.enableDebugLogging = true`
+- `tracking.logPluginHeartbeat = true` (default)
 - `tracking.logErrorsOnly = false`
 
-Expected log (first load, script not yet present):
+Expected startup heartbeat log:
+
+```text
+[KlaviyoSiteEventTracking] Plugin heartbeat. { publicApiKeyDetected: true, publicApiKey: "<your-site-id>", integrationMode: "plugin" }
+```
+
+If `tracking.enableDebugLogging = true`, expected additional log (first load, script not yet present):
 
 ```text
 [KlaviyoSiteEventTracking] Klaviyo onsite script bootstrap injected. { source: "https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=..." }
@@ -161,6 +170,12 @@ Any debug setting:
 - `tracking.integrationMode = plugin`
 - `tracking.publicApiKey = ""`
 
+Expected heartbeat info log (if `tracking.logPluginHeartbeat = true` and `tracking.logErrorsOnly = false`):
+
+```text
+[KlaviyoSiteEventTracking] Plugin heartbeat. { publicApiKeyDetected: false, publicApiKey: null, integrationMode: "plugin" }
+```
+
 Expected warning:
 
 ```text
@@ -198,7 +213,7 @@ This appears only when debug logging is enabled and `logErrorsOnly` is disabled.
   - `enableDebugLogging = true`, `logErrorsOnly = false`
   - Use when validating mode decisions and script injection order.
 - **Production with minimal noise**
-  - `enableDebugLogging = false` (default)
+  - `enableDebugLogging = false`, `logPluginHeartbeat = false`
   - Keeps console free of informational diagnostics from plugin internals.
 - **Error-focused diagnostics**
   - `enableDebugLogging = true`, `logErrorsOnly = true`

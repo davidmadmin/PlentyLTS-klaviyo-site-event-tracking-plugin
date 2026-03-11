@@ -5,6 +5,7 @@
 
   const debugEnabled = settings.enableDebugLogging === true;
   const logErrorsOnly = settings.logErrorsOnly === true;
+  const logPluginHeartbeat = settings.logPluginHeartbeat !== false;
 
   const warn = function (message) {
     console.warn("[KlaviyoSiteEventTracking] " + message);
@@ -22,6 +23,25 @@
 
     console.info("[KlaviyoSiteEventTracking] " + message);
   };
+
+  const heartbeatLog = function (message, payload) {
+    if (!logPluginHeartbeat || logErrorsOnly) {
+      return;
+    }
+
+    if (typeof payload !== "undefined") {
+      console.info("[KlaviyoSiteEventTracking] " + message, payload);
+      return;
+    }
+
+    console.info("[KlaviyoSiteEventTracking] " + message);
+  };
+
+  heartbeatLog("Plugin heartbeat.", {
+    publicApiKeyDetected: !!publicApiKey,
+    publicApiKey: publicApiKey || null,
+    integrationMode: integrationMode,
+  });
 
   if (window.__KlaviyoSiteEventTrackingInitialized === true) {
     debugLog("Bootstrap already initialized. Skipping duplicate initialization.");

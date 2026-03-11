@@ -48,6 +48,15 @@
             "defaultValue": false
           }
         },
+        "tracking.logPluginHeartbeat": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.logPluginHeartbeatLabel",
+          "options": {
+            "tooltip": "Config.logPluginHeartbeatTooltip",
+            "defaultValue": true
+          }
+        },
         "tracking.logIdentifyCalls": {
           "type": "checkBox",
           "required": false,
