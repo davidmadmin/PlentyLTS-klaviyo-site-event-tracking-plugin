@@ -2,7 +2,7 @@
   "name": "KlaviyoSiteEventTracking",
   "namespace": "KlaviyoSiteEventTracking",
   "type": "template",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "license": "AGPL-3.0",
   "description": "Basic plugin scaffold for Klaviyo on-site event tracking in plentyShop LTS.",
   "author": "Project Contributors",
