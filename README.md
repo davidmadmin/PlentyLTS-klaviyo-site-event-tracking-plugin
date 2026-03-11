@@ -17,8 +17,8 @@ The table below is optimized for a quick implementation and product-status scan.
 | Status | Event / Metric | Why it matters | Trigger (Plenty storefront) |
 |---|---|---|---|
 | 🟢 | **Identified Profile (Identify)** | Connect anonymous behavior to a known person | Logged-in session or post-login resolution identifies profile by email |
+| 🟢 | **Viewed Product** | Product interest and browse intent | PDP runtime-state detection plus variant/route changes dispatch product metadata |
 | 🔴 | **Active on Site** | Baseline site engagement and profile activity | Any meaningful page interaction/session heartbeat |
-| 🔴 | **Viewed Product** | Product interest and browse intent | PDP view with product identifiers and metadata |
 | 🔴 | **Added to Cart** | Purchase intent signal for abandoned-cart journeys | Add-to-cart action from PDP/listing/quick-buy |
 | 🔴 | **Removed from Cart** | Cart friction insight and drop-off analysis | Remove-line-item action in cart/minicart |
 | 🔴 | **Started Checkout** | Funnel entry and checkout abandonment flows | First transition from cart to checkout |
@@ -44,6 +44,7 @@ At this time, the repository provides a **partial implementation** with bootstra
 
 - 🟢 Klaviyo JavaScript bootstrap implemented for plugin and GTM modes
 - 🟢 Frontend identify flow implemented (email-based profile identification for logged-in users)
+- 🟢 Frontend Viewed Product tracking implemented with runtime-store + DOM fallback payload resolution and deduped variant transitions
 - 🟡 Configuration and debug logging controls are available and evolving
 - 🔴 Most storefront business event mappings are still pending
 
@@ -83,7 +84,7 @@ Plugin config is now split into dedicated tabs:
   - `tracking.logIdentifyCalls`
     - Emits identify diagnostics (`console.info`) for resolution attempts, lifecycle/auth triggers, successful identify calls, and deduped identify skips
   - `tracking.logTrackCalls`
-    - Reserved for future track payload logging; currently no track events are emitted yet
+    - Emits track diagnostics (`console.info`) for Viewed Product dispatch, dedupe skips, payload-missing skips, and `trackViewedItem` calls
   - `tracking.logErrorsOnly`
     - When `true`, suppresses info/debug logs and keeps warnings/errors visible
 
@@ -99,7 +100,7 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 | `tracking.logPluginHeartbeat` | boolean | Enabled by default; emits a startup `console.info` heartbeat with API-key detection status and the detected key value (if present). | Independent from `enableDebugLogging`; can be disabled if too noisy. |
 | `tracking.logErrorsOnly` | boolean | Suppresses plugin `console.info` logs (including heartbeat) even if other logging toggles are enabled. | `console.warn` messages still appear. |
 | `tracking.logIdentifyCalls` | boolean | Emits identify diagnostics (`console.info`) for no-email resolution, lifecycle/auth trigger attempts, successful identify calls, and duplicate-skip decisions. | Suppressed when `tracking.logErrorsOnly = true`. Also accepts common truthy/falsey string values (`"true"`, `"false"`, `"yes"`, `"no"`, etc.) for safer config parsing. |
-| `tracking.logTrackCalls` | boolean | No runtime effect yet in current scaffold. | Will be used once event `track` dispatch is implemented. |
+| `tracking.logTrackCalls` | boolean | Emits track diagnostics (`console.info`) for Viewed Product trigger sources, dedupe skips, payload-missing skips, and successful `track` / `trackViewedItem` dispatches. | Suppressed when `tracking.logErrorsOnly = true`. |
 
 ### Expected console output by condition
 
@@ -164,6 +165,31 @@ If identify execution throws at runtime, expected warning:
 ```text
 [KlaviyoSiteEventTracking] Failed to execute Klaviyo identify call. { source: "...", message: "..." }
 ```
+
+If `tracking.logTrackCalls = true` and `tracking.logErrorsOnly = false`, expected Viewed Product diagnostics include:
+
+```text
+[KlaviyoSiteEventTracking] Viewed Product skipped (required payload fields missing). { trigger: "bootstrap" }
+```
+
+```text
+[KlaviyoSiteEventTracking] Klaviyo track executed. { metric: "Viewed Product", trigger: "route_history_pushState|<dedup-key>", payload: { ProductName: "...", ProductID: "...", ... } }
+```
+
+```text
+[KlaviyoSiteEventTracking] Viewed Product skipped (deduped). { trigger: "variation_change", dedupKey: "<product|variation|path>" }
+```
+
+```text
+[KlaviyoSiteEventTracking] Klaviyo trackViewedItem executed. { trigger: "variation_click|<dedup-key>", itemId: "..." }
+```
+
+Viewed Product tracking is triggered when the current route looks like a PDP and either:
+
+- the storefront runtime state resolves valid product data (`ProductID`, `ProductName`, `URL`), or
+- optional DOM fallback attributes (`data-kse-product-id`, `data-kse-variation-id`, `data-kse-product-name`, etc.) are present.
+
+Variant transitions are handled through route/history hooks and delegated variant-control interactions (`change`/`click`); duplicate transitions are suppressed with a browser-session dedupe key.
 
 #### 2) Debug enabled, GTM mode
 

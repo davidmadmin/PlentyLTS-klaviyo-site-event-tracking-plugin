@@ -31,6 +31,7 @@
   const logErrorsOnly = isEnabled(settings.logErrorsOnly, false);
   const logPluginHeartbeat = isEnabled(settings.logPluginHeartbeat, true);
   const logIdentifyCalls = isEnabled(settings.logIdentifyCalls, false);
+  const logTrackCalls = isEnabled(settings.logTrackCalls, false);
   const identifyPollAttempts = 8;
   const identifyPollIntervalMs = 1500;
 
@@ -71,6 +72,19 @@
 
   const heartbeatLog = function (message, payload) {
     if (!logPluginHeartbeat || logErrorsOnly) {
+      return;
+    }
+
+    if (typeof payload !== "undefined") {
+      console.info("[KlaviyoSiteEventTracking] " + message, payload);
+      return;
+    }
+
+    console.info("[KlaviyoSiteEventTracking] " + message);
+  };
+
+  const trackLog = function (message, payload) {
+    if (!logTrackCalls || logErrorsOnly) {
       return;
     }
 
@@ -393,6 +407,391 @@
     scheduleIdentifyFlow(trigger + "_delayed", 900);
   };
 
+  const normalizedString = function (value) {
+    if (typeof value === "string") {
+      return value.trim();
+    }
+
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return String(value);
+    }
+
+    return "";
+  };
+
+  const normalizedNumber = function (value) {
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value;
+    }
+
+    if (typeof value === "string") {
+      const parsed = Number(value.replace(",", "."));
+
+      if (Number.isFinite(parsed)) {
+        return parsed;
+      }
+    }
+
+    return null;
+  };
+
+  const normalizedArray = function (value) {
+    if (Array.isArray(value)) {
+      return value
+        .map(function (entry) {
+          return normalizedString(entry);
+        })
+        .filter(function (entry) {
+          return !!entry;
+        });
+    }
+
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+
+      if (!trimmed) {
+        return [];
+      }
+
+      if (trimmed.indexOf("[") === 0) {
+        try {
+          const parsed = JSON.parse(trimmed);
+          return normalizedArray(parsed);
+        } catch (error) {
+          return [trimmed];
+        }
+      }
+
+      return trimmed
+        .split(",")
+        .map(function (entry) {
+          return entry.trim();
+        })
+        .filter(function (entry) {
+          return !!entry;
+        });
+    }
+
+    return [];
+  };
+
+  const normalizedAbsoluteUrl = function (value) {
+    const candidate = normalizedString(value);
+
+    if (!candidate) {
+      return window.location ? window.location.href : "";
+    }
+
+    try {
+      return new URL(candidate, window.location ? window.location.origin : undefined).href;
+    } catch (error) {
+      return candidate;
+    }
+  };
+
+  const extractCategories = function (candidate) {
+    if (!candidate || typeof candidate !== "object") {
+      return [];
+    }
+
+    const categoryPaths = [
+      ["defaultCategories"],
+      ["categories"],
+      ["categoryNames"],
+      ["item", "defaultCategories"],
+      ["item", "categories"],
+      ["variation", "categories"],
+      ["data", "categories"],
+    ];
+
+    for (let i = 0; i < categoryPaths.length; i += 1) {
+      const value = getNestedValue(candidate, categoryPaths[i]);
+
+      if (Array.isArray(value) && value.length > 0) {
+        const normalized = value
+          .map(function (entry) {
+            if (typeof entry === "string") {
+              return entry.trim();
+            }
+
+            if (entry && typeof entry === "object") {
+              return normalizedString(
+                entry.name ||
+                  entry.details && entry.details[0] && entry.details[0].name ||
+                  entry.label ||
+                  entry.value
+              );
+            }
+
+            return "";
+          })
+          .filter(function (entry) {
+            return !!entry;
+          });
+
+        if (normalized.length > 0) {
+          return normalized;
+        }
+      }
+    }
+
+    return [];
+  };
+
+  const getProductCandidateSources = function () {
+    return [
+      window.KlaviyoSiteEventTracking,
+      window.ceresStore && window.ceresStore.state,
+      window.ceresStore && window.ceresStore.getters,
+      window.App,
+      window.CeresApp,
+      window.ceresApp,
+    ];
+  };
+
+  const extractViewedProductCandidate = function (candidate) {
+    if (!candidate || typeof candidate !== "object") {
+      return null;
+    }
+
+    const productId =
+      normalizedString(getNestedValue(candidate, ["variation", "itemId"])) ||
+      normalizedString(getNestedValue(candidate, ["item", "id"])) ||
+      normalizedString(getNestedValue(candidate, ["itemId"])) ||
+      normalizedString(getNestedValue(candidate, ["currentVariation", "itemId"])) ||
+      normalizedString(getNestedValue(candidate, ["currentItem", "id"]));
+    const variationId =
+      normalizedString(getNestedValue(candidate, ["variation", "id"])) ||
+      normalizedString(getNestedValue(candidate, ["variationId"])) ||
+      normalizedString(getNestedValue(candidate, ["currentVariation", "id"])) ||
+      normalizedString(getNestedValue(candidate, ["item", "variationId"]));
+    const sku =
+      normalizedString(getNestedValue(candidate, ["variation", "number"])) ||
+      normalizedString(getNestedValue(candidate, ["variation", "model"])) ||
+      normalizedString(getNestedValue(candidate, ["variation", "externalId"])) ||
+      normalizedString(getNestedValue(candidate, ["sku"]));
+    const productName =
+      normalizedString(getNestedValue(candidate, ["variation", "name"])) ||
+      normalizedString(getNestedValue(candidate, ["item", "texts", "name1"])) ||
+      normalizedString(getNestedValue(candidate, ["texts", "name1"])) ||
+      normalizedString(getNestedValue(candidate, ["name"]));
+    const brand =
+      normalizedString(getNestedValue(candidate, ["item", "manufacturer", "name"])) ||
+      normalizedString(getNestedValue(candidate, ["manufacturer", "name"])) ||
+      normalizedString(getNestedValue(candidate, ["brand"]));
+
+    const imageUrl =
+      normalizedString(getNestedValue(candidate, ["images", 0, "url"])) ||
+      normalizedString(getNestedValue(candidate, ["images", 0, "urlMiddle"])) ||
+      normalizedString(getNestedValue(candidate, ["item", "images", 0, "url"])) ||
+      normalizedString(getNestedValue(candidate, ["variation", "images", 0, "url"])) ||
+      normalizedString(getNestedValue(candidate, ["imageUrl"]));
+
+    const price =
+      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "price", "value"])) ||
+      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "price", "gross"])) ||
+      normalizedNumber(getNestedValue(candidate, ["variation", "salesPrices", 0, "price"])) ||
+      normalizedNumber(getNestedValue(candidate, ["price"]));
+    const compareAtPrice =
+      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "rrp", "price"])) ||
+      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "rrp", "price", "value"])) ||
+      normalizedNumber(getNestedValue(candidate, ["compareAtPrice"]));
+
+    if (!productId && !variationId && !productName) {
+      return null;
+    }
+
+    return {
+      ProductName: productName,
+      ProductID: variationId || productId,
+      SKU: sku,
+      Categories: extractCategories(candidate),
+      ImageURL: normalizedAbsoluteUrl(imageUrl),
+      URL: normalizedAbsoluteUrl(window.location ? window.location.href : ""),
+      Brand: brand,
+      Price: price,
+      CompareAtPrice: compareAtPrice,
+      ParentProductID: productId,
+      VariationID: variationId,
+      IsVariant: !!variationId,
+    };
+  };
+
+  const getViewedProductFromDom = function () {
+    const root = document.querySelector("[data-kse-product-id], [data-kse-product-name], [data-kse-variation-id]");
+
+    if (!root) {
+      return null;
+    }
+
+    const productId = normalizedString(root.getAttribute("data-kse-product-id"));
+    const variationId = normalizedString(root.getAttribute("data-kse-variation-id"));
+    const productName = normalizedString(root.getAttribute("data-kse-product-name"));
+
+    if (!productId && !variationId && !productName) {
+      return null;
+    }
+
+    return {
+      ProductName: productName,
+      ProductID: variationId || productId,
+      SKU: normalizedString(root.getAttribute("data-kse-sku")),
+      Categories: normalizedArray(root.getAttribute("data-kse-categories")),
+      ImageURL: normalizedAbsoluteUrl(root.getAttribute("data-kse-image-url")),
+      URL: normalizedAbsoluteUrl(root.getAttribute("data-kse-url") || window.location.href),
+      Brand: normalizedString(root.getAttribute("data-kse-brand")),
+      Price: normalizedNumber(root.getAttribute("data-kse-price")),
+      CompareAtPrice: normalizedNumber(root.getAttribute("data-kse-compare-at-price")),
+      ParentProductID: productId,
+      VariationID: variationId,
+      IsVariant: !!variationId,
+    };
+  };
+
+  const isProductPagePath = function () {
+    if (!window.location || typeof window.location.pathname !== "string") {
+      return false;
+    }
+
+    const path = window.location.pathname.toLowerCase();
+
+    return /\/p\//.test(path) || /\/item\//.test(path) || /\/_\d+_\d+$/.test(path);
+  };
+
+  const resolveViewedProductPayload = function () {
+    const sources = getProductCandidateSources();
+
+    for (let i = 0; i < sources.length; i += 1) {
+      const source = extractViewedProductCandidate(sources[i]);
+
+      if (source && source.ProductID && source.ProductName) {
+        return source;
+      }
+    }
+
+    const domPayload = getViewedProductFromDom();
+    if (domPayload && domPayload.ProductID && domPayload.ProductName) {
+      return domPayload;
+    }
+
+    return null;
+  };
+
+  const buildViewedProductDedupKey = function (payload) {
+    const productId = normalizedString(payload && payload.ParentProductID);
+    const variationId = normalizedString(payload && payload.VariationID);
+    const effectiveProductId = normalizedString(payload && payload.ProductID);
+    const path = window.location && window.location.pathname ? window.location.pathname.toLowerCase() : "";
+
+    return [productId || effectiveProductId, variationId || effectiveProductId, path].join("|");
+  };
+
+  const trackEvent = function (metricName, payload, context) {
+    try {
+      if (window.klaviyo && typeof window.klaviyo.track === "function") {
+        window.klaviyo.track(metricName, payload);
+      } else {
+        window._learnq.push(["track", metricName, payload]);
+      }
+
+      trackLog("Klaviyo track executed.", {
+        metric: metricName,
+        trigger: context,
+        payload: payload,
+      });
+
+      return true;
+    } catch (error) {
+      warn("Failed to execute Klaviyo track call.", {
+        metric: metricName,
+        trigger: context,
+        message: error && error.message ? error.message : "unknown_error",
+      });
+      return false;
+    }
+  };
+
+  const trackViewedItem = function (payload, context) {
+    if (!(window.klaviyo && typeof window.klaviyo.trackViewedItem === "function")) {
+      return;
+    }
+
+    try {
+      window.klaviyo.trackViewedItem({
+        Title: payload.ProductName,
+        ItemId: payload.ProductID,
+        Categories: payload.Categories || [],
+        ImageUrl: payload.ImageURL,
+        Url: payload.URL,
+        Metadata: {
+          Brand: payload.Brand || "",
+          Price: payload.Price,
+          CompareAtPrice: payload.CompareAtPrice,
+          ParentProductID: payload.ParentProductID || "",
+          VariationID: payload.VariationID || "",
+        },
+      });
+
+      trackLog("Klaviyo trackViewedItem executed.", {
+        trigger: context,
+        itemId: payload.ProductID,
+      });
+    } catch (error) {
+      warn("Failed to execute Klaviyo trackViewedItem call.", {
+        trigger: context,
+        message: error && error.message ? error.message : "unknown_error",
+      });
+    }
+  };
+
+  const trackViewedProduct = function (trigger) {
+    if (!isProductPagePath()) {
+      trackLog("Viewed Product skipped (not a detected product page path).", {
+        trigger: trigger,
+        path: window.location ? window.location.pathname : "",
+      });
+      return;
+    }
+
+    const payload = resolveViewedProductPayload();
+
+    if (!payload || !payload.ProductID || !payload.ProductName || !payload.URL) {
+      trackLog("Viewed Product skipped (required payload fields missing).", {
+        trigger: trigger,
+      });
+      return;
+    }
+
+    const dedupKey = buildViewedProductDedupKey(payload);
+
+    if (window.__KlaviyoSiteEventTrackingLastViewedProductKey === dedupKey) {
+      trackLog("Viewed Product skipped (deduped).", {
+        trigger: trigger,
+        dedupKey: dedupKey,
+      });
+      return;
+    }
+
+    window.__KlaviyoSiteEventTrackingLastViewedProductKey = dedupKey;
+
+    trackEvent("Viewed Product", payload, trigger + "|" + dedupKey);
+    trackViewedItem(payload, trigger + "|" + dedupKey);
+  };
+
+  let viewedProductTrackTimeoutId = null;
+  const scheduleViewedProductTrack = function (trigger, delayMs) {
+    const waitMs = typeof delayMs === "number" ? delayMs : 200;
+
+    if (viewedProductTrackTimeoutId) {
+      window.clearTimeout(viewedProductTrackTimeoutId);
+    }
+
+    viewedProductTrackTimeoutId = window.setTimeout(function () {
+      viewedProductTrackTimeoutId = null;
+      trackViewedProduct(trigger);
+    }, waitMs);
+  };
+
   const addLifecycleEventListener = function (target, eventName, trigger) {
     if (!target || typeof target.addEventListener !== "function") {
       return;
@@ -400,6 +799,7 @@
 
     target.addEventListener(eventName, function () {
       scheduleIdentifyFlow(trigger);
+      scheduleViewedProductTrack(trigger);
     });
   };
 
@@ -420,6 +820,7 @@
       window.history[methodName] = function () {
         const returnValue = originalMethod.apply(window.history, arguments);
         scheduleIdentifyFlow("route_history_" + methodName);
+        scheduleViewedProductTrack("route_history_" + methodName);
 
         if (window.location && /\/((my-)?account)(\/|$)/i.test(window.location.pathname || "")) {
           scheduleIdentifyFlow("account_route_history_" + methodName);
@@ -436,6 +837,30 @@
   const registerIdentifyListeners = function () {
     document.addEventListener("submit", function () {
       scheduleIdentifyFlow("form_submit", 700);
+    });
+
+    document.addEventListener("change", function (event) {
+      const target = event && event.target;
+
+      if (!target || !target.closest) {
+        return;
+      }
+
+      if (target.closest("[data-variation-id], [data-variation-select], [class*='variation'], [name*='variation']")) {
+        scheduleViewedProductTrack("variation_change", 250);
+      }
+    });
+
+    document.addEventListener("click", function (event) {
+      const target = event && event.target;
+
+      if (!target || !target.closest) {
+        return;
+      }
+
+      if (target.closest("[data-variation-id], [data-variation-select], [class*='variation'], [data-js='variation-select']")) {
+        scheduleViewedProductTrack("variation_click", 250);
+      }
     });
 
     document.addEventListener("visibilitychange", function () {
@@ -462,6 +887,7 @@
     ].forEach(function (eventConfig) {
       document.addEventListener(eventConfig[0], function () {
         runAuthTransitionIdentifyFlow(eventConfig[1]);
+        scheduleViewedProductTrack("auth_" + eventConfig[1], 350);
       });
     });
 
@@ -481,6 +907,7 @@
   );
 
   registerIdentifyListeners();
+  scheduleViewedProductTrack("bootstrap");
 
   if (existingManagedScript || existingKlaviyoScript) {
     debugLog("Klaviyo onsite script is already present. Skipping injection.", {
@@ -488,6 +915,7 @@
       hasKlaviyoScript: !!existingKlaviyoScript,
     });
     startIdentifyPolling();
+    scheduleViewedProductTrack("existing_script");
     return;
   }
 
@@ -511,4 +939,5 @@
   });
 
   startIdentifyPolling();
+  scheduleViewedProductTrack("script_injected", 350);
 })();
