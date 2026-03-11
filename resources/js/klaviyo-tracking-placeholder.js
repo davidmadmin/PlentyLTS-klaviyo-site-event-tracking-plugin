@@ -220,7 +220,11 @@
         continue;
       }
 
-      const rawValue = field.getAttribute("data-kse-email") || field.value || "";
+      const rawValue =
+        field.getAttribute("data-kse-email") ||
+        field.getAttribute("data-contact-email") ||
+        field.value ||
+        "";
       const normalizedValue = normalizedEmail(rawValue);
 
       if (normalizedValue) {
@@ -376,6 +380,20 @@
     poll();
   };
 
+  const registerIdentifyListeners = function () {
+    document.addEventListener("submit", function () {
+      window.setTimeout(function () {
+        runIdentifyFlow("form_submit");
+      }, 700);
+    });
+
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") {
+        runIdentifyFlow("visibility_visible");
+      }
+    });
+  };
+
   const scriptSource =
     "https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=" +
     encodeURIComponent(publicApiKey);
@@ -387,6 +405,8 @@
   const existingKlaviyoScript = document.querySelector(
     "script[src*='static.klaviyo.com/onsite/js/klaviyo.js']"
   );
+
+  registerIdentifyListeners();
 
   if (existingManagedScript || existingKlaviyoScript) {
     debugLog("Klaviyo onsite script is already present. Skipping injection.", {
@@ -417,16 +437,4 @@
   });
 
   startIdentifyPolling();
-
-  document.addEventListener("submit", function () {
-    window.setTimeout(function () {
-      runIdentifyFlow("form_submit");
-    }, 700);
-  });
-
-  document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "visible") {
-      runIdentifyFlow("visibility_visible");
-    }
-  });
 })();
