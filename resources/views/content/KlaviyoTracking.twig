@@ -1,6 +1,7 @@
 {% set integrationMode = config("KlaviyoSiteEventTracking.tracking.integrationMode")|default("plugin") %}
 {% set publicApiKey = config("KlaviyoSiteEventTracking.tracking.publicApiKey")|default("") %}
 {% set enableDebugLogging = config("KlaviyoSiteEventTracking.tracking.enableDebugLogging") == "1" %}
+{% set logPluginHeartbeat = config("KlaviyoSiteEventTracking.tracking.logPluginHeartbeat") != "0" %}
 {% set logIdentifyCalls = config("KlaviyoSiteEventTracking.tracking.logIdentifyCalls") == "1" %}
 {% set logTrackCalls = config("KlaviyoSiteEventTracking.tracking.logTrackCalls") == "1" %}
 {% set logErrorsOnly = config("KlaviyoSiteEventTracking.tracking.logErrorsOnly") == "1" %}
@@ -10,6 +11,7 @@
   window.KlaviyoSiteEventTracking.integrationMode = "{{ integrationMode|e('js') }}";
   window.KlaviyoSiteEventTracking.publicApiKey = "{{ publicApiKey|e('js') }}";
   window.KlaviyoSiteEventTracking.enableDebugLogging = {{ enableDebugLogging ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.logPluginHeartbeat = {{ logPluginHeartbeat ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.logIdentifyCalls = {{ logIdentifyCalls ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.logTrackCalls = {{ logTrackCalls ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.logErrorsOnly = {{ logErrorsOnly ? 'true' : 'false' }};
