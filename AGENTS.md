@@ -22,3 +22,14 @@ Ordering rule for that table is mandatory:
 
 Within each status group, keep a stable, readable order (e.g., current order unless a better logical grouping is needed). If an event changes status, move it to the matching section automatically.
 
+## README troubleshooting/debug logging sync maintenance
+Whenever any change is made to runtime console logging/debugging behavior (especially in `resources/js/klaviyo-tracking-placeholder.js`), you must update `README.md` in the same change to keep the troubleshooting/debug logging documentation accurate.
+
+This includes (but is not limited to):
+- Added/removed/renamed log messages.
+- Changed log levels (`info`, `warn`, `error`, etc.).
+- Changed conditions under which a log appears.
+- Added/removed/renamed debug-related config keys.
+- Any behavioral changes that alter expected console output examples.
+
+Treat README troubleshooting/debug logging docs as a required source of truth that must stay in lockstep with actual code behavior.

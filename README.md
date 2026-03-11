@@ -73,6 +73,135 @@ Current config key:
   - `gtm`: Klaviyo JS handled externally (Google Tag Manager)
   - `plugin`: Klaviyo JS handled by this plugin
 
+Additional debugging keys:
+
+- `tracking.enableDebugLogging`
+  - Enables informational console diagnostics from this plugin
+- `tracking.logIdentifyCalls`
+  - Reserved for future identify payload logging; currently no identify events are emitted yet
+- `tracking.logTrackCalls`
+  - Reserved for future track payload logging; currently no track events are emitted yet
+- `tracking.logErrorsOnly`
+  - When `true`, suppresses info/debug logs and keeps warnings/errors visible
+
+## Troubleshooting
+
+Use this section to validate current bootstrap behavior in browser dev tools.
+
+### Console logging options and what they activate
+
+| Option | Type | Current effect | Notes |
+|---|---|---|---|
+| `tracking.enableDebugLogging` | boolean | Enables plugin `console.info` logs that confirm init path and script handling decisions. | Base switch for debug output. |
+| `tracking.logErrorsOnly` | boolean | Suppresses plugin `console.info` logs even if debug is enabled. | `console.warn` messages still appear. |
+| `tracking.logIdentifyCalls` | boolean | No runtime effect yet in current scaffold. | Will be used once `identify` dispatch is implemented. |
+| `tracking.logTrackCalls` | boolean | No runtime effect yet in current scaffold. | Will be used once event `track` dispatch is implemented. |
+
+### Expected console output by condition
+
+All plugin messages are prefixed with:
+
+```text
+[KlaviyoSiteEventTracking]
+```
+
+#### 1) Debug enabled, plugin mode, valid public API key
+
+Recommended config:
+
+- `tracking.integrationMode = plugin`
+- `tracking.publicApiKey = <your-site-id>`
+- `tracking.enableDebugLogging = true`
+- `tracking.logErrorsOnly = false`
+
+Expected log (first load, script not yet present):
+
+```text
+[KlaviyoSiteEventTracking] Klaviyo onsite script bootstrap injected. { source: "https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=..." }
+```
+
+Expected log (if Klaviyo script already exists on page):
+
+```text
+[KlaviyoSiteEventTracking] Klaviyo onsite script is already present. Skipping injection. { hasManagedScript: true|false, hasKlaviyoScript: true|false }
+```
+
+#### 2) Debug enabled, GTM mode
+
+Recommended config:
+
+- `tracking.integrationMode = gtm`
+- `tracking.enableDebugLogging = true`
+- `tracking.logErrorsOnly = false`
+
+Expected startup log:
+
+```text
+[KlaviyoSiteEventTracking] Integration mode is GTM. Klaviyo script injection is disabled and expected to be handled externally (for example via Google Tag Manager).
+```
+
+Possible detection log (if `window.klaviyo` or `window._learnq` appears within retry window):
+
+```text
+[KlaviyoSiteEventTracking] Detected externally loaded Klaviyo object in GTM mode. { hasKlaviyoObject: true|false, hasLearnqQueue: true|false, attempts: <n> }
+```
+
+Possible timeout log (if object is not detected in retry window):
+
+```text
+[KlaviyoSiteEventTracking] No Klaviyo object detected during GTM-mode retry window.
+```
+
+#### 3) Plugin mode without `publicApiKey`
+
+Any debug setting:
+
+- `tracking.integrationMode = plugin`
+- `tracking.publicApiKey = ""`
+
+Expected warning:
+
+```text
+[KlaviyoSiteEventTracking] Missing required setting 'tracking.publicApiKey' for plugin integration mode. Add your Klaviyo public API key in plugin configuration or switch to GTM mode if Klaviyo is loaded externally.
+```
+
+#### 4) Unsupported integration mode value
+
+Example config:
+
+- `tracking.integrationMode = custom-value`
+- `tracking.publicApiKey = <your-site-id>`
+
+Expected warning + fallback behavior:
+
+```text
+[KlaviyoSiteEventTracking] Unsupported integration mode 'custom-value'. Falling back to plugin bootstrap behavior.
+```
+
+Followed by normal plugin-mode script injection behavior.
+
+#### 5) Duplicate bootstrap execution
+
+If the snippet executes more than once during page lifecycle, expected debug log:
+
+```text
+[KlaviyoSiteEventTracking] Bootstrap already initialized. Skipping duplicate initialization.
+```
+
+This appears only when debug logging is enabled and `logErrorsOnly` is disabled.
+
+### Practical logging combinations
+
+- **Troubleshooting setup issues**
+  - `enableDebugLogging = true`, `logErrorsOnly = false`
+  - Use when validating mode decisions and script injection order.
+- **Production with minimal noise**
+  - `enableDebugLogging = false` (default)
+  - Keeps console free of informational diagnostics from plugin internals.
+- **Error-focused diagnostics**
+  - `enableDebugLogging = true`, `logErrorsOnly = true`
+  - Shows warnings, hides info logs.
+
 ## Notes
 
 - Event names and payload contracts should align with the latest Klaviyo JavaScript API guidance.
