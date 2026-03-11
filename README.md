@@ -82,7 +82,7 @@ Plugin config is now split into dedicated tabs:
   - `tracking.logPluginHeartbeat`
     - Enabled by default; writes a bootstrap heartbeat info log that reports whether `publicApiKey` was detected and includes the key value when available
   - `tracking.logIdentifyCalls`
-    - Reserved for future identify payload logging; currently no identify events are emitted yet
+    - Emits an identify-status placeholder `console.info` log indicating identify logging is enabled and that identified/not-identified resolution is not implemented yet
   - `tracking.logTrackCalls`
     - Reserved for future track payload logging; currently no track events are emitted yet
   - `tracking.logErrorsOnly`
@@ -99,7 +99,7 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 | `tracking.enableDebugLogging` | boolean | Enables plugin `console.info` logs that confirm init path and script handling decisions. | Base switch for debug output. |
 | `tracking.logPluginHeartbeat` | boolean | Enabled by default; emits a startup `console.info` heartbeat with API-key detection status and the detected key value (if present). | Independent from `enableDebugLogging`; can be disabled if too noisy. |
 | `tracking.logErrorsOnly` | boolean | Suppresses plugin `console.info` logs (including heartbeat) even if other logging toggles are enabled. | `console.warn` messages still appear. |
-| `tracking.logIdentifyCalls` | boolean | No runtime effect yet in current scaffold. | Will be used once `identify` dispatch is implemented. |
+| `tracking.logIdentifyCalls` | boolean | Emits an identify-status placeholder `console.info` log when enabled. | Placeholder reports `identifiedStatus: "unknown_placeholder"` until real identify-state checks are implemented. |
 | `tracking.logTrackCalls` | boolean | No runtime effect yet in current scaffold. | Will be used once event `track` dispatch is implemented. |
 
 ### Expected console output by condition
@@ -135,6 +135,12 @@ Expected log (if Klaviyo script already exists on page):
 
 ```text
 [KlaviyoSiteEventTracking] Klaviyo onsite script is already present. Skipping injection. { hasManagedScript: true|false, hasKlaviyoScript: true|false }
+```
+
+If `tracking.logIdentifyCalls = true` (independent from `tracking.enableDebugLogging`), expected placeholder identify-status log:
+
+```text
+[KlaviyoSiteEventTracking] Identify status placeholder. identify logging is enabled, but user identified/not-identified resolution is not implemented yet. { identifyEnabled: true, identifiedStatus: "unknown_placeholder" }
 ```
 
 #### 2) Debug enabled, GTM mode

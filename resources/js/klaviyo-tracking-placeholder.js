@@ -6,6 +6,7 @@
   const debugEnabled = settings.enableDebugLogging === true;
   const logErrorsOnly = settings.logErrorsOnly === true;
   const logPluginHeartbeat = settings.logPluginHeartbeat !== false;
+  const logIdentifyCalls = settings.logIdentifyCalls === true;
 
   const warn = function (message) {
     console.warn("[KlaviyoSiteEventTracking] " + message);
@@ -42,6 +43,16 @@
     publicApiKey: publicApiKey || null,
     integrationMode: integrationMode,
   });
+
+  if (logIdentifyCalls) {
+    console.info(
+      "[KlaviyoSiteEventTracking] Identify status placeholder. identify logging is enabled, but user identified/not-identified resolution is not implemented yet.",
+      {
+        identifyEnabled: true,
+        identifiedStatus: "unknown_placeholder",
+      }
+    );
+  }
 
   if (window.__KlaviyoSiteEventTrackingInitialized === true) {
     debugLog("Bootstrap already initialized. Skipping duplicate initialization.");
