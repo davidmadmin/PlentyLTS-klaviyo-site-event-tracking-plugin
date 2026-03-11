@@ -67,22 +67,24 @@ At this time, the repository provides a **foundation scaffold**, not a finished 
 
 ## Configuration
 
-Current config key:
+Plugin config is now split into dedicated tabs:
 
-- `tracking.integrationMode`
-  - `gtm`: Klaviyo JS handled externally (Google Tag Manager)
-  - `plugin`: Klaviyo JS handled by this plugin
+- **Setup tab**
+  - `tracking.integrationMode`
+    - `gtm`: Klaviyo JS handled externally (Google Tag Manager)
+    - `plugin`: Klaviyo JS handled by this plugin
+  - `tracking.publicApiKey`
+    - Klaviyo site ID used when integration mode is `plugin`
 
-Additional debugging keys:
-
-- `tracking.enableDebugLogging`
-  - Enables informational console diagnostics from this plugin
-- `tracking.logIdentifyCalls`
-  - Reserved for future identify payload logging; currently no identify events are emitted yet
-- `tracking.logTrackCalls`
-  - Reserved for future track payload logging; currently no track events are emitted yet
-- `tracking.logErrorsOnly`
-  - When `true`, suppresses info/debug logs and keeps warnings/errors visible
+- **Debugging tab**
+  - `tracking.enableDebugLogging`
+    - Enables informational console diagnostics from this plugin
+  - `tracking.logIdentifyCalls`
+    - Reserved for future identify payload logging; currently no identify events are emitted yet
+  - `tracking.logTrackCalls`
+    - Reserved for future track payload logging; currently no track events are emitted yet
+  - `tracking.logErrorsOnly`
+    - When `true`, suppresses info/debug logs and keeps warnings/errors visible
 
 ## Troubleshooting
 
