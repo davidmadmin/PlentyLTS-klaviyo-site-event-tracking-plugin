@@ -3,11 +3,41 @@
   const integrationMode = settings.integrationMode || "plugin";
   const publicApiKey = (settings.publicApiKey || "").trim();
 
-  const debugEnabled = settings.enableDebugLogging === true;
-  const logErrorsOnly = settings.logErrorsOnly === true;
-  const logPluginHeartbeat = settings.logPluginHeartbeat !== false;
+  const isEnabled = function (value, defaultValue) {
+    if (value === true || value === 1 || value === "1") {
+      return true;
+    }
 
-  const warn = function (message) {
+    if (value === false || value === 0 || value === "0") {
+      return false;
+    }
+
+    if (typeof value === "string") {
+      const normalizedValue = value.trim().toLowerCase();
+
+      if (["true", "yes", "on", "enabled"].indexOf(normalizedValue) !== -1) {
+        return true;
+      }
+
+      if (["false", "no", "off", "disabled", ""].indexOf(normalizedValue) !== -1) {
+        return false;
+      }
+    }
+
+    return defaultValue;
+  };
+
+  const debugEnabled = isEnabled(settings.enableDebugLogging, false);
+  const logErrorsOnly = isEnabled(settings.logErrorsOnly, false);
+  const logPluginHeartbeat = isEnabled(settings.logPluginHeartbeat, true);
+  const logIdentifyCalls = isEnabled(settings.logIdentifyCalls, false);
+
+  const warn = function (message, payload) {
+    if (typeof payload !== "undefined") {
+      console.warn("[KlaviyoSiteEventTracking] " + message, payload);
+      return;
+    }
+
     console.warn("[KlaviyoSiteEventTracking] " + message);
   };
 
@@ -42,6 +72,16 @@
     publicApiKey: publicApiKey || null,
     integrationMode: integrationMode,
   });
+
+  if (logIdentifyCalls) {
+    warn(
+      "Identify status placeholder. identify logging is enabled, but user identified/not-identified resolution is not implemented yet.",
+      {
+        identifyEnabled: true,
+        identifiedStatus: "unknown_placeholder",
+      }
+    );
+  }
 
   if (window.__KlaviyoSiteEventTrackingInitialized === true) {
     debugLog("Bootstrap already initialized. Skipping duplicate initialization.");
