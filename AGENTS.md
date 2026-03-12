@@ -10,6 +10,19 @@ All relevant Plenty plugin development documentation and Klaviyo development doc
 
 These are first-party documentations from the respective companies about their software products and should be treated as the first source of truth when handling anything regarding PlentyLTS and Klaviyo.
 
+## PlentyLTS/Ceres + IO baseline context
+This project targets two live shops that run on PlentyLTS, also known as **Ceres**.
+
+Both of the following Plenty plugins are foundational and required for the storefront runtime:
+- Ceres (PlentyLTS): https://github.com/plentymarkets/plugin-ceres
+- IO (routing/plugin infrastructure): https://github.com/plentymarkets/plugin-io
+
+Current baseline version for both in our environment: **5.0.78**.
+
+The Klaviyo tracking plugin in this repository is built to run in parallel with both Ceres and IO; both are required for normal shop operation.
+
+When deeper technical behavior or integration details are needed, consult those upstream repositories as primary implementation references for storefront/plugin behavior.
+
 ## README tracking-status table maintenance
 Whenever any change is made in this repository, always review the event status table in `README.md` under `Scope: Klaviyo on-site metrics/events`.
 
