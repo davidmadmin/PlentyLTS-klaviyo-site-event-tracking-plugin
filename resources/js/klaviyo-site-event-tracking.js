@@ -33,6 +33,7 @@
   const logIdentifyCalls = isEnabled(settings.logIdentifyCalls, false);
   const logTrackCalls = isEnabled(settings.logTrackCalls, true);
   const enableViewedProductEvent = isEnabled(settings.enableViewedProductEvent, true);
+  const enableAddedToCartEvent = isEnabled(settings.enableAddedToCartEvent, true);
   const identifyPollAttempts = 8;
   const identifyPollIntervalMs = 1500;
 
@@ -941,6 +942,314 @@
     return [productId || effectiveProductId, variationId || effectiveProductId, path].join("|");
   };
 
+
+  const normalizedInteger = function (value, fallbackValue) {
+    const numericValue = normalizedNumber(value);
+
+    if (numericValue === null) {
+      return typeof fallbackValue === "number" ? fallbackValue : 0;
+    }
+
+    const rounded = Math.round(numericValue);
+    return Number.isFinite(rounded) ? rounded : (typeof fallbackValue === "number" ? fallbackValue : 0);
+  };
+
+  const normalizeBasketItems = function (basket) {
+    if (!basket || typeof basket !== "object") {
+      return [];
+    }
+
+    const itemCollections = [
+      basket.items,
+      basket.basketItems,
+      basket.itemList,
+      basket.lines,
+      basket.data && basket.data.items,
+      basket.basket && basket.basket.items,
+      basket.basket && basket.basket.basketItems,
+    ];
+
+    for (let i = 0; i < itemCollections.length; i += 1) {
+      if (Array.isArray(itemCollections[i])) {
+        return itemCollections[i];
+      }
+    }
+
+    return [];
+  };
+
+  const extractBasketTotal = function (basket) {
+    return firstDefinedNumber([
+      normalizedNumber(getNestedValue(basket, ["totals", "basketTotalGross"])),
+      normalizedNumber(getNestedValue(basket, ["totals", "total"])),
+      normalizedNumber(getNestedValue(basket, ["basketAmount"])),
+      normalizedNumber(getNestedValue(basket, ["basketAmountNet"])),
+      normalizedNumber(getNestedValue(basket, ["totalSum"])),
+      normalizedNumber(getNestedValue(basket, ["totals", "amount"])),
+      extractNumberFromPriceCandidate(getNestedValue(basket, ["totals", "basketTotal"])),
+    ]);
+  };
+
+  const extractBasketLine = function (item) {
+    if (!item || typeof item !== "object") {
+      return null;
+    }
+
+    const variationId =
+      normalizedString(getNestedValue(item, ["variationId"])) ||
+      normalizedString(getNestedValue(item, ["variation", "id"])) ||
+      normalizedString(getNestedValue(item, ["id"]));
+    const productId =
+      normalizedString(getNestedValue(item, ["itemId"])) ||
+      normalizedString(getNestedValue(item, ["item", "id"])) ||
+      normalizedString(getNestedValue(item, ["variation", "itemId"])) ||
+      variationId;
+    const quantity = normalizedInteger(
+      firstDefinedNumber([
+        normalizedNumber(getNestedValue(item, ["quantity"])),
+        normalizedNumber(getNestedValue(item, ["amount"])),
+      ]),
+      1
+    );
+    const price = firstDefinedNumber([
+      extractNumberFromPriceCandidate(getNestedValue(item, ["price"])),
+      extractNumberFromPriceCandidate(getNestedValue(item, ["basketItemOrderParams", "price"])),
+      extractNumberFromPriceCandidate(getNestedValue(item, ["variation", "prices", "default", "price", "value"])),
+      normalizedNumber(getNestedValue(item, ["priceGross"])),
+    ]);
+
+    const categories = extractCategories(item);
+
+    return {
+      ItemName:
+        normalizedString(getNestedValue(item, ["itemName"])) ||
+        normalizedString(getNestedValue(item, ["variation", "name"])) ||
+        normalizedString(getNestedValue(item, ["item", "texts", "name1"])) ||
+        normalizedString(getNestedValue(item, ["name"])),
+      ProductID: productId,
+      VariationID: variationId,
+      SKU:
+        normalizedString(getNestedValue(item, ["variationNumber"])) ||
+        normalizedString(getNestedValue(item, ["variation", "number"])) ||
+        normalizedString(getNestedValue(item, ["sku"])),
+      Quantity: quantity,
+      ItemPrice: price,
+      RowTotal: price !== null ? Number((price * quantity).toFixed(4)) : null,
+      ImageURL: normalizedAbsoluteUrl(
+        normalizedString(getNestedValue(item, ["image"])) ||
+          normalizedString(getNestedValue(item, ["imageUrl"])) ||
+          normalizedString(getNestedValue(item, ["variation", "images", 0, "url"])),
+        false
+      ),
+      URL: normalizedAbsoluteUrl(
+        normalizedString(getNestedValue(item, ["url"])) ||
+          normalizedString(getNestedValue(item, ["item", "url"])) ||
+          normalizedString(getNestedValue(item, ["variation", "url"])),
+        false
+      ),
+      Categories: categories,
+    };
+  };
+
+  const resolveBasketSnapshot = function (event) {
+    const detail = event && event.detail && typeof event.detail === "object" ? event.detail : null;
+    const candidates = [
+      detail,
+      detail && detail.basket,
+      detail && detail.data,
+      detail && detail.payload,
+      window.ceresStore && window.ceresStore.state && window.ceresStore.state.basket,
+      window.ceresStore && window.ceresStore.getters && window.ceresStore.getters.basket,
+      window.App && window.App.basket,
+    ];
+
+    for (let i = 0; i < candidates.length; i += 1) {
+      const candidate = candidates[i];
+      const items = normalizeBasketItems(candidate);
+
+      if (items.length > 0) {
+        return {
+          sourceLabel: i === 0 ? "afterBasketChanged.detail" : "basket_candidate_" + i,
+          basket: candidate,
+          items: items,
+        };
+      }
+    }
+
+    return null;
+  };
+
+  const resolveAddedToCartPayload = function (intent, basketResolution) {
+    const basket = basketResolution && basketResolution.basket;
+    const items = basketResolution && basketResolution.items ? basketResolution.items : [];
+    const basketLines = items
+      .map(function (item) {
+        return extractBasketLine(item);
+      })
+      .filter(function (line) {
+        return !!line && !!line.ProductID;
+      });
+
+    if (basketLines.length === 0) {
+      return null;
+    }
+
+    const nowTs = Date.now();
+    const maxIntentAgeMs = 15000;
+    const effectiveIntent = intent && nowTs - intent.timestamp <= maxIntentAgeMs ? intent : null;
+
+    let addedLine = null;
+
+    if (effectiveIntent) {
+      for (let i = 0; i < basketLines.length; i += 1) {
+        const line = basketLines[i];
+        if (
+          (effectiveIntent.variationId && line.VariationID === effectiveIntent.variationId) ||
+          (effectiveIntent.productId && line.ProductID === effectiveIntent.productId)
+        ) {
+          addedLine = line;
+          break;
+        }
+      }
+    }
+
+    if (!addedLine) {
+      addedLine = basketLines[basketLines.length - 1];
+    }
+
+    if (!addedLine) {
+      return null;
+    }
+
+    const checkoutUrl = normalizedAbsoluteUrl('/checkout', true);
+    const basketValue = extractBasketTotal(basket);
+
+    return {
+      payload: {
+        $value: basketValue,
+        AddedItemProductName: addedLine.ItemName,
+        AddedItemProductID: addedLine.ProductID,
+        AddedItemSKU: addedLine.SKU,
+        AddedItemCategories: addedLine.Categories,
+        AddedItemImageURL: addedLine.ImageURL,
+        AddedItemURL: addedLine.URL,
+        AddedItemPrice: addedLine.ItemPrice,
+        AddedItemQuantity: effectiveIntent && effectiveIntent.requestedQuantity ? effectiveIntent.requestedQuantity : addedLine.Quantity,
+        ItemNames: basketLines.map(function (line) { return line.ItemName; }).filter(function (v) { return !!v; }),
+        CheckoutURL: checkoutUrl,
+        Items: basketLines,
+      },
+      addedLine: addedLine,
+      sourceLabel: basketResolution && basketResolution.sourceLabel ? basketResolution.sourceLabel : 'unknown',
+    };
+  };
+
+  const buildAddedToCartDedupKey = function (payload, bucketTimestamp) {
+    const productId = normalizedString(payload && payload.AddedItemProductID);
+    const qty = normalizedString(payload && payload.AddedItemQuantity);
+    const basketHash = normalizedString(payload && payload.ItemNames ? payload.ItemNames.join('|') : '');
+    return [productId, qty, basketHash, String(bucketTimestamp)].join('|');
+  };
+
+  let lastAddedToCartIntent = null;
+
+  const captureAddedToCartIntent = function (event) {
+    const detail = event && event.detail && typeof event.detail === 'object' ? event.detail : {};
+    const variationId =
+      normalizedString(detail.variationId) ||
+      normalizedString(getNestedValue(detail, ['variation', 'id'])) ||
+      normalizedString(getNestedValue(detail, ['basketItem', 'variationId']));
+    const productId =
+      normalizedString(detail.itemId) ||
+      normalizedString(getNestedValue(detail, ['item', 'id'])) ||
+      normalizedString(getNestedValue(detail, ['variation', 'itemId']));
+
+    lastAddedToCartIntent = {
+      variationId: variationId,
+      productId: productId,
+      requestedQuantity: normalizedInteger(firstDefinedNumber([
+        normalizedNumber(detail.quantity),
+        normalizedNumber(getNestedValue(detail, ['basketItem', 'quantity'])),
+      ]), 1),
+      timestamp: Date.now(),
+      triggerSource: normalizedString(detail.source) || 'afterBasketItemAdded',
+    };
+
+    trackLog('Added to Cart trigger captured.', {
+      variationId: lastAddedToCartIntent.variationId,
+      productId: lastAddedToCartIntent.productId,
+      requestedQuantity: lastAddedToCartIntent.requestedQuantity,
+      triggerSource: lastAddedToCartIntent.triggerSource,
+    });
+  };
+
+  const trackAddedToCart = function (event, trigger) {
+    if (!enableAddedToCartEvent) {
+      trackLog('Added to Cart skipped (disabled by configuration).', {
+        trigger: trigger,
+      });
+      return;
+    }
+
+    const basketResolution = resolveBasketSnapshot(event);
+
+    if (!basketResolution) {
+      trackLog('Added to Cart skipped (required payload fields missing).', {
+        trigger: trigger,
+        reason: 'basket_snapshot_missing',
+      });
+      return;
+    }
+
+    trackLog('Added to Cart basket snapshot resolved.', {
+      trigger: trigger,
+      sourceLabel: basketResolution.sourceLabel,
+      itemCount: basketResolution.items.length,
+    });
+
+    const payloadResolution = resolveAddedToCartPayload(lastAddedToCartIntent, basketResolution);
+    const payload = payloadResolution && payloadResolution.payload;
+
+    if (!payload || !payload.AddedItemProductName || !payload.AddedItemProductID || payload.AddedItemPrice === null || !payload.AddedItemQuantity) {
+      trackLog('Added to Cart skipped (required payload fields missing).', {
+        trigger: trigger,
+        hasPayload: !!payload,
+      });
+      return;
+    }
+
+    trackLog('Added to Cart payload resolved.', {
+      trigger: trigger,
+      sourceLabel: payloadResolution.sourceLabel,
+      addedItemProductId: payload.AddedItemProductID,
+      addedItemProductName: payload.AddedItemProductName,
+      addedItemQuantity: payload.AddedItemQuantity,
+    });
+
+    const dedupeBucket = Math.floor(Date.now() / 5000);
+    const dedupKey = buildAddedToCartDedupKey(payload, dedupeBucket);
+
+    if (window.__KlaviyoSiteEventTrackingLastAddedToCartKey === dedupKey) {
+      trackLog('Added to Cart skipped (deduped).', {
+        trigger: trigger,
+        dedupKey: dedupKey,
+      });
+      return;
+    }
+
+    const didTrack = trackEvent('Added to Cart', payload, trigger + '|' + dedupKey);
+
+    if (!didTrack) {
+      trackLog('Added to Cart dedupe key not updated because track dispatch failed.', {
+        trigger: trigger,
+        dedupKey: dedupKey,
+      });
+      return;
+    }
+
+    window.__KlaviyoSiteEventTrackingLastAddedToCartKey = dedupKey;
+  };
+
   const trackEvent = function (metricName, payload, context) {
     try {
       if (window.klaviyo && typeof window.klaviyo.track === "function") {
@@ -1163,6 +1472,14 @@
     addLifecycleEventListener(document, "ceres:route-changed", "route_ceres");
     addLifecycleEventListener(document, "vue:route-changed", "route_vue");
     addLifecycleEventListener(document, "afterRouteChanged", "route_after_changed");
+
+    document.addEventListener("afterBasketItemAdded", function (event) {
+      captureAddedToCartIntent(event);
+    });
+
+    document.addEventListener("afterBasketChanged", function (event) {
+      trackAddedToCart(event, "afterBasketChanged");
+    });
 
     addLifecycleEventListener(document, "account:view-changed", "account_route");
     addLifecycleEventListener(document, "account:overview-loaded", "account_overview");
