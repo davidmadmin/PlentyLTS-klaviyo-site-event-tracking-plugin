@@ -63,7 +63,7 @@ At this time, the repository provides a **partial implementation** with bootstra
 ## Setup notes
 
 - The `KlaviyoSiteEventTracking\Containers\KlaviyoTrackingContainer` data provider defaults to `Ceres::Script.Loader` via `defaultLayoutContainer`.
-- Without custom overrides, the tracking placeholder snippet is injected through that Ceres script loader container.
+- Without custom overrides, the Klaviyo site event tracking entrypoint is injected through that Ceres script loader container.
 
 ## Configuration
 
@@ -75,6 +75,10 @@ Plugin config is now split into dedicated tabs:
     - `plugin`: Klaviyo JS handled by this plugin
   - `tracking.publicApiKey`
     - Klaviyo site ID used when integration mode is `plugin`
+
+- **Events tab**
+  - `tracking.enableViewedProductEvent`
+    - Enabled by default; activates/deactivates the `Viewed Product` tracking flow
 
 - **Debugging tab**
   - `tracking.enableDebugLogging`
@@ -100,7 +104,8 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 | `tracking.logPluginHeartbeat` | boolean | Enabled by default; emits a startup `console.info` heartbeat with API-key detection status and the detected key value (if present). | Independent from `enableDebugLogging`; can be disabled if too noisy. |
 | `tracking.logErrorsOnly` | boolean | Suppresses plugin `console.info` logs (including heartbeat) even if other logging toggles are enabled. | `console.warn` messages still appear. |
 | `tracking.logIdentifyCalls` | boolean | Emits identify diagnostics (`console.info`) for no-email resolution, lifecycle/auth trigger attempts, successful identify calls, and duplicate-skip decisions. | Suppressed when `tracking.logErrorsOnly = true`. Also accepts common truthy/falsey string values (`"true"`, `"false"`, `"yes"`, `"no"`, etc.) for safer config parsing. |
-| `tracking.logTrackCalls` | boolean | Enabled by default; emits track diagnostics (`console.info`) for product-page detection checks, getter-first payload-source resolution, Viewed Product trigger sources, dedupe skips, payload-missing skips, and successful `track` / `trackViewedItem` dispatches. | Suppressed when `tracking.logErrorsOnly = true`. |
+| `tracking.logTrackCalls` | boolean | Enabled by default; emits track diagnostics (`console.info`) for product-page detection checks, getter-first payload-source resolution, Viewed Product trigger sources, disabled-by-config skips, dedupe skips, payload-missing skips, and successful `track` / `trackViewedItem` dispatches. | Suppressed when `tracking.logErrorsOnly = true`. |
+| `tracking.enableViewedProductEvent` | boolean | Enabled by default; toggles whether the `Viewed Product` tracking flow runs at all. | When disabled and `tracking.logTrackCalls = true`, logs a per-trigger skip diagnostic. |
 
 ### Expected console output by condition
 
@@ -167,6 +172,10 @@ If identify execution throws at runtime, expected warning:
 ```
 
 If `tracking.logTrackCalls = true` and `tracking.logErrorsOnly = false`, expected Viewed Product diagnostics include:
+
+```text
+[KlaviyoSiteEventTracking] Viewed Product tracking disabled by configuration. { trigger: "bootstrap" }
+```
 
 ```text
 [KlaviyoSiteEventTracking] Viewed Product page detection evaluated. { trigger: "bootstrap", isProductPage: true|false, detectionSource: "runtime_app_isItemView"|"runtime_app_templateType"|"path_regex"|"none", path: "/..." }

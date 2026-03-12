@@ -32,6 +32,7 @@
   const logPluginHeartbeat = isEnabled(settings.logPluginHeartbeat, true);
   const logIdentifyCalls = isEnabled(settings.logIdentifyCalls, false);
   const logTrackCalls = isEnabled(settings.logTrackCalls, true);
+  const enableViewedProductEvent = isEnabled(settings.enableViewedProductEvent, true);
   const identifyPollAttempts = 8;
   const identifyPollIntervalMs = 1500;
 
@@ -873,6 +874,13 @@
   };
 
   const trackViewedProduct = function (trigger) {
+    if (!enableViewedProductEvent) {
+      trackLog("Viewed Product tracking disabled by configuration.", {
+        trigger: trigger,
+      });
+      return;
+    }
+
     const pageDetection = isProductPagePath();
     const isDetectedProductPage = !!(pageDetection && pageDetection.isProductPage);
 

@@ -35,6 +35,21 @@
         }
       }
     },
+    "events": {
+      "label": "Config.eventsLabel",
+      "fullWidth": true,
+      "formFields": {
+        "tracking.enableViewedProductEvent": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.enableViewedProductEventLabel",
+          "options": {
+            "tooltip": "Config.enableViewedProductEventTooltip",
+            "defaultValue": true
+          }
+        }
+      }
+    },
     "debugging": {
       "label": "Config.debuggingLabel",
       "fullWidth": true,

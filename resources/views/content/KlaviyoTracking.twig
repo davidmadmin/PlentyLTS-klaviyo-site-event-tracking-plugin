@@ -23,6 +23,10 @@
 {% set logErrorsOnlyNormalized = (logErrorsOnlyRaw ~ "")|trim|lower %}
 {% set logErrorsOnly = (logErrorsOnlyRaw is same as(true)) or (logErrorsOnlyRaw is same as(1)) or (logErrorsOnlyNormalized in checkboxEnabledValues) ? true : ((logErrorsOnlyRaw is same as(false)) or (logErrorsOnlyRaw is same as(0)) or (logErrorsOnlyNormalized in checkboxDisabledValues) ? false : false) %}
 
+{% set enableViewedProductEventRaw = config("KlaviyoSiteEventTracking.tracking.enableViewedProductEvent")|default("") %}
+{% set enableViewedProductEventNormalized = (enableViewedProductEventRaw ~ "")|trim|lower %}
+{% set enableViewedProductEvent = (enableViewedProductEventRaw is same as(true)) or (enableViewedProductEventRaw is same as(1)) or (enableViewedProductEventNormalized in checkboxEnabledValues) ? true : ((enableViewedProductEventRaw is same as(false)) or (enableViewedProductEventRaw is same as(0)) or (enableViewedProductEventNormalized in checkboxDisabledValues) ? false : true) %}
+
 <script>
   window.KlaviyoSiteEventTracking = window.KlaviyoSiteEventTracking || {};
   window.KlaviyoSiteEventTracking.integrationMode = "{{ integrationMode|e('js') }}";
@@ -32,5 +36,6 @@
   window.KlaviyoSiteEventTracking.logIdentifyCalls = {{ logIdentifyCalls ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.logTrackCalls = {{ logTrackCalls ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.logErrorsOnly = {{ logErrorsOnly ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.enableViewedProductEvent = {{ enableViewedProductEvent ? 'true' : 'false' }};
 </script>
-<script src="{{ plugin_path('KlaviyoSiteEventTracking') }}/js/klaviyo-tracking-placeholder.js"></script>
+<script src="{{ plugin_path('KlaviyoSiteEventTracking') }}/js/klaviyo-site-event-tracking.js"></script>

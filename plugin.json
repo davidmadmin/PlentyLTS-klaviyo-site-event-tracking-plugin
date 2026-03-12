@@ -13,8 +13,8 @@
   "dataProviders": [
     {
       "key": "KlaviyoSiteEventTracking\\Containers\\KlaviyoTrackingContainer",
-      "name": "Klaviyo Tracking Script Placeholder",
-      "description": "Injects the placeholder Klaviyo tracking entrypoint into a selected plentyShop container.",
+      "name": "Klaviyo Tracking Script",
+      "description": "Injects the Klaviyo site event tracking entrypoint into a selected plentyShop container.",
       "defaultLayoutContainer": "Ceres::Script.Loader"
     }
   ],
