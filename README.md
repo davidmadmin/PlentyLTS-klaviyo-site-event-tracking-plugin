@@ -84,7 +84,7 @@ Plugin config is now split into dedicated tabs:
   - `tracking.logIdentifyCalls`
     - Emits identify diagnostics (`console.info`) for resolution attempts, lifecycle/auth triggers, successful identify calls, and deduped identify skips
   - `tracking.logTrackCalls`
-    - Enabled by default; emits track diagnostics (`console.info`) for product-page detection checks, Viewed Product dispatch, dedupe skips, payload-missing skips, and `trackViewedItem` calls
+    - Enabled by default; emits track diagnostics (`console.info`) for product-page detection checks, getter-first payload-source resolution, Viewed Product dispatch, dedupe skips, payload-missing skips, and `trackViewedItem` calls
   - `tracking.logErrorsOnly`
     - When `true`, suppresses info/debug logs and keeps warnings/errors visible
 
@@ -100,7 +100,7 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 | `tracking.logPluginHeartbeat` | boolean | Enabled by default; emits a startup `console.info` heartbeat with API-key detection status and the detected key value (if present). | Independent from `enableDebugLogging`; can be disabled if too noisy. |
 | `tracking.logErrorsOnly` | boolean | Suppresses plugin `console.info` logs (including heartbeat) even if other logging toggles are enabled. | `console.warn` messages still appear. |
 | `tracking.logIdentifyCalls` | boolean | Emits identify diagnostics (`console.info`) for no-email resolution, lifecycle/auth trigger attempts, successful identify calls, and duplicate-skip decisions. | Suppressed when `tracking.logErrorsOnly = true`. Also accepts common truthy/falsey string values (`"true"`, `"false"`, `"yes"`, `"no"`, etc.) for safer config parsing. |
-| `tracking.logTrackCalls` | boolean | Enabled by default; emits track diagnostics (`console.info`) for product-page detection checks, Viewed Product trigger sources, dedupe skips, payload-missing skips, and successful `track` / `trackViewedItem` dispatches. | Suppressed when `tracking.logErrorsOnly = true`. |
+| `tracking.logTrackCalls` | boolean | Enabled by default; emits track diagnostics (`console.info`) for product-page detection checks, getter-first payload-source resolution, Viewed Product trigger sources, dedupe skips, payload-missing skips, and successful `track` / `trackViewedItem` dispatches. | Suppressed when `tracking.logErrorsOnly = true`. |
 
 ### Expected console output by condition
 
@@ -175,6 +175,10 @@ If `tracking.logTrackCalls = true` and `tracking.logErrorsOnly = false`, expecte
 ```text
 [KlaviyoSiteEventTracking] Viewed Product skipped (required payload fields missing). { trigger: "bootstrap" }
 ```
+```text
+[KlaviyoSiteEventTracking] Viewed Product payload resolved. { trigger: "bootstrap", sourceLabel: "ceresStore.getters.currentItemVariation"|"ceresStore.getters.<namespace>/currentItemVariation"|"window.KlaviyoSiteEventTracking"|"window.ceresStore.state"|"window.ceresStore.getters"|"window.App"|"window.CeresApp"|"window.ceresApp"|"dom_data_attributes", productId: "...", productName: "..." }
+```
+
 
 ```text
 [KlaviyoSiteEventTracking] Klaviyo track executed. { metric: "Viewed Product", trigger: "route_history_pushState|<dedup-key>", payload: { ProductName: "...", ProductID: "...", ... } }
@@ -198,8 +202,10 @@ Fallback URL detection still supports common PDP routes (`/p/`, `/item/`) and SE
 
 Once PDP detection passes, tracking dispatch proceeds when either:
 
-- the storefront runtime state resolves valid product data (`ProductID`, `ProductName`, `URL`), or
+- getter-first runtime payload resolution finds valid product data (`ProductID`, `ProductName`, `URL`) from `window.ceresStore.getters.currentItemVariation` first, then namespaced getter keys ending in `/currentItemVariation`, then existing fallback runtime objects, or
 - optional DOM fallback attributes (`data-kse-product-id`, `data-kse-variation-id`, `data-kse-product-name`, etc.) are present.
+
+When getter candidates are present and `tracking.logTrackCalls = true`, the payload-resolution diagnostic includes `sourceLabel` to show exactly which runtime source won.
 
 Variant transitions are handled through route/history hooks and delegated variant-control interactions (`change`/`click`); duplicate transitions are suppressed with a browser-session dedupe key.
 

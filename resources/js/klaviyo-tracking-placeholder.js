@@ -552,15 +552,92 @@
     return [];
   };
 
+  const getNamespacedCurrentItemVariationCandidates = function () {
+    const getters = window.ceresStore && window.ceresStore.getters;
+
+    if (!getters || typeof getters !== "object") {
+      return [];
+    }
+
+    const keys = Object.keys(getters);
+    const uniqueCandidates = [];
+    const seenReferences = [];
+
+    for (let i = 0; i < keys.length; i += 1) {
+      const key = keys[i];
+
+      if (!/\/currentItemVariation$/i.test(key)) {
+        continue;
+      }
+
+      const value = getters[key];
+
+      if (!value || typeof value !== "object") {
+        continue;
+      }
+
+      if (seenReferences.indexOf(value) !== -1) {
+        continue;
+      }
+
+      seenReferences.push(value);
+      uniqueCandidates.push({
+        sourceLabel: "ceresStore.getters." + key,
+        candidate: value,
+      });
+    }
+
+    return uniqueCandidates;
+  };
+
   const getProductCandidateSources = function () {
-    return [
-      window.KlaviyoSiteEventTracking,
-      window.ceresStore && window.ceresStore.state,
-      window.ceresStore && window.ceresStore.getters,
-      window.App,
-      window.CeresApp,
-      window.ceresApp,
-    ];
+    const sources = [];
+    const directGetterCandidate =
+      window.ceresStore &&
+      window.ceresStore.getters &&
+      window.ceresStore.getters.currentItemVariation;
+
+    if (directGetterCandidate && typeof directGetterCandidate === "object") {
+      sources.push({
+        sourceLabel: "ceresStore.getters.currentItemVariation",
+        candidate: directGetterCandidate,
+      });
+    }
+
+    const namespacedGetterCandidates = getNamespacedCurrentItemVariationCandidates();
+
+    for (let i = 0; i < namespacedGetterCandidates.length; i += 1) {
+      sources.push(namespacedGetterCandidates[i]);
+    }
+
+    sources.push(
+      {
+        sourceLabel: "window.KlaviyoSiteEventTracking",
+        candidate: window.KlaviyoSiteEventTracking,
+      },
+      {
+        sourceLabel: "window.ceresStore.state",
+        candidate: window.ceresStore && window.ceresStore.state,
+      },
+      {
+        sourceLabel: "window.ceresStore.getters",
+        candidate: window.ceresStore && window.ceresStore.getters,
+      },
+      {
+        sourceLabel: "window.App",
+        candidate: window.App,
+      },
+      {
+        sourceLabel: "window.CeresApp",
+        candidate: window.CeresApp,
+      },
+      {
+        sourceLabel: "window.ceresApp",
+        candidate: window.ceresApp,
+      }
+    );
+
+    return sources;
   };
 
   const extractViewedProductCandidate = function (candidate) {
@@ -568,17 +645,18 @@
       return null;
     }
 
-    const productId =
-      normalizedString(getNestedValue(candidate, ["variation", "itemId"])) ||
-      normalizedString(getNestedValue(candidate, ["item", "id"])) ||
-      normalizedString(getNestedValue(candidate, ["itemId"])) ||
-      normalizedString(getNestedValue(candidate, ["currentVariation", "itemId"])) ||
-      normalizedString(getNestedValue(candidate, ["currentItem", "id"]));
     const variationId =
       normalizedString(getNestedValue(candidate, ["variation", "id"])) ||
       normalizedString(getNestedValue(candidate, ["variationId"])) ||
       normalizedString(getNestedValue(candidate, ["currentVariation", "id"])) ||
       normalizedString(getNestedValue(candidate, ["item", "variationId"]));
+    const parentProductId =
+      normalizedString(getNestedValue(candidate, ["variation", "itemId"])) ||
+      normalizedString(getNestedValue(candidate, ["item", "id"])) ||
+      normalizedString(getNestedValue(candidate, ["itemId"])) ||
+      normalizedString(getNestedValue(candidate, ["currentVariation", "itemId"])) ||
+      normalizedString(getNestedValue(candidate, ["currentItem", "id"]));
+    const productId = variationId || parentProductId;
     const sku =
       normalizedString(getNestedValue(candidate, ["variation", "number"])) ||
       normalizedString(getNestedValue(candidate, ["variation", "model"])) ||
@@ -619,7 +697,7 @@
 
     return {
       ProductName: productName,
-      ProductID: variationId || productId,
+      ProductID: productId,
       SKU: sku,
       Categories: extractCategories(candidate),
       ImageURL: normalizedAbsoluteUrl(imageUrl, false),
@@ -627,7 +705,7 @@
       Brand: brand,
       Price: price,
       CompareAtPrice: compareAtPrice,
-      ParentProductID: productId,
+      ParentProductID: parentProductId,
       VariationID: variationId,
       IsVariant: !!variationId,
     };
@@ -642,6 +720,7 @@
 
     const productId = normalizedString(root.getAttribute("data-kse-product-id"));
     const variationId = normalizedString(root.getAttribute("data-kse-variation-id"));
+    const parentProductId = normalizedString(root.getAttribute("data-kse-parent-product-id"));
     const productName = normalizedString(root.getAttribute("data-kse-product-name"));
 
     if (!productId && !variationId && !productName) {
@@ -650,7 +729,7 @@
 
     return {
       ProductName: productName,
-      ProductID: variationId || productId,
+      ProductID: productId,
       SKU: normalizedString(root.getAttribute("data-kse-sku")),
       Categories: normalizedArray(root.getAttribute("data-kse-categories")),
       ImageURL: normalizedAbsoluteUrl(root.getAttribute("data-kse-image-url"), false),
@@ -658,7 +737,7 @@
       Brand: normalizedString(root.getAttribute("data-kse-brand")),
       Price: normalizedNumber(root.getAttribute("data-kse-price")),
       CompareAtPrice: normalizedNumber(root.getAttribute("data-kse-compare-at-price")),
-      ParentProductID: productId,
+      ParentProductID: parentProductId,
       VariationID: variationId,
       IsVariant: !!variationId,
     };
@@ -704,16 +783,23 @@
     const sources = getProductCandidateSources();
 
     for (let i = 0; i < sources.length; i += 1) {
-      const source = extractViewedProductCandidate(sources[i]);
+      const source = sources[i];
+      const sourcePayload = extractViewedProductCandidate(source.candidate);
 
-      if (source && source.ProductID && source.ProductName) {
-        return source;
+      if (sourcePayload && sourcePayload.ProductID && sourcePayload.ProductName) {
+        return {
+          payload: sourcePayload,
+          sourceLabel: source.sourceLabel,
+        };
       }
     }
 
     const domPayload = getViewedProductFromDom();
     if (domPayload && domPayload.ProductID && domPayload.ProductName) {
-      return domPayload;
+      return {
+        payload: domPayload,
+        sourceLabel: "dom_data_attributes",
+      };
     }
 
     return null;
@@ -805,7 +891,8 @@
       return;
     }
 
-    const payload = resolveViewedProductPayload();
+    const payloadResolution = resolveViewedProductPayload();
+    const payload = payloadResolution && payloadResolution.payload;
 
     if (!payload || !payload.ProductID || !payload.ProductName || !payload.URL) {
       trackLog("Viewed Product skipped (required payload fields missing).", {
@@ -813,6 +900,13 @@
       });
       return;
     }
+
+    trackLog("Viewed Product payload resolved.", {
+      trigger: trigger,
+      sourceLabel: payloadResolution && payloadResolution.sourceLabel ? payloadResolution.sourceLabel : "unknown",
+      productId: payload.ProductID,
+      productName: payload.ProductName,
+    });
 
     const dedupKey = buildViewedProductDedupKey(payload);
 
