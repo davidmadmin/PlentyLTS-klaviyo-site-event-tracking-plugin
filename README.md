@@ -222,13 +222,9 @@ For category payload quality on `Viewed Product`, category extraction now follow
 2. If runtime categories only resolve to ID fallbacks (for example `category:534`) or no categories are present, use breadcrumb labels from the PDP DOM (`.breadcrumb a`, `.breadcrumbs a`, `[data-testing='breadcrumb'] a`, `nav[aria-label*='breadcrumb' i] a`) while filtering obvious home entries.
 3. If no breadcrumb labels can be resolved, retain ID fallback behavior.
 
-`Viewed Product` now includes additional category hierarchy fields to make top-level and deeper category context explicit in Klaviyo:
+`Viewed Product` includes normalized category hierarchy fields:
 
 - `TopCategory`
-- `CategoryLevel1`
-- `CategoryLevel2`
-- `CategoryLevel3`
-- `CategoryLevel4`
 - `CategoryPath` (joined as `Level1 > Level2 > ...`)
 
 Variant transitions are handled through route/history hooks and delegated variant-control interactions (`change`/`click`); duplicate transitions are suppressed with a browser-session dedupe key.

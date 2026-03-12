@@ -619,7 +619,11 @@
           });
 
         if (normalized.length > 0) {
-          if (normalized.length === 1 && /^category:/i.test(normalized[0])) {
+          const hasOnlyCategoryIdFallbacks = normalized.every(function (entry) {
+            return /^category:/i.test(entry);
+          });
+
+          if (hasOnlyCategoryIdFallbacks) {
             const breadcrumbCategories = extractCategoriesFromBreadcrumbDom();
 
             if (breadcrumbCategories.length > 0) {
@@ -648,20 +652,12 @@
       return {
         categories: [],
         topCategory: null,
-        categoryLevel1: null,
-        categoryLevel2: null,
-        categoryLevel3: null,
-        categoryLevel4: null,
       };
     }
 
     return {
       categories: categories,
       topCategory: categories[0] || null,
-      categoryLevel1: categories[0] || null,
-      categoryLevel2: categories[1] || null,
-      categoryLevel3: categories[2] || null,
-      categoryLevel4: categories[3] || null,
     };
   };
 
@@ -826,10 +822,6 @@
       SKU: sku,
       Categories: categoryHierarchy.categories,
       TopCategory: categoryHierarchy.topCategory,
-      CategoryLevel1: categoryHierarchy.categoryLevel1,
-      CategoryLevel2: categoryHierarchy.categoryLevel2,
-      CategoryLevel3: categoryHierarchy.categoryLevel3,
-      CategoryLevel4: categoryHierarchy.categoryLevel4,
       CategoryPath: categoryHierarchy.categories.join(" > "),
       ImageURL: normalizedAbsoluteUrl(imageUrl, false),
       URL: normalizedAbsoluteUrl(window.location ? window.location.href : "", true),
@@ -866,10 +858,6 @@
       SKU: normalizedString(root.getAttribute("data-kse-sku")),
       Categories: categories,
       TopCategory: categories[0] || null,
-      CategoryLevel1: categories[0] || null,
-      CategoryLevel2: categories[1] || null,
-      CategoryLevel3: categories[2] || null,
-      CategoryLevel4: categories[3] || null,
       CategoryPath: categories.join(" > "),
       ImageURL: normalizedAbsoluteUrl(root.getAttribute("data-kse-image-url"), false),
       URL: normalizedAbsoluteUrl(root.getAttribute("data-kse-url") || window.location.href, true),
