@@ -995,6 +995,103 @@
     };
   };
 
+  const hasBasketTotalsOnlyShape = function (candidate) {
+    if (!candidate || typeof candidate !== 'object') {
+      return false;
+    }
+
+    const hasTotals =
+      normalizedNumber(getNestedValue(candidate, ['basketAmount'])) !== null ||
+      normalizedNumber(getNestedValue(candidate, ['itemQuantity'])) !== null ||
+      normalizedString(getNestedValue(candidate, ['currency']));
+
+    return !!hasTotals && normalizeBasketItems(candidate).length === 0;
+  };
+
+  const getRuntimeBasketCandidates = function () {
+    return [
+      {
+        sourceLabel: 'runtime_basket.window.ceresStore.state.basket',
+        basket: window.ceresStore && window.ceresStore.state && window.ceresStore.state.basket,
+      },
+      {
+        sourceLabel: 'runtime_basket.window.ceresStore.getters.basket',
+        basket: window.ceresStore && window.ceresStore.getters && window.ceresStore.getters.basket,
+      },
+      {
+        sourceLabel: 'runtime_basket.window.App.basket',
+        basket: window.App && window.App.basket,
+      },
+      {
+        sourceLabel: 'runtime_basket.window.CeresApp.basket',
+        basket: window.CeresApp && window.CeresApp.basket,
+      },
+      {
+        sourceLabel: 'runtime_basket.window.ceresApp.basket',
+        basket: window.ceresApp && window.ceresApp.basket,
+      },
+    ];
+  };
+
+  const resolveRuntimeBasketLines = function (intent) {
+    const runtimeCandidates = getRuntimeBasketCandidates();
+
+    for (let i = 0; i < runtimeCandidates.length; i += 1) {
+      const runtimeCandidate = runtimeCandidates[i];
+      const items = normalizeBasketItems(runtimeCandidate.basket);
+
+      if (!items.length) {
+        continue;
+      }
+
+      const basketLines = items
+        .map(function (item) {
+          return extractBasketLine(item);
+        })
+        .filter(function (line) {
+          return !!line && !!line.ProductID;
+        });
+
+      if (!basketLines.length) {
+        continue;
+      }
+
+      let addedLine = null;
+
+      if (intent && intent.variationId) {
+        for (let j = 0; j < basketLines.length; j += 1) {
+          if (basketLines[j].VariationID === intent.variationId) {
+            addedLine = basketLines[j];
+            break;
+          }
+        }
+      }
+
+      if (!addedLine && intent && intent.productId) {
+        for (let j = 0; j < basketLines.length; j += 1) {
+          if (basketLines[j].ProductID === intent.productId) {
+            addedLine = basketLines[j];
+            break;
+          }
+        }
+      }
+
+      if (!addedLine) {
+        continue;
+      }
+
+      return {
+        sourceLabel: runtimeCandidate.sourceLabel,
+        basket: runtimeCandidate.basket,
+        items: items,
+        basketLines: basketLines,
+        addedLine: addedLine,
+      };
+    }
+
+    return null;
+  };
+
   const resolveBasketSnapshot = function (event) {
     const detail = event && event.detail && typeof event.detail === "object" ? event.detail : null;
     const candidates = [
@@ -1018,6 +1115,15 @@
           items: items,
         };
       }
+
+      if (i === 0 && hasBasketTotalsOnlyShape(candidate)) {
+        return {
+          sourceLabel: 'afterBasketChanged.detail.totals_only',
+          basket: candidate,
+          items: [],
+          totalsOnly: true,
+        };
+      }
     }
 
     return null;
@@ -1025,19 +1131,15 @@
 
   const resolveAddedToCartPayload = function (intent, basketResolution, options) {
     const allowWithoutIntent = !!(options && options.allowWithoutIntent);
-    const basket = basketResolution && basketResolution.basket;
+    let basket = basketResolution && basketResolution.basket;
     const items = basketResolution && basketResolution.items ? basketResolution.items : [];
-    const basketLines = items
+    let basketLines = items
       .map(function (item) {
         return extractBasketLine(item);
       })
       .filter(function (line) {
         return !!line && !!line.ProductID;
       });
-
-    if (basketLines.length === 0) {
-      return null;
-    }
 
     const effectiveIntent = intent || null;
 
@@ -1046,8 +1148,26 @@
     }
 
     let addedLine = null;
+    let resolvedSourceLabel = basketResolution && basketResolution.sourceLabel ? basketResolution.sourceLabel : 'unknown';
 
-    if (effectiveIntent) {
+    if (basketLines.length === 0 && basketResolution && basketResolution.totalsOnly) {
+      const runtimeResolution = resolveRuntimeBasketLines(effectiveIntent);
+
+      if (!runtimeResolution) {
+        return null;
+      }
+
+      basket = runtimeResolution.basket || basket;
+      basketLines = runtimeResolution.basketLines;
+      addedLine = runtimeResolution.addedLine;
+      resolvedSourceLabel = (basketResolution.sourceLabel || 'afterBasketChanged.detail.totals_only') + '->' + runtimeResolution.sourceLabel;
+    }
+
+    if (basketLines.length === 0) {
+      return null;
+    }
+
+    if (!addedLine && effectiveIntent) {
       for (let i = 0; i < basketLines.length; i += 1) {
         const line = basketLines[i];
         if (
@@ -1066,6 +1186,10 @@
 
     if (!addedLine) {
       return null;
+    }
+
+    if (effectiveIntent && !effectiveIntent.productId && addedLine.ProductID) {
+      effectiveIntent.productId = addedLine.ProductID;
     }
 
     const checkoutUrl = normalizedAbsoluteUrl('/checkout', true);
@@ -1087,7 +1211,7 @@
         Items: basketLines,
       },
       addedLine: addedLine,
-      sourceLabel: basketResolution && basketResolution.sourceLabel ? basketResolution.sourceLabel : 'unknown',
+      sourceLabel: resolvedSourceLabel,
       correlationMode: effectiveIntent ? 'intent_matched' : 'basket_fallback_no_intent',
     };
   };

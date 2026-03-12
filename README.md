@@ -91,7 +91,7 @@ Plugin config is now split into dedicated tabs:
   - `tracking.logIdentifyCalls`
     - Emits identify diagnostics (`console.info`) for resolution attempts, lifecycle/auth triggers, successful identify calls, and deduped identify skips
   - `tracking.logTrackCalls`
-    - Enabled by default; emits track diagnostics (`console.info`) for Viewed Product detection/payload/dispatch diagnostics and Added to Cart intent-capture, basket-snapshot, payload, skip, and dedupe diagnostics
+    - Enabled by default; emits track diagnostics (`console.info`) for Viewed Product detection/payload/dispatch diagnostics and Added to Cart intent-capture, basket-snapshot (including totals-only snapshot fallback), payload, skip, and dedupe diagnostics
   - `tracking.logErrorsOnly`
     - When `true`, suppresses info/debug logs and keeps warnings/errors visible
 
@@ -107,7 +107,7 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 | `tracking.logPluginHeartbeat` | boolean | Enabled by default; emits a startup `console.info` heartbeat with API-key detection status and the detected key value (if present). | Independent from `enableDebugLogging`; can be disabled if too noisy. |
 | `tracking.logErrorsOnly` | boolean | Suppresses plugin `console.info` logs (including heartbeat) even if other logging toggles are enabled. | `console.warn` messages still appear. |
 | `tracking.logIdentifyCalls` | boolean | Emits identify diagnostics (`console.info`) for no-email resolution, lifecycle/auth trigger attempts, successful identify calls, and duplicate-skip decisions. | Suppressed when `tracking.logErrorsOnly = true`. Also accepts common truthy/falsey string values (`"true"`, `"false"`, `"yes"`, `"no"`, etc.) for safer config parsing. |
-| `tracking.logTrackCalls` | boolean | Enabled by default; emits track diagnostics (`console.info`) for Viewed Product trigger diagnostics plus Added to Cart listener-registration, intent capture, basket snapshot resolution, payload resolution, config/required-field skips, dedupe skips, and successful `track` / `trackViewedItem` dispatches. | Suppressed when `tracking.logErrorsOnly = true`. |
+| `tracking.logTrackCalls` | boolean | Enabled by default; emits track diagnostics (`console.info`) for Viewed Product trigger diagnostics plus Added to Cart listener-registration, intent capture, basket snapshot resolution (including totals-only detail fallback), payload resolution, config/required-field skips, dedupe skips, and successful `track` / `trackViewedItem` dispatches. | Suppressed when `tracking.logErrorsOnly = true`. |
 | `tracking.enableViewedProductEvent` | boolean | Enabled by default; toggles whether the `Viewed Product` tracking flow runs at all. | When disabled and `tracking.logTrackCalls = true`, logs a per-trigger skip diagnostic. |
 | `tracking.enableAddedToCartEvent` | boolean | Enabled by default; toggles whether the `Added to Cart` tracking flow runs at all. | When disabled and `tracking.logTrackCalls = true`, logs `Added to Cart skipped (disabled by configuration).` on basket changes. |
 
@@ -222,7 +222,7 @@ If `tracking.logTrackCalls = true` and `tracking.logErrorsOnly = false`, expecte
 ```
 
 ```text
-[KlaviyoSiteEventTracking] Added to Cart basket snapshot resolved. { trigger: "afterBasketChanged", sourceLabel: "afterBasketChanged.detail", itemCount: 2 }
+[KlaviyoSiteEventTracking] Added to Cart basket snapshot resolved. { trigger: "afterBasketChanged", sourceLabel: "afterBasketChanged.detail"|"afterBasketChanged.detail.totals_only", itemCount: 2|0 }
 ```
 
 ```text
@@ -234,7 +234,7 @@ If `tracking.logTrackCalls = true` and `tracking.logErrorsOnly = false`, expecte
 ```
 
 ```text
-[KlaviyoSiteEventTracking] Added to Cart payload resolved. { trigger: "afterBasketChanged|intent_followup", sourceLabel: "afterBasketChanged.detail", correlationMode: "intent_matched", addedItemProductId: "...", addedItemProductName: "...", addedItemQuantity: 1 }
+[KlaviyoSiteEventTracking] Added to Cart payload resolved. { trigger: "afterBasketChanged|intent_followup", sourceLabel: "afterBasketChanged.detail"|"afterBasketChanged.detail.totals_only->runtime_basket.window.ceresStore.state.basket"|"afterBasketChanged.detail.totals_only->runtime_basket.window.ceresStore.getters.basket"|"afterBasketChanged.detail.totals_only->runtime_basket.window.App.basket"|"afterBasketChanged.detail.totals_only->runtime_basket.window.CeresApp.basket"|"afterBasketChanged.detail.totals_only->runtime_basket.window.ceresApp.basket", correlationMode: "intent_matched", addedItemProductId: "...", addedItemProductName: "...", addedItemQuantity: 1 }
 ```
 
 ```text
@@ -270,6 +270,9 @@ If `tracking.logTrackCalls = true` and `tracking.logErrorsOnly = false`, expecte
 ```
 
 Added to Cart dispatch uses metric name `"Added to Cart"` and keeps filterable top-level properties (`$value`, `AddedItem*`, `ItemNames`, `CheckoutURL`, `Items`) as top-level keys for Klaviyo segment usability.
+
+
+When `afterBasketChanged.detail` only includes basket totals (for example `basketAmount`, `itemQuantity`, `currency`) and no line array, Added to Cart now resolves the matching line from runtime basket sources using the captured `variationId`; payload logs expose this via `sourceLabel` values such as `afterBasketChanged.detail.totals_only->runtime_basket.window.ceresStore.state.basket`.
 
 Viewed Product tracking now first checks Plenty runtime item-view flags (`window.App.isItemView === true` or `window.App.templateType === "item"`, case-insensitive) and only then falls back to PDP URL heuristics.
 
