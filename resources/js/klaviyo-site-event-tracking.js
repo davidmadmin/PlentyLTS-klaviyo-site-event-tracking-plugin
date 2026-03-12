@@ -504,6 +504,32 @@
     return null;
   };
 
+  const extractNumberFromPriceCandidate = function (candidate) {
+    if (candidate === null || candidate === undefined) {
+      return null;
+    }
+
+    const directNumber = normalizedNumber(candidate);
+
+    if (directNumber !== null) {
+      return directNumber;
+    }
+
+    if (!candidate || typeof candidate !== "object") {
+      return null;
+    }
+
+    return firstDefinedNumber([
+      normalizedNumber(candidate.value),
+      normalizedNumber(candidate.gross),
+      normalizedNumber(candidate.price),
+      normalizedNumber(candidate.net),
+      normalizedNumber(candidate.salesPrice),
+      normalizedNumber(candidate.formattedValue),
+      normalizedNumber(candidate.formatted),
+    ]);
+  };
+
   const extractCategories = function (candidate) {
     if (!candidate || typeof candidate !== "object") {
       return [];
@@ -533,6 +559,9 @@
               return normalizedString(
                 entry.name ||
                   entry.details && entry.details[0] && entry.details[0].name ||
+                  entry.path ||
+                  entry.url ||
+                  entry.id && "category:" + entry.id ||
                   entry.label ||
                   entry.value
               );
@@ -676,19 +705,29 @@
     const imageUrl =
       normalizedString(getNestedValue(candidate, ["images", 0, "url"])) ||
       normalizedString(getNestedValue(candidate, ["images", 0, "urlMiddle"])) ||
+      normalizedString(getNestedValue(candidate, ["images", "variation", 0, "url"])) ||
+      normalizedString(getNestedValue(candidate, ["images", "variation", 0, "urlMiddle"])) ||
+      normalizedString(getNestedValue(candidate, ["images", "all", 0, "url"])) ||
+      normalizedString(getNestedValue(candidate, ["images", "all", 0, "urlMiddle"])) ||
       normalizedString(getNestedValue(candidate, ["item", "images", 0, "url"])) ||
       normalizedString(getNestedValue(candidate, ["variation", "images", 0, "url"])) ||
       normalizedString(getNestedValue(candidate, ["imageUrl"]));
 
     const price = firstDefinedNumber([
-      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "price", "value"])),
-      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "price", "gross"])),
-      normalizedNumber(getNestedValue(candidate, ["variation", "salesPrices", 0, "price"])),
+      extractNumberFromPriceCandidate(getNestedValue(candidate, ["variation", "prices", "default", "price"])),
+      extractNumberFromPriceCandidate(getNestedValue(candidate, ["prices", "default", "price"])),
+      extractNumberFromPriceCandidate(getNestedValue(candidate, ["prices", "default", "lowestPrice"])),
+      extractNumberFromPriceCandidate(getNestedValue(candidate, ["variation", "prices", "default", "lowestPrice"])),
+      extractNumberFromPriceCandidate(getNestedValue(candidate, ["prices", "default", "unitPrice"])),
+      extractNumberFromPriceCandidate(getNestedValue(candidate, ["variation", "prices", "default", "unitPrice"])),
+      extractNumberFromPriceCandidate(getNestedValue(candidate, ["variation", "salesPrices", 0, "price"])),
       normalizedNumber(getNestedValue(candidate, ["price"])),
     ]);
     const compareAtPrice = firstDefinedNumber([
-      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "rrp", "price"])),
-      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "rrp", "price", "value"])),
+      extractNumberFromPriceCandidate(getNestedValue(candidate, ["variation", "prices", "default", "rrp", "price"])),
+      extractNumberFromPriceCandidate(getNestedValue(candidate, ["variation", "prices", "rrp", "price"])),
+      extractNumberFromPriceCandidate(getNestedValue(candidate, ["prices", "default", "rrp"])),
+      extractNumberFromPriceCandidate(getNestedValue(candidate, ["prices", "rrp", "price"])),
       normalizedNumber(getNestedValue(candidate, ["compareAtPrice"])),
     ]);
 
