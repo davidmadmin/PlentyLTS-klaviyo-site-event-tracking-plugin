@@ -27,6 +27,11 @@
 {% set enableViewedProductEventNormalized = (enableViewedProductEventRaw ~ "")|trim|lower %}
 {% set enableViewedProductEvent = (enableViewedProductEventRaw is same as(true)) or (enableViewedProductEventRaw is same as(1)) or (enableViewedProductEventNormalized in checkboxEnabledValues) ? true : ((enableViewedProductEventRaw is same as(false)) or (enableViewedProductEventRaw is same as(0)) or (enableViewedProductEventNormalized in checkboxDisabledValues) ? false : true) %}
 
+
+{% set enableAddedToCartEventRaw = config("KlaviyoSiteEventTracking.tracking.enableAddedToCartEvent")|default(null) %}
+{% set enableAddedToCartEventNormalized = (enableAddedToCartEventRaw ~ "")|trim|lower %}
+{% set enableAddedToCartEvent = (enableAddedToCartEventRaw is same as(true)) or (enableAddedToCartEventRaw is same as(1)) or (enableAddedToCartEventNormalized in checkboxEnabledValues) ? true : ((enableAddedToCartEventRaw is same as(false)) or (enableAddedToCartEventRaw is same as(0)) or (enableAddedToCartEventNormalized in checkboxDisabledValues) ? false : true) %}
+
 <script>
   window.KlaviyoSiteEventTracking = window.KlaviyoSiteEventTracking || {};
   window.KlaviyoSiteEventTracking.integrationMode = "{{ integrationMode|e('js') }}";
@@ -37,5 +42,6 @@
   window.KlaviyoSiteEventTracking.logTrackCalls = {{ logTrackCalls ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.logErrorsOnly = {{ logErrorsOnly ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.enableViewedProductEvent = {{ enableViewedProductEvent ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.enableAddedToCartEvent = {{ enableAddedToCartEvent ? 'true' : 'false' }};
 </script>
 <script src="{{ plugin_path('KlaviyoSiteEventTracking') }}/js/klaviyo-site-event-tracking.js"></script>
