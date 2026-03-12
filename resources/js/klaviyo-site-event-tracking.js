@@ -104,62 +104,6 @@
     integrationMode: integrationMode,
   });
 
-  if (window.__KlaviyoSiteEventTrackingInitialized === true) {
-    debugLog("Bootstrap already initialized. Skipping duplicate initialization.");
-    return;
-  }
-
-  if (integrationMode === "gtm") {
-    window.__KlaviyoSiteEventTrackingInitialized = true;
-
-    debugLog(
-      "Integration mode is GTM. Klaviyo script injection is disabled and expected to be handled externally (for example via Google Tag Manager)."
-    );
-
-    const maxAttempts = 8;
-    const intervalMs = 250;
-    let attempts = 0;
-
-    const detector = window.setInterval(function () {
-      attempts += 1;
-
-      if (window.klaviyo || window._learnq) {
-        debugLog("Detected externally loaded Klaviyo object in GTM mode.", {
-          hasKlaviyoObject: !!window.klaviyo,
-          hasLearnqQueue: !!window._learnq,
-          attempts: attempts,
-        });
-        window.clearInterval(detector);
-        return;
-      }
-
-      if (attempts >= maxAttempts) {
-        debugLog(
-          "No Klaviyo object detected during GTM-mode retry window."
-        );
-        window.clearInterval(detector);
-      }
-    }, intervalMs);
-
-    return;
-  }
-
-  if (!publicApiKey) {
-    warn(
-      "Missing required setting 'tracking.publicApiKey' for plugin integration mode. Add your Klaviyo public API key in plugin configuration or switch to GTM mode if Klaviyo is loaded externally."
-    );
-    return;
-  }
-
-  if (integrationMode !== "plugin") {
-    warn(
-      "Unsupported integration mode '" +
-        integrationMode +
-        "'. Falling back to plugin bootstrap behavior."
-    );
-  }
-
-  window.__KlaviyoSiteEventTrackingInitialized = true;
   window._learnq = window._learnq || [];
 
   const normalizedEmail = function (value) {
@@ -1577,14 +1521,6 @@
     addLifecycleEventListener(document, "vue:route-changed", "route_vue");
     addLifecycleEventListener(document, "afterRouteChanged", "route_after_changed");
 
-    document.addEventListener("afterBasketItemAdded", function (event) {
-      captureAddedToCartIntent(event);
-    });
-
-    document.addEventListener("afterBasketChanged", function (event) {
-      trackAddedToCart(event, "afterBasketChanged");
-    });
-
     addLifecycleEventListener(document, "account:view-changed", "account_route");
     addLifecycleEventListener(document, "account:overview-loaded", "account_overview");
 
@@ -1602,6 +1538,90 @@
 
     registerHistoryRouteHooks();
   };
+
+  const registerAddedToCartListeners = function () {
+    if (window.__KlaviyoSiteEventTrackingAddedToCartListenersRegistered === true) {
+      trackLog("Added to Cart listeners already registered. Skipping duplicate registration.");
+      return;
+    }
+
+    document.addEventListener("afterBasketItemAdded", function (event) {
+      captureAddedToCartIntent(event);
+    });
+    trackLog("Added to Cart listener attached.", {
+      target: "document",
+      event: "afterBasketItemAdded",
+    });
+
+    document.addEventListener("afterBasketChanged", function (event) {
+      trackAddedToCart(event, "afterBasketChanged");
+    });
+    trackLog("Added to Cart listener attached.", {
+      target: "document",
+      event: "afterBasketChanged",
+    });
+
+    window.__KlaviyoSiteEventTrackingAddedToCartListenersRegistered = true;
+  };
+
+  registerAddedToCartListeners();
+
+  if (window.__KlaviyoSiteEventTrackingInitialized === true) {
+    debugLog("Bootstrap already initialized. Skipping duplicate initialization.");
+    return;
+  }
+
+  if (integrationMode === "gtm") {
+    window.__KlaviyoSiteEventTrackingInitialized = true;
+
+    debugLog(
+      "Integration mode is GTM. Klaviyo script injection is disabled and expected to be handled externally (for example via Google Tag Manager)."
+    );
+
+    const maxAttempts = 8;
+    const intervalMs = 250;
+    let attempts = 0;
+
+    const detector = window.setInterval(function () {
+      attempts += 1;
+
+      if (window.klaviyo || window._learnq) {
+        debugLog("Detected externally loaded Klaviyo object in GTM mode.", {
+          hasKlaviyoObject: !!window.klaviyo,
+          hasLearnqQueue: !!window._learnq,
+          attempts: attempts,
+        });
+        window.clearInterval(detector);
+        return;
+      }
+
+      if (attempts >= maxAttempts) {
+        debugLog(
+          "No Klaviyo object detected during GTM-mode retry window."
+        );
+        window.clearInterval(detector);
+      }
+    }, intervalMs);
+
+    return;
+  }
+
+  if (!publicApiKey) {
+    warn(
+      "Missing required setting 'tracking.publicApiKey' for plugin integration mode. Add your Klaviyo public API key in plugin configuration or switch to GTM mode if Klaviyo is loaded externally."
+    );
+    return;
+  }
+
+  if (integrationMode !== "plugin") {
+    warn(
+      "Unsupported integration mode '" +
+        integrationMode +
+        "'. Falling back to plugin bootstrap behavior."
+    );
+  }
+
+  window.__KlaviyoSiteEventTrackingInitialized = true;
 
   const scriptSource =
     "https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=" +
