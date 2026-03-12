@@ -1098,6 +1098,10 @@
     const maxIntentAgeMs = 15000;
     const effectiveIntent = intent && nowTs - intent.timestamp <= maxIntentAgeMs ? intent : null;
 
+    if (!effectiveIntent) {
+      return null;
+    }
+
     let addedLine = null;
 
     if (effectiveIntent) {
@@ -1234,6 +1238,7 @@
         trigger: trigger,
         dedupKey: dedupKey,
       });
+      lastAddedToCartIntent = null;
       return;
     }
 
@@ -1248,6 +1253,7 @@
     }
 
     window.__KlaviyoSiteEventTrackingLastAddedToCartKey = dedupKey;
+    lastAddedToCartIntent = null;
   };
 
   const trackEvent = function (metricName, payload, context) {
