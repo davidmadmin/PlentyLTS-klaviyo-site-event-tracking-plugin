@@ -47,6 +47,15 @@
             "tooltip": "Config.enableViewedProductEventTooltip",
             "defaultValue": true
           }
+        },
+        "tracking.enableAddedToCartEvent": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.enableAddedToCartEventLabel",
+          "options": {
+            "tooltip": "Config.enableAddedToCartEventTooltip",
+            "defaultValue": true
+          }
         }
       }
     },

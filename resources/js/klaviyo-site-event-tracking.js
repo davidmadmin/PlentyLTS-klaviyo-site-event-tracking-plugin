@@ -33,6 +33,7 @@
   const logIdentifyCalls = isEnabled(settings.logIdentifyCalls, false);
   const logTrackCalls = isEnabled(settings.logTrackCalls, true);
   const enableViewedProductEvent = isEnabled(settings.enableViewedProductEvent, true);
+  const enableAddedToCartEvent = isEnabled(settings.enableAddedToCartEvent, true);
   const identifyPollAttempts = 8;
   const identifyPollIntervalMs = 1500;
 
@@ -1066,6 +1067,412 @@
     trackViewedItem(payload, trigger + "|" + dedupKey);
   };
 
+  const getBasketItemCandidates = function (candidate) {
+    if (!candidate || typeof candidate !== "object") {
+      return [];
+    }
+
+    const possiblePaths = [
+      ["basketItems"],
+      ["basket", "basketItems"],
+      ["basket", "items"],
+      ["items"],
+      ["detail", "basketItems"],
+      ["data", "basketItems"],
+      ["payload", "basketItems"],
+      ["state", "basket", "basketItems"],
+      ["state", "basket", "items"],
+      ["basket", "itemList"],
+    ];
+
+    for (let i = 0; i < possiblePaths.length; i += 1) {
+      const items = getNestedValue(candidate, possiblePaths[i]);
+
+      if (Array.isArray(items) && items.length > 0) {
+        return items;
+      }
+    }
+
+    return Array.isArray(candidate) ? candidate : [];
+  };
+
+  const resolveBasketLineVariationId = function (lineItem) {
+    return (
+      normalizedString(lineItem && lineItem.variationId) ||
+      normalizedString(lineItem && lineItem.variation && lineItem.variation.id) ||
+      normalizedString(lineItem && lineItem.id) ||
+      normalizedString(lineItem && lineItem.itemId) ||
+      normalizedString(lineItem && lineItem.variation && lineItem.variation.variationId)
+    );
+  };
+
+  const resolveBasketLineItemId = function (lineItem) {
+    return (
+      normalizedString(lineItem && lineItem.itemId) ||
+      normalizedString(lineItem && lineItem.item && lineItem.item.id) ||
+      normalizedString(lineItem && lineItem.variation && lineItem.variation.itemId)
+    );
+  };
+
+  const resolveBasketLinePrice = function (lineItem) {
+    return firstDefinedNumber([
+      extractNumberFromPriceCandidate(lineItem && lineItem.price),
+      extractNumberFromPriceCandidate(lineItem && lineItem.amounts && lineItem.amounts.priceOriginalGross),
+      extractNumberFromPriceCandidate(lineItem && lineItem.amounts && lineItem.amounts.priceGross),
+      extractNumberFromPriceCandidate(lineItem && lineItem.amounts && lineItem.amounts.price),
+      extractNumberFromPriceCandidate(lineItem && lineItem.variation && lineItem.variation.prices && lineItem.variation.prices.default && lineItem.variation.prices.default.price),
+      normalizedNumber(lineItem && lineItem.unitPrice),
+    ]);
+  };
+
+  const resolveBasketLineRowTotal = function (lineItem, quantity, itemPrice) {
+    const directRowTotal = firstDefinedNumber([
+      extractNumberFromPriceCandidate(lineItem && lineItem.rowTotal),
+      extractNumberFromPriceCandidate(lineItem && lineItem.amounts && lineItem.amounts.totalGross),
+      extractNumberFromPriceCandidate(lineItem && lineItem.amounts && lineItem.amounts.total),
+      normalizedNumber(lineItem && lineItem.priceSum),
+    ]);
+
+    if (directRowTotal !== null) {
+      return directRowTotal;
+    }
+
+    if (itemPrice !== null && quantity !== null) {
+      return Number((itemPrice * quantity).toFixed(2));
+    }
+
+    return null;
+  };
+
+  const buildAddedToCartItems = function (basketItems) {
+    if (!Array.isArray(basketItems) || basketItems.length === 0) {
+      return [];
+    }
+
+    return basketItems
+      .map(function (lineItem) {
+        const variationId = resolveBasketLineVariationId(lineItem);
+        const parentProductId = resolveBasketLineItemId(lineItem);
+        const productId = variationId || parentProductId;
+        const productName =
+          normalizedString(lineItem && lineItem.variation && lineItem.variation.name) ||
+          normalizedString(lineItem && lineItem.itemName) ||
+          normalizedString(lineItem && lineItem.item && lineItem.item.texts && lineItem.item.texts.name1) ||
+          normalizedString(lineItem && lineItem.item && lineItem.item.name) ||
+          normalizedString(lineItem && lineItem.name);
+        const quantity = firstDefinedNumber([
+          normalizedNumber(lineItem && lineItem.quantity),
+          normalizedNumber(lineItem && lineItem.orderQuantity),
+          normalizedNumber(lineItem && lineItem.count),
+        ]);
+        const itemPrice = resolveBasketLinePrice(lineItem);
+        const rowTotal = resolveBasketLineRowTotal(lineItem, quantity, itemPrice);
+        const imageUrl =
+          normalizedString(lineItem && lineItem.imageUrl) ||
+          normalizedString(lineItem && lineItem.variation && lineItem.variation.imagePath) ||
+          normalizedString(lineItem && lineItem.variation && lineItem.variation.images && lineItem.variation.images[0] && lineItem.variation.images[0].url);
+        const productUrl =
+          normalizedString(lineItem && lineItem.url) ||
+          normalizedString(lineItem && lineItem.variation && lineItem.variation.urlPath) ||
+          normalizedString(lineItem && lineItem.item && lineItem.item.urlPath) ||
+          normalizedString(lineItem && lineItem.item && lineItem.item.url);
+        const sku =
+          normalizedString(lineItem && lineItem.variation && lineItem.variation.number) ||
+          normalizedString(lineItem && lineItem.variation && lineItem.variation.model) ||
+          normalizedString(lineItem && lineItem.variation && lineItem.variation.externalId) ||
+          normalizedString(lineItem && lineItem.variationNumber);
+        const productCategories = extractCategories(lineItem);
+
+        return {
+          ProductID: productId,
+          SKU: sku,
+          ProductName: productName,
+          Quantity: quantity,
+          ItemPrice: itemPrice,
+          RowTotal: rowTotal,
+          ProductURL: normalizedAbsoluteUrl(productUrl, true),
+          ImageURL: normalizedAbsoluteUrl(imageUrl, false),
+          ProductCategories: productCategories,
+          _lineMeta: {
+            variationId: variationId,
+            itemId: parentProductId,
+          },
+        };
+      })
+      .filter(function (lineItem) {
+        return !!(lineItem && lineItem.ProductID && lineItem.ProductName);
+      });
+  };
+
+  const resolveAddedLineItem = function (latestIntent, basketItems) {
+    if (!latestIntent || !Array.isArray(basketItems) || basketItems.length === 0) {
+      return null;
+    }
+
+    const normalizedIntentVariationId = normalizedString(latestIntent.variationId);
+    const normalizedIntentQuantity = normalizedNumber(latestIntent.quantity);
+    const normalizedIntentTimestamp = normalizedNumber(latestIntent.timestamp);
+
+    const exactMatches = basketItems.filter(function (lineItem) {
+      if (!lineItem || !lineItem._lineMeta) {
+        return false;
+      }
+
+      const sameVariation = lineItem._lineMeta.variationId === normalizedIntentVariationId;
+      const sameQuantity =
+        normalizedIntentQuantity === null ||
+        lineItem.Quantity === normalizedIntentQuantity;
+
+      return sameVariation && sameQuantity;
+    });
+
+    if (exactMatches.length > 0) {
+      return exactMatches[exactMatches.length - 1];
+    }
+
+    const variationMatches = basketItems.filter(function (lineItem) {
+      return !!(lineItem && lineItem._lineMeta && lineItem._lineMeta.variationId === normalizedIntentVariationId);
+    });
+
+    if (variationMatches.length > 0) {
+      return variationMatches[variationMatches.length - 1];
+    }
+
+    if (normalizedIntentTimestamp === null) {
+      return basketItems[basketItems.length - 1] || null;
+    }
+
+    const recencyMatches = basketItems
+      .map(function (lineItem) {
+        const lineTimestamp = firstDefinedNumber([
+          normalizedNumber(getNestedValue(lineItem, ["_lineMeta", "lastUpdateTimestamp"])),
+          normalizedNumber(getNestedValue(lineItem, ["_lineMeta", "createdAtTimestamp"])),
+        ]);
+
+        return {
+          lineItem: lineItem,
+          lineTimestamp: lineTimestamp,
+        };
+      })
+      .filter(function (entry) {
+        return entry.lineTimestamp !== null;
+      })
+      .sort(function (a, b) {
+        return Math.abs(a.lineTimestamp - normalizedIntentTimestamp) - Math.abs(b.lineTimestamp - normalizedIntentTimestamp);
+      });
+
+    if (recencyMatches.length > 0) {
+      return recencyMatches[0].lineItem;
+    }
+
+    return basketItems[basketItems.length - 1] || null;
+  };
+
+  const buildAddedToCartPayload = function (addedLineItem, items) {
+    if (!addedLineItem || !Array.isArray(items) || items.length === 0) {
+      return null;
+    }
+
+    const value = firstDefinedNumber([
+      normalizedNumber(addedLineItem.RowTotal),
+      normalizedNumber(addedLineItem.ItemPrice) !== null && normalizedNumber(addedLineItem.Quantity) !== null
+        ? Number((normalizedNumber(addedLineItem.ItemPrice) * normalizedNumber(addedLineItem.Quantity)).toFixed(2))
+        : null,
+    ]);
+
+    return {
+      $value: value,
+      AddedItemProductID: addedLineItem.ProductID,
+      AddedItemSKU: addedLineItem.SKU || "",
+      AddedItemProductName: addedLineItem.ProductName,
+      AddedItemQuantity: addedLineItem.Quantity,
+      AddedItemPrice: addedLineItem.ItemPrice,
+      AddedItemRowTotal: addedLineItem.RowTotal,
+      AddedItemProductURL: addedLineItem.ProductURL,
+      AddedItemImageURL: addedLineItem.ImageURL,
+      AddedItemCategories: addedLineItem.ProductCategories || [],
+      ItemNames: items
+        .map(function (entry) {
+          return entry.ProductName;
+        })
+        .filter(function (entry) {
+          return !!entry;
+        }),
+      CheckoutURL: normalizedAbsoluteUrl("/checkout", false),
+      Items: items.map(function (entry) {
+        return {
+          ProductID: entry.ProductID,
+          SKU: entry.SKU,
+          ProductName: entry.ProductName,
+          Quantity: entry.Quantity,
+          ItemPrice: entry.ItemPrice,
+          RowTotal: entry.RowTotal,
+          ProductURL: entry.ProductURL,
+          ImageURL: entry.ImageURL,
+          ProductCategories: entry.ProductCategories,
+        };
+      }),
+    };
+  };
+
+  const buildAddedToCartDedupKey = function (latestIntent) {
+    const variationId = normalizedString(latestIntent && latestIntent.variationId);
+    const quantity = normalizedNumber(latestIntent && latestIntent.quantity);
+    const path = window.location && window.location.pathname ? window.location.pathname.toLowerCase() : "";
+    const timestampBucket = Math.floor(((latestIntent && latestIntent.timestamp) || Date.now()) / 1200);
+
+    return [variationId, quantity === null ? "" : quantity, path, timestampBucket].join("|");
+  };
+
+  const trackAddedToCart = function (trigger, basketEventPayload) {
+    if (!enableAddedToCartEvent) {
+      trackLog("Added to Cart skipped (disabled by configuration).", {
+        trigger: trigger,
+      });
+      return;
+    }
+
+    const latestIntent = window.__KlaviyoSiteEventTrackingLatestAddedToCartIntent;
+
+    if (!latestIntent || !latestIntent.variationId) {
+      trackLog("Added to Cart skipped (missing required fields).", {
+        trigger: trigger,
+        reason: "missing_latest_intent",
+      });
+      return;
+    }
+
+    const basketItems = getBasketItemCandidates(basketEventPayload);
+
+    if (!basketItems || basketItems.length === 0) {
+      trackLog("Added to Cart skipped (no basket items).", {
+        trigger: trigger,
+      });
+      return;
+    }
+
+    const normalizedItems = buildAddedToCartItems(basketItems);
+
+    if (normalizedItems.length === 0) {
+      trackLog("Added to Cart skipped (no basket items).", {
+        trigger: trigger,
+        basketItemCount: basketItems.length,
+      });
+      return;
+    }
+
+    const addedLineItem = resolveAddedLineItem(latestIntent, normalizedItems);
+
+    if (!addedLineItem) {
+      trackLog("Added to Cart skipped (no added line match).", {
+        trigger: trigger,
+        variationId: latestIntent.variationId,
+      });
+      return;
+    }
+
+    const dedupKey = buildAddedToCartDedupKey(latestIntent);
+
+    if (window.__KlaviyoSiteEventTrackingLastAddedToCartKey === dedupKey) {
+      trackLog("Added to Cart skipped (deduped).", {
+        trigger: trigger,
+        dedupKey: dedupKey,
+      });
+      return;
+    }
+
+    const payload = buildAddedToCartPayload(addedLineItem, normalizedItems);
+
+    if (!payload || !payload.AddedItemProductID || !payload.AddedItemProductName) {
+      trackLog("Added to Cart skipped (missing required fields).", {
+        trigger: trigger,
+        reason: "payload_incomplete",
+      });
+      return;
+    }
+
+    trackLog("Added to Cart payload resolved.", {
+      trigger: trigger,
+      sourceTrigger: latestIntent.sourceTrigger || "unknown",
+      variationId: latestIntent.variationId,
+      quantity: latestIntent.quantity,
+      itemCount: normalizedItems.length,
+      addedItemProductId: payload.AddedItemProductID,
+    });
+
+    const didTrack = trackEvent("Added to Cart", payload, trigger + "|" + dedupKey);
+
+    if (!didTrack) {
+      trackLog("Added to Cart skipped (failed track call).", {
+        trigger: trigger,
+        dedupKey: dedupKey,
+      });
+      return;
+    }
+
+    window.__KlaviyoSiteEventTrackingLastAddedToCartKey = dedupKey;
+    window.__KlaviyoSiteEventTrackingLatestAddedToCartIntent = null;
+  };
+
+  const captureAddedToCartIntent = function (event) {
+    const detail = event && event.detail && typeof event.detail === "object" ? event.detail : {};
+    const variationId =
+      normalizedString(detail.variationId) ||
+      normalizedString(detail.id) ||
+      normalizedString(detail.item && detail.item.variationId) ||
+      normalizedString(detail.basketItem && detail.basketItem.variationId);
+    const quantity = firstDefinedNumber([
+      normalizedNumber(detail.quantity),
+      normalizedNumber(detail.orderQuantity),
+      normalizedNumber(detail.basketItem && detail.basketItem.quantity),
+      1,
+    ]);
+
+    trackLog("Added to Cart tracking triggered.", {
+      trigger: "afterBasketItemAdded",
+      variationId: variationId,
+      quantity: quantity,
+    });
+
+    if (!variationId) {
+      trackLog("Added to Cart skipped (missing required fields).", {
+        trigger: "afterBasketItemAdded",
+        reason: "missing_variation_id",
+      });
+      return;
+    }
+
+    window.__KlaviyoSiteEventTrackingLatestAddedToCartIntent = {
+      variationId: variationId,
+      quantity: quantity,
+      sourceTrigger: "afterBasketItemAdded",
+      timestamp: Date.now(),
+    };
+  };
+
+  const bindAddedToCartListeners = function () {
+    document.addEventListener("afterBasketItemAdded", captureAddedToCartIntent);
+
+    ["AfterBasketItemAdd", "afterBasketItemAdd", "AfterBasketChanged", "afterBasketChanged"].forEach(function (eventName) {
+      document.addEventListener(eventName, function (event) {
+        const detail = event && event.detail ? event.detail : null;
+        trackLog("Added to Cart tracking triggered.", {
+          trigger: eventName,
+          hasBasketPayload: !!detail,
+        });
+        trackAddedToCart(eventName, detail);
+      });
+      window.addEventListener(eventName, function (event) {
+        const detail = event && event.detail ? event.detail : null;
+        trackLog("Added to Cart tracking triggered.", {
+          trigger: "window_" + eventName,
+          hasBasketPayload: !!detail,
+        });
+        trackAddedToCart("window_" + eventName, detail);
+      });
+    });
+  };
+
   let viewedProductTrackTimeoutId = null;
   const scheduleViewedProductTrack = function (trigger, delayMs) {
     const waitMs = typeof delayMs === "number" ? delayMs : 200;
@@ -1180,6 +1587,7 @@
     });
 
     registerHistoryRouteHooks();
+    bindAddedToCartListeners();
   };
 
   const scriptSource =

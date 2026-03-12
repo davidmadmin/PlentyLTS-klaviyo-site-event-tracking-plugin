@@ -19,7 +19,7 @@ The table below is optimized for a quick implementation and product-status scan.
 | 🟢 | **Identified Profile (Identify)** | Connect anonymous behavior to a known person | Logged-in session or post-login resolution identifies profile by email |
 | 🟢 | **Active on Site** | Baseline site engagement and profile activity | Covered by the identify lifecycle because profile activity is established when identify resolves |
 | 🟢 | **Viewed Product** | Product interest and browse intent | PDP runtime-state detection plus variant/route changes dispatch product metadata |
-| 🔴 | **Added to Cart** | Purchase intent signal for abandoned-cart journeys | Add-to-cart action from PDP/listing/quick-buy |
+| 🟢 | **Added to Cart** | Purchase intent signal for abandoned-cart journeys | Intent capture (`afterBasketItemAdded`) plus basket-state reconciliation (`AfterBasketItemAdd` / `AfterBasketChanged`) |
 | 🔴 | **Removed from Cart** | Cart friction insight and drop-off analysis | Remove-line-item action in cart/minicart |
 | 🔴 | **Started Checkout** | Funnel entry and checkout abandonment flows | First transition from cart to checkout |
 | 🔴 | **Checkout Step Progression** | Diagnose checkout friction points | Movement between checkout steps (address, shipping, payment, review) |
@@ -45,6 +45,7 @@ At this time, the repository provides a **partial implementation** with bootstra
 - 🟢 Klaviyo JavaScript bootstrap implemented for plugin and GTM modes
 - 🟢 Frontend identify flow implemented (email-based profile identification for logged-in users)
 - 🟢 Frontend Viewed Product tracking implemented with runtime-store + DOM fallback payload resolution and deduped variant transitions
+- 🟢 Frontend Added to Cart tracking implemented with add-intent capture, basket-state payload reconciliation, and short-window dedupe protection
 - 🟡 Configuration and debug logging controls are available and evolving
 - 🔴 Most storefront business event mappings are still pending
 
@@ -54,7 +55,8 @@ At this time, the repository provides a **partial implementation** with bootstra
    - Load and validate Klaviyo JS in plugin mode
    - Harden profile identify flow and consent-aware guards
 2. **Core commerce events**
-   - Viewed Product, Added to Cart, Started Checkout, Placed Order
+   - Viewed Product and Added to Cart delivered
+   - Started Checkout and Placed Order remaining
 3. **Funnel and UX enrichment**
    - Search, listing/category views, coupon outcomes, wishlist/cart behavior
 4. **Hardening**
@@ -79,6 +81,8 @@ Plugin config is now split into dedicated tabs:
 - **Events tab**
   - `tracking.enableViewedProductEvent`
     - Enabled by default; activates/deactivates the `Viewed Product` tracking flow
+  - `tracking.enableAddedToCartEvent`
+    - Enabled by default; activates/deactivates the `Added to Cart` tracking flow
 
 - **Debugging tab**
   - `tracking.enableDebugLogging`
@@ -104,8 +108,9 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 | `tracking.logPluginHeartbeat` | boolean | Enabled by default; emits a startup `console.info` heartbeat with API-key detection status and the detected key value (if present). | Independent from `enableDebugLogging`; can be disabled if too noisy. |
 | `tracking.logErrorsOnly` | boolean | Suppresses plugin `console.info` logs (including heartbeat) even if other logging toggles are enabled. | `console.warn` messages still appear. |
 | `tracking.logIdentifyCalls` | boolean | Emits identify diagnostics (`console.info`) for no-email resolution, lifecycle/auth trigger attempts, successful identify calls, and duplicate-skip decisions. | Suppressed when `tracking.logErrorsOnly = true`. Also accepts common truthy/falsey string values (`"true"`, `"false"`, `"yes"`, `"no"`, etc.) for safer config parsing. |
-| `tracking.logTrackCalls` | boolean | Enabled by default; emits track diagnostics (`console.info`) for product-page detection checks, getter-first payload-source resolution, Viewed Product trigger sources, disabled-by-config skips, dedupe skips, payload-missing skips, and successful `track` / `trackViewedItem` dispatches. | Suppressed when `tracking.logErrorsOnly = true`. |
+| `tracking.logTrackCalls` | boolean | Enabled by default; emits track diagnostics (`console.info`) for Viewed Product and Added to Cart trigger flow, payload resolution, skip reasons, dedupe decisions, and successful `track` / `trackViewedItem` dispatches. | Suppressed when `tracking.logErrorsOnly = true`. |
 | `tracking.enableViewedProductEvent` | boolean | Enabled by default; toggles whether the `Viewed Product` tracking flow runs at all. | When disabled and `tracking.logTrackCalls = true`, logs a per-trigger skip diagnostic. |
+| `tracking.enableAddedToCartEvent` | boolean | Enabled by default; toggles whether the `Added to Cart` tracking flow runs at all. | When disabled and `tracking.logTrackCalls = true`, logs `Added to Cart skipped (disabled by configuration).`. |
 
 ### Expected console output by condition
 
@@ -203,6 +208,45 @@ If `tracking.logTrackCalls = true` and `tracking.logErrorsOnly = false`, expecte
 
 ```text
 [KlaviyoSiteEventTracking] Klaviyo trackViewedItem executed. { trigger: "variation_click|<dedup-key>", itemId: "..." }
+```
+
+
+Added to Cart diagnostics (same track logging gates) include:
+
+```text
+[KlaviyoSiteEventTracking] Added to Cart tracking triggered. { trigger: "afterBasketItemAdded"|"AfterBasketItemAdd"|"AfterBasketChanged"|"window_AfterBasketItemAdd"|..., variationId: "...", quantity: <n>, hasBasketPayload: true|false }
+```
+
+```text
+[KlaviyoSiteEventTracking] Added to Cart skipped (disabled by configuration). { trigger: "AfterBasketChanged" }
+```
+
+```text
+[KlaviyoSiteEventTracking] Added to Cart skipped (missing required fields). { trigger: "afterBasketItemAdded", reason: "missing_variation_id"|"missing_latest_intent"|"payload_incomplete" }
+```
+
+```text
+[KlaviyoSiteEventTracking] Added to Cart skipped (no basket items). { trigger: "AfterBasketChanged", basketItemCount: <n> }
+```
+
+```text
+[KlaviyoSiteEventTracking] Added to Cart skipped (no added line match). { trigger: "AfterBasketChanged", variationId: "..." }
+```
+
+```text
+[KlaviyoSiteEventTracking] Added to Cart payload resolved. { trigger: "AfterBasketChanged", sourceTrigger: "afterBasketItemAdded", variationId: "...", quantity: <n>, itemCount: <n>, addedItemProductId: "..." }
+```
+
+```text
+[KlaviyoSiteEventTracking] Added to Cart skipped (deduped). { trigger: "AfterBasketChanged", dedupKey: "<variation|quantity|path|bucket>" }
+```
+
+```text
+[KlaviyoSiteEventTracking] Klaviyo track executed. { metric: "Added to Cart", trigger: "AfterBasketChanged|<dedup-key>", payload: { $value: ..., AddedItemProductID: "...", Items: [...] } }
+```
+
+```text
+[KlaviyoSiteEventTracking] Added to Cart skipped (failed track call). { trigger: "AfterBasketChanged", dedupKey: "..." }
 ```
 
 Viewed Product tracking now first checks Plenty runtime item-view flags (`window.App.isItemView === true` or `window.App.templateType === "item"`, case-insensitive) and only then falls back to PDP URL heuristics.
