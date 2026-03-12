@@ -530,12 +530,24 @@
             }
 
             if (entry && typeof entry === "object") {
-              return normalizedString(
+              const resolved = normalizedString(
                 entry.name ||
                   entry.details && entry.details[0] && entry.details[0].name ||
                   entry.label ||
-                  entry.value
+                  entry.value ||
+                  entry.names && entry.names.name ||
+                  entry.linklist
               );
+
+              if (resolved) {
+                return resolved;
+              }
+
+              if (typeof entry.id === "number" || typeof entry.id === "string") {
+                return "category:" + normalizedString(entry.id);
+              }
+
+              return "";
             }
 
             return "";
@@ -676,17 +688,40 @@
     const imageUrl =
       normalizedString(getNestedValue(candidate, ["images", 0, "url"])) ||
       normalizedString(getNestedValue(candidate, ["images", 0, "urlMiddle"])) ||
+      normalizedString(getNestedValue(candidate, ["images", "all", 0, "url"])) ||
+      normalizedString(getNestedValue(candidate, ["images", "all", 0, "urlMiddle"])) ||
+      normalizedString(getNestedValue(candidate, ["images", "variation", 0, "url"])) ||
+      normalizedString(getNestedValue(candidate, ["images", "variation", 0, "urlMiddle"])) ||
       normalizedString(getNestedValue(candidate, ["item", "images", 0, "url"])) ||
       normalizedString(getNestedValue(candidate, ["variation", "images", 0, "url"])) ||
       normalizedString(getNestedValue(candidate, ["imageUrl"]));
 
     const price = firstDefinedNumber([
+      normalizedNumber(getNestedValue(candidate, ["prices", "default", "price", "value"])),
+      normalizedNumber(getNestedValue(candidate, ["prices", "default", "price", "gross"])),
+      normalizedNumber(getNestedValue(candidate, ["prices", "default", "price", "net"])),
+      normalizedNumber(getNestedValue(candidate, ["prices", "default", "price"])),
+      normalizedNumber(getNestedValue(candidate, ["prices", "default", "lowestPrice", "value"])),
+      normalizedNumber(getNestedValue(candidate, ["prices", "default", "lowestPrice", "gross"])),
+      normalizedNumber(getNestedValue(candidate, ["prices", "default", "lowestPrice", "net"])),
+      normalizedNumber(getNestedValue(candidate, ["prices", "default", "lowestPrice"])),
       normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "price", "value"])),
       normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "price", "gross"])),
+      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "price", "net"])),
+      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "price"])),
+      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "lowestPrice", "value"])),
+      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "lowestPrice", "gross"])),
+      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "lowestPrice", "net"])),
+      normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "lowestPrice"])),
       normalizedNumber(getNestedValue(candidate, ["variation", "salesPrices", 0, "price"])),
       normalizedNumber(getNestedValue(candidate, ["price"])),
     ]);
     const compareAtPrice = firstDefinedNumber([
+      normalizedNumber(getNestedValue(candidate, ["prices", "default", "rrp", "price"])),
+      normalizedNumber(getNestedValue(candidate, ["prices", "default", "rrp", "value"])),
+      normalizedNumber(getNestedValue(candidate, ["prices", "default", "rrp", "gross"])),
+      normalizedNumber(getNestedValue(candidate, ["prices", "default", "rrp"])),
+      normalizedNumber(getNestedValue(candidate, ["prices", "rrp", "price", "value"])),
       normalizedNumber(getNestedValue(candidate, ["variation", "prices", "default", "rrp", "price"])),
       normalizedNumber(getNestedValue(candidate, ["variation", "prices", "rrp", "price", "value"])),
       normalizedNumber(getNestedValue(candidate, ["compareAtPrice"])),
