@@ -720,6 +720,7 @@
 
     const productId = normalizedString(root.getAttribute("data-kse-product-id"));
     const variationId = normalizedString(root.getAttribute("data-kse-variation-id"));
+    const parentProductId = normalizedString(root.getAttribute("data-kse-parent-product-id"));
     const productName = normalizedString(root.getAttribute("data-kse-product-name"));
 
     if (!productId && !variationId && !productName) {
