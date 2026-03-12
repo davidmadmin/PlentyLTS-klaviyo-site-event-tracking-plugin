@@ -214,7 +214,15 @@ If `tracking.logTrackCalls = true` and `tracking.logErrorsOnly = false`, expecte
 ```
 
 ```text
-[KlaviyoSiteEventTracking] Added to Cart payload resolved. { trigger: "afterBasketChanged", sourceLabel: "afterBasketChanged.detail", addedItemProductId: "...", addedItemProductName: "...", addedItemQuantity: 1 }
+[KlaviyoSiteEventTracking] Added to Cart basket snapshot buffered awaiting intent correlation. { trigger: "afterBasketChanged", sourceLabel: "afterBasketChanged.detail" }
+```
+
+```text
+[KlaviyoSiteEventTracking] Added to Cart intent correlated with buffered basket snapshot. { trigger: "afterBasketChanged", sourceLabel: "afterBasketChanged.detail" }
+```
+
+```text
+[KlaviyoSiteEventTracking] Added to Cart payload resolved. { trigger: "afterBasketChanged|intent_followup", sourceLabel: "afterBasketChanged.detail", correlationMode: "intent_matched", addedItemProductId: "...", addedItemProductName: "...", addedItemQuantity: 1 }
 ```
 
 ```text
@@ -226,7 +234,27 @@ If `tracking.logTrackCalls = true` and `tracking.logErrorsOnly = false`, expecte
 ```
 
 ```text
+[KlaviyoSiteEventTracking] Added to Cart skipped (intent and snapshot could not be correlated). { trigger: "afterBasketChanged", reason: "intent_missing_or_expired" }
+```
+
+```text
+[KlaviyoSiteEventTracking] Added to Cart intent expired before basket correlation. { triggerSource: "afterBasketItemAdded" }
+```
+
+```text
+[KlaviyoSiteEventTracking] Added to Cart basket snapshot expired before intent correlation. { trigger: "afterBasketChanged" }
+```
+
+```text
 [KlaviyoSiteEventTracking] Added to Cart skipped (deduped). { trigger: "afterBasketChanged", dedupKey: "<product|qty|basket|bucket>" }
+```
+
+```text
+[KlaviyoSiteEventTracking] Added to Cart using normal event order. { trigger: "afterBasketChanged" }
+```
+
+```text
+[KlaviyoSiteEventTracking] Added to Cart using inverted event-order fallback. { trigger: "afterBasketChanged|intent_followup" }
 ```
 
 Added to Cart dispatch uses metric name `"Added to Cart"` and keeps filterable top-level properties (`$value`, `AddedItem*`, `ItemNames`, `CheckoutURL`, `Items`) as top-level keys for Klaviyo segment usability.
