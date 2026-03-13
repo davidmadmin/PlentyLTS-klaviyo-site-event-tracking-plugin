@@ -968,7 +968,11 @@
       ItemName:
         normalizedString(getNestedValue(item, ["itemName"])) ||
         normalizedString(getNestedValue(item, ["variation", "name"])) ||
+        normalizedString(getNestedValue(item, ["variation", "data", "texts", "name1"])) ||
+        normalizedString(getNestedValue(item, ["item", "data", "texts", "name1"])) ||
+        normalizedString(getNestedValue(item, ["variation", "texts", "name1"])) ||
         normalizedString(getNestedValue(item, ["item", "texts", "name1"])) ||
+        normalizedString(getNestedValue(item, ["data", "texts", "name1"])) ||
         normalizedString(getNestedValue(item, ["name"])),
       ProductID: productId,
       VariationID: variationId,
