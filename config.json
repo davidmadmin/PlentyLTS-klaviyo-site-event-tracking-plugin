@@ -56,6 +56,24 @@
             "tooltip": "Config.enableAddedToCartEventTooltip",
             "defaultValue": true
           }
+        },
+        "tracking.enableViewedHomepageEvent": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.enableViewedHomepageEventLabel",
+          "options": {
+            "tooltip": "Config.enableViewedHomepageEventTooltip",
+            "defaultValue": true
+          }
+        },
+        "tracking.enableViewedCategoryEvent": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.enableViewedCategoryEventLabel",
+          "options": {
+            "tooltip": "Config.enableViewedCategoryEventTooltip",
+            "defaultValue": true
+          }
         }
       }
     },
@@ -105,6 +123,24 @@
           "label": "Config.logAddedToCartEventDebugLabel",
           "options": {
             "tooltip": "Config.logAddedToCartEventDebugTooltip",
+            "defaultValue": false
+          }
+        },
+        "tracking.logViewedHomepageEventDebug": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.logViewedHomepageEventDebugLabel",
+          "options": {
+            "tooltip": "Config.logViewedHomepageEventDebugTooltip",
+            "defaultValue": false
+          }
+        },
+        "tracking.logViewedCategoryEventDebug": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.logViewedCategoryEventDebugLabel",
+          "options": {
+            "tooltip": "Config.logViewedCategoryEventDebugTooltip",
             "defaultValue": false
           }
         }

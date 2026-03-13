@@ -29,6 +29,22 @@
 {% set enableAddedToCartEventNormalized = (enableAddedToCartEventRaw ~ "")|trim|lower %}
 {% set enableAddedToCartEvent = (enableAddedToCartEventRaw is same as(true)) or (enableAddedToCartEventRaw is same as(1)) or (enableAddedToCartEventNormalized in checkboxEnabledValues) ? true : ((enableAddedToCartEventRaw is same as(false)) or (enableAddedToCartEventRaw is same as(0)) or (enableAddedToCartEventNormalized in checkboxDisabledValues) ? false : true) %}
 
+{% set logViewedHomepageEventDebugRaw = config("KlaviyoSiteEventTracking.tracking.logViewedHomepageEventDebug")|default("") %}
+{% set logViewedHomepageEventDebugNormalized = (logViewedHomepageEventDebugRaw ~ "")|trim|lower %}
+{% set logViewedHomepageEventDebug = (logViewedHomepageEventDebugRaw is same as(true)) or (logViewedHomepageEventDebugRaw is same as(1)) or (logViewedHomepageEventDebugNormalized in checkboxEnabledValues) ? true : ((logViewedHomepageEventDebugRaw is same as(false)) or (logViewedHomepageEventDebugRaw is same as(0)) or (logViewedHomepageEventDebugNormalized in checkboxDisabledValues) ? false : false) %}
+
+{% set logViewedCategoryEventDebugRaw = config("KlaviyoSiteEventTracking.tracking.logViewedCategoryEventDebug")|default("") %}
+{% set logViewedCategoryEventDebugNormalized = (logViewedCategoryEventDebugRaw ~ "")|trim|lower %}
+{% set logViewedCategoryEventDebug = (logViewedCategoryEventDebugRaw is same as(true)) or (logViewedCategoryEventDebugRaw is same as(1)) or (logViewedCategoryEventDebugNormalized in checkboxEnabledValues) ? true : ((logViewedCategoryEventDebugRaw is same as(false)) or (logViewedCategoryEventDebugRaw is same as(0)) or (logViewedCategoryEventDebugNormalized in checkboxDisabledValues) ? false : false) %}
+
+{% set enableViewedHomepageEventRaw = config("KlaviyoSiteEventTracking.tracking.enableViewedHomepageEvent")|default(null) %}
+{% set enableViewedHomepageEventNormalized = (enableViewedHomepageEventRaw ~ "")|trim|lower %}
+{% set enableViewedHomepageEvent = (enableViewedHomepageEventRaw is same as(true)) or (enableViewedHomepageEventRaw is same as(1)) or (enableViewedHomepageEventNormalized in checkboxEnabledValues) ? true : ((enableViewedHomepageEventRaw is same as(false)) or (enableViewedHomepageEventRaw is same as(0)) or (enableViewedHomepageEventNormalized in checkboxDisabledValues) ? false : true) %}
+
+{% set enableViewedCategoryEventRaw = config("KlaviyoSiteEventTracking.tracking.enableViewedCategoryEvent")|default(null) %}
+{% set enableViewedCategoryEventNormalized = (enableViewedCategoryEventRaw ~ "")|trim|lower %}
+{% set enableViewedCategoryEvent = (enableViewedCategoryEventRaw is same as(true)) or (enableViewedCategoryEventRaw is same as(1)) or (enableViewedCategoryEventNormalized in checkboxEnabledValues) ? true : ((enableViewedCategoryEventRaw is same as(false)) or (enableViewedCategoryEventRaw is same as(0)) or (enableViewedCategoryEventNormalized in checkboxDisabledValues) ? false : true) %}
+
 <script>
   window.KlaviyoSiteEventTracking = window.KlaviyoSiteEventTracking || {};
   window.KlaviyoSiteEventTracking.integrationMode = "{{ integrationMode|e('js') }}";
@@ -38,7 +54,11 @@
   window.KlaviyoSiteEventTracking.debugIdentifyEmailOverride = "{{ debugIdentifyEmailOverride|e('js') }}";
   window.KlaviyoSiteEventTracking.logViewedProductEventDebug = {{ logViewedProductEventDebug ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.logAddedToCartEventDebug = {{ logAddedToCartEventDebug ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.logViewedHomepageEventDebug = {{ logViewedHomepageEventDebug ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.logViewedCategoryEventDebug = {{ logViewedCategoryEventDebug ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.enableViewedProductEvent = {{ enableViewedProductEvent ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.enableAddedToCartEvent = {{ enableAddedToCartEvent ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.enableViewedHomepageEvent = {{ enableViewedHomepageEvent ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.enableViewedCategoryEvent = {{ enableViewedCategoryEvent ? 'true' : 'false' }};
 </script>
 <script src="{{ plugin_path('KlaviyoSiteEventTracking') }}/js/klaviyo-site-event-tracking.js"></script>

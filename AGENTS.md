@@ -46,3 +46,13 @@ This includes (but is not limited to):
 - Any behavioral changes that alter expected console output examples.
 
 Treat README troubleshooting/debug logging docs as a required source of truth that must stay in lockstep with actual code behavior.
+
+## Known storefront `window.App.templateType` mappings
+For this project and environment, page-type checks should primarily use `window.App.templateType`. Current verified values:
+- `home` (homepage)
+- `checkout` (checkout)
+- `item` (product detail page; typically also `window.App.isItemView === true`)
+- `category` (category/listing)
+- `privacy-policy`, `cancellation-rights`, `legal-disclosure` (legal pages)
+
+For legal-page tracking, use an allow-list of templateType values rather than a single generic legal type.

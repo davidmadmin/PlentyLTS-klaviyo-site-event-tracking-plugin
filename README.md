@@ -20,12 +20,13 @@ The table below is optimized for a quick implementation and product-status scan.
 | 🟢 | **Active on Site** | Baseline site engagement and profile activity | Covered by the identify lifecycle because profile activity is established when identify resolves |
 | 🟢 | **Viewed Product** | Product interest and browse intent | PDP runtime-state detection plus variant/route changes dispatch product metadata |
 | 🟢 | **Added to Cart** | Purchase intent signal for abandoned-cart journeys | Add-intent capture (`afterBasketItemAdded`) plus basket-snapshot reconciliation (`afterBasketChanged`) |
+| 🟢 | **Viewed Homepage** | Baseline landing engagement and session context | Runtime page-type detection when Plenty `window.App.templateType === "home"` |
+| 🟢 | **Viewed Category / Listing** | Discovery behavior and merchandising effectiveness | Runtime page-type detection when Plenty `window.App.templateType === "category"` |
 | 🔴 | **Removed from Cart** | Cart friction insight and drop-off analysis | Remove-line-item action in cart/minicart |
 | 🔴 | **Started Checkout** | Funnel entry and checkout abandonment flows | First transition from cart to checkout |
 | 🔴 | **Checkout Step Progression** | Diagnose checkout friction points | Movement between checkout steps (address, shipping, payment, review) |
 | 🔴 | **Placed Order** | Conversion tracking and post-purchase automation | Successful order placement confirmation |
 | 🔴 | **Refunded Order** | Revenue quality and customer lifecycle signals | Order status/payment reversal recognized by storefront/account event feed |
-| 🔴 | **Viewed Category / Listing** | Discovery behavior and merchandising effectiveness | Category/listing page view with category context |
 | 🔴 | **Submitted Search** | Demand and intent intelligence | On-site search submit with query + result count |
 | 🔴 | **Viewed Content Page** | Non-product engagement context | CMS/content page view (guides, service pages, etc.) |
 | 🔴 | **Clicked Promotion / Banner** | Campaign and merchandising interaction | Click on promo blocks, hero banners, teaser components |
@@ -46,6 +47,8 @@ At this time, the repository provides a **partial implementation** with bootstra
 - 🟢 Frontend identify flow implemented (email-based profile identification for logged-in users)
 - 🟢 Frontend Viewed Product tracking implemented with runtime-store + DOM fallback payload resolution and deduped variant transitions
 - 🟢 Frontend Added to Cart tracking implemented with add-intent buffering, basket-snapshot payload resolution, and deduped dispatch
+- 🟢 Frontend Viewed Homepage tracking implemented via Plenty runtime `templateType = home` detection and deduped dispatch
+- 🟢 Frontend Viewed Category tracking implemented via Plenty runtime `templateType = category` detection and deduped dispatch
 - 🟡 Configuration and debug logging controls are available and evolving
 - 🔴 Most storefront business event mappings are still pending
 
@@ -66,6 +69,18 @@ At this time, the repository provides a **partial implementation** with bootstra
 - The `KlaviyoSiteEventTracking\Containers\KlaviyoTrackingContainer` data provider defaults to `Ceres::Script.Loader` via `defaultLayoutContainer`.
 - Without custom overrides, the Klaviyo site event tracking entrypoint is injected through that Ceres script loader container.
 
+## Plenty templateType findings (for site-type event targeting)
+
+The storefront runtime value `window.App.templateType` is the primary source used by this plugin for site-type detection. Verified mappings:
+
+- Homepage: `home`
+- Checkout: `checkout`
+- Product detail page: `item`
+- Category/listing page: `category`
+- Legal pages (examples): `privacy-policy`, `cancellation-rights`, `legal-disclosure`
+
+This means legal tracking should be implemented as an allow-list of template types instead of a single generic `legal` value.
+
 ## Configuration
 
 Plugin config is split into dedicated tabs:
@@ -82,6 +97,10 @@ Plugin config is split into dedicated tabs:
     - Enabled by default; activates/deactivates the `Viewed Product` tracking flow
   - `tracking.enableAddedToCartEvent`
     - Enabled by default; activates/deactivates the `Added to Cart` tracking flow
+  - `tracking.enableViewedHomepageEvent`
+    - Enabled by default; activates/deactivates the `Viewed Homepage` tracking flow
+  - `tracking.enableViewedCategoryEvent`
+    - Enabled by default; activates/deactivates the `Viewed Category` tracking flow
 
 - **Debugging tab**
   - `tracking.logPluginHeartbeat`
@@ -94,6 +113,10 @@ Plugin config is split into dedicated tabs:
     - Emits `Viewed Product` diagnostics (`console.info`) for page detection, payload resolution, dedupe handling, and track dispatch
   - `tracking.logAddedToCartEventDebug`
     - Emits `Added to Cart` diagnostics (`console.info`) for listener registration, intent/snapshot correlation, payload resolution, dedupe handling, and track dispatch
+  - `tracking.logViewedHomepageEventDebug`
+    - Emits `Viewed Homepage` diagnostics (`console.info`) for template-type detection, dedupe handling, and track dispatch
+  - `tracking.logViewedCategoryEventDebug`
+    - Emits `Viewed Category` diagnostics (`console.info`) for template-type detection, payload resolution, dedupe handling, and track dispatch
 
 ## Troubleshooting
 
@@ -110,6 +133,10 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 | `tracking.logAddedToCartEventDebug` | boolean | Emits `Added to Cart` diagnostics (`console.info`) for listener registration, intent capture, basket snapshot resolution (including totals-only detail fallback), payload resolution, config/required-field skips, dedupe skips, and successful `track` dispatches. | Event-specific toggle for `Added to Cart` debugging. |
 | `tracking.enableViewedProductEvent` | boolean | Enabled by default; toggles whether the `Viewed Product` tracking flow runs at all. | When disabled and `tracking.logViewedProductEventDebug = true`, logs a per-trigger skip diagnostic. |
 | `tracking.enableAddedToCartEvent` | boolean | Enabled by default; toggles whether the `Added to Cart` tracking flow runs at all. | When disabled and `tracking.logAddedToCartEventDebug = true`, logs `Added to Cart skipped (disabled by configuration).` on basket changes. |
+| `tracking.logViewedHomepageEventDebug` | boolean | Emits `Viewed Homepage` diagnostics (`console.info`) for template-type detection, config skips, dedupe skips, and successful `track` dispatches. | Event-specific toggle for `Viewed Homepage` debugging. |
+| `tracking.logViewedCategoryEventDebug` | boolean | Emits `Viewed Category` diagnostics (`console.info`) for template-type detection, payload resolution, config/required-field skips, dedupe skips, and successful `track` dispatches. | Event-specific toggle for `Viewed Category` debugging. |
+| `tracking.enableViewedHomepageEvent` | boolean | Enabled by default; toggles whether the `Viewed Homepage` tracking flow runs at all. | When disabled and `tracking.logViewedHomepageEventDebug = true`, logs `Viewed Homepage skipped (disabled by configuration).`. |
+| `tracking.enableViewedCategoryEvent` | boolean | Enabled by default; toggles whether the `Viewed Category` tracking flow runs at all. | When disabled and `tracking.logViewedCategoryEventDebug = true`, logs `Viewed Category skipped (disabled by configuration).`. |
 
 ### Expected console output by condition
 
@@ -169,6 +196,18 @@ If `tracking.logViewedProductEventDebug = true`, expected Viewed Product diagnos
 
 ```text
 [KlaviyoSiteEventTracking] Viewed Product payload resolved. { trigger: "bootstrap", sourceLabel: "...", productId: "...", productName: "..." }
+```
+
+If `tracking.logViewedHomepageEventDebug = true`, expected Viewed Homepage diagnostics include:
+
+```text
+[KlaviyoSiteEventTracking] Viewed Homepage page detection evaluated. { trigger: "bootstrap", isHomepage: true|false, detectionSource: "runtime_app_templateType"|"none", templateType: "home"|"...", path: "/..." }
+```
+
+If `tracking.logViewedCategoryEventDebug = true`, expected Viewed Category diagnostics include:
+
+```text
+[KlaviyoSiteEventTracking] Viewed Category payload resolved. { trigger: "bootstrap", categoryName: "...", path: "/..." }
 ```
 
 If `tracking.logAddedToCartEventDebug = true`, expected Added to Cart diagnostics include:

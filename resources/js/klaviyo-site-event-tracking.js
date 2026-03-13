@@ -32,8 +32,12 @@
   const logIdentifyEventDebug = isEnabled(settings.logIdentifyEventDebug, false);
   const logViewedProductEventDebug = isEnabled(settings.logViewedProductEventDebug, false);
   const logAddedToCartEventDebug = isEnabled(settings.logAddedToCartEventDebug, false);
+  const logViewedHomepageEventDebug = isEnabled(settings.logViewedHomepageEventDebug, false);
+  const logViewedCategoryEventDebug = isEnabled(settings.logViewedCategoryEventDebug, false);
   const enableViewedProductEvent = isEnabled(settings.enableViewedProductEvent, true);
   const enableAddedToCartEvent = isEnabled(settings.enableAddedToCartEvent, true);
+  const enableViewedHomepageEvent = isEnabled(settings.enableViewedHomepageEvent, true);
+  const enableViewedCategoryEvent = isEnabled(settings.enableViewedCategoryEvent, true);
   const identifyPollAttempts = 8;
   const identifyPollIntervalMs = 1500;
 
@@ -100,6 +104,32 @@
 
   const addedToCartLog = function (message, payload) {
     if (!logAddedToCartEventDebug) {
+      return;
+    }
+
+    if (typeof payload !== "undefined") {
+      console.info("[KlaviyoSiteEventTracking] " + message, payload);
+      return;
+    }
+
+    console.info("[KlaviyoSiteEventTracking] " + message);
+  };
+
+  const viewedHomepageLog = function (message, payload) {
+    if (!logViewedHomepageEventDebug) {
+      return;
+    }
+
+    if (typeof payload !== "undefined") {
+      console.info("[KlaviyoSiteEventTracking] " + message, payload);
+      return;
+    }
+
+    console.info("[KlaviyoSiteEventTracking] " + message);
+  };
+
+  const viewedCategoryLog = function (message, payload) {
+    if (!logViewedCategoryEventDebug) {
       return;
     }
 
@@ -875,6 +905,56 @@
     };
   };
 
+  const isTemplatePageType = function (expectedTemplateType) {
+    const appState = window.App && typeof window.App === "object" ? window.App : null;
+    const templateType = normalizedString(appState && appState.templateType).toLowerCase();
+
+    if (!templateType) {
+      return {
+        isMatch: false,
+        detectionSource: "none",
+        templateType: "",
+      };
+    }
+
+    return {
+      isMatch: templateType === expectedTemplateType,
+      detectionSource: "runtime_app_templateType",
+      templateType: templateType,
+    };
+  };
+
+  const resolveViewedHomepagePayload = function () {
+    const pageTitle = normalizedString(document && document.title);
+    return {
+      URL: normalizedAbsoluteUrl(window.location ? window.location.href : "", true),
+      Path: normalizedString(window.location && window.location.pathname),
+      TemplateType: "home",
+      PageTitle: pageTitle || "Homepage",
+    };
+  };
+
+  const resolveViewedCategoryPayload = function () {
+    const categoryFromState = normalizedString(getNestedValue(window, ["App", "activeCategory", "details", "name"]));
+    const breadcrumbNodes = document.querySelectorAll(".breadcrumb a, .breadcrumbs a, [data-testing='breadcrumb'] a");
+    let breadcrumbCategory = "";
+
+    if (breadcrumbNodes && breadcrumbNodes.length) {
+      const lastNode = breadcrumbNodes[breadcrumbNodes.length - 1];
+      breadcrumbCategory = normalizedString(lastNode && lastNode.textContent);
+    }
+
+    const categoryName = categoryFromState || breadcrumbCategory || normalizedString(document && document.title);
+
+    return {
+      URL: normalizedAbsoluteUrl(window.location ? window.location.href : "", true),
+      Path: normalizedString(window.location && window.location.pathname),
+      TemplateType: "category",
+      CategoryName: categoryName || "Category",
+      PageTitle: normalizedString(document && document.title),
+    };
+  };
+
   const resolveViewedProductPayload = function () {
     const sources = getProductCandidateSources();
 
@@ -1529,6 +1609,22 @@
         });
       }
 
+      if (metricName === "Viewed Homepage") {
+        viewedHomepageLog("Klaviyo track executed.", {
+          metric: metricName,
+          trigger: context,
+          payload: payload,
+        });
+      }
+
+      if (metricName === "Viewed Category") {
+        viewedCategoryLog("Klaviyo track executed.", {
+          metric: metricName,
+          trigger: context,
+          payload: payload,
+        });
+      }
+
       return true;
     } catch (error) {
       warn("Failed to execute Klaviyo track call.", {
@@ -1640,6 +1736,92 @@
     trackViewedItem(payload, trigger + "|" + dedupKey);
   };
 
+  const trackViewedHomepage = function (trigger) {
+    if (!enableViewedHomepageEvent) {
+      viewedHomepageLog("Viewed Homepage skipped (disabled by configuration).", { trigger: trigger });
+      return;
+    }
+
+    const pageDetection = isTemplatePageType("home");
+    viewedHomepageLog("Viewed Homepage page detection evaluated.", {
+      trigger: trigger,
+      isHomepage: pageDetection.isMatch,
+      detectionSource: pageDetection.detectionSource,
+      templateType: pageDetection.templateType,
+      path: window.location ? window.location.pathname : "",
+    });
+
+    if (!pageDetection.isMatch) {
+      return;
+    }
+
+    const payload = resolveViewedHomepagePayload();
+    const dedupKey = [payload.TemplateType, payload.Path].join("|");
+
+    if (window.__KlaviyoSiteEventTrackingLastViewedHomepageKey === dedupKey) {
+      viewedHomepageLog("Viewed Homepage skipped (deduped).", { trigger: trigger, dedupKey: dedupKey });
+      return;
+    }
+
+    const didTrack = trackEvent("Viewed Homepage", payload, trigger + "|" + dedupKey);
+
+    if (!didTrack) {
+      viewedHomepageLog("Viewed Homepage dedupe key not updated because track dispatch failed.", { trigger: trigger, dedupKey: dedupKey });
+      return;
+    }
+
+    window.__KlaviyoSiteEventTrackingLastViewedHomepageKey = dedupKey;
+  };
+
+  const trackViewedCategory = function (trigger) {
+    if (!enableViewedCategoryEvent) {
+      viewedCategoryLog("Viewed Category skipped (disabled by configuration).", { trigger: trigger });
+      return;
+    }
+
+    const pageDetection = isTemplatePageType("category");
+    viewedCategoryLog("Viewed Category page detection evaluated.", {
+      trigger: trigger,
+      isCategory: pageDetection.isMatch,
+      detectionSource: pageDetection.detectionSource,
+      templateType: pageDetection.templateType,
+      path: window.location ? window.location.pathname : "",
+    });
+
+    if (!pageDetection.isMatch) {
+      return;
+    }
+
+    const payload = resolveViewedCategoryPayload();
+
+    if (!payload.URL || !payload.CategoryName) {
+      viewedCategoryLog("Viewed Category skipped (required payload fields missing).", { trigger: trigger });
+      return;
+    }
+
+    viewedCategoryLog("Viewed Category payload resolved.", {
+      trigger: trigger,
+      categoryName: payload.CategoryName,
+      path: payload.Path,
+    });
+
+    const dedupKey = [payload.TemplateType, payload.Path].join("|");
+
+    if (window.__KlaviyoSiteEventTrackingLastViewedCategoryKey === dedupKey) {
+      viewedCategoryLog("Viewed Category skipped (deduped).", { trigger: trigger, dedupKey: dedupKey });
+      return;
+    }
+
+    const didTrack = trackEvent("Viewed Category", payload, trigger + "|" + dedupKey);
+
+    if (!didTrack) {
+      viewedCategoryLog("Viewed Category dedupe key not updated because track dispatch failed.", { trigger: trigger, dedupKey: dedupKey });
+      return;
+    }
+
+    window.__KlaviyoSiteEventTrackingLastViewedCategoryKey = dedupKey;
+  };
+
   let viewedProductTrackTimeoutId = null;
   const scheduleViewedProductTrack = function (trigger, delayMs) {
     const waitMs = typeof delayMs === "number" ? delayMs : 200;
@@ -1651,6 +1833,8 @@
     viewedProductTrackTimeoutId = window.setTimeout(function () {
       viewedProductTrackTimeoutId = null;
       trackViewedProduct(trigger);
+      trackViewedHomepage(trigger);
+      trackViewedCategory(trigger);
     }, waitMs);
   };
 
