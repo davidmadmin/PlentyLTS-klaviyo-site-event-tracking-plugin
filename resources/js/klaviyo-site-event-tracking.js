@@ -2,6 +2,7 @@
   const settings = window.KlaviyoSiteEventTracking || {};
   const integrationMode = settings.integrationMode || "plugin";
   const publicApiKey = (settings.publicApiKey || "").trim();
+  const configuredIdentifyEmailOverride = (settings.debugIdentifyEmailOverride || "").trim();
 
   const isEnabled = function (value, defaultValue) {
     if (value === true || value === 1 || value === "1") {
@@ -102,6 +103,7 @@
     publicApiKeyDetected: !!publicApiKey,
     publicApiKey: publicApiKey || null,
     integrationMode: integrationMode,
+    hasDebugIdentifyEmailOverride: !!configuredIdentifyEmailOverride,
   });
 
   window._learnq = window._learnq || [];
@@ -268,6 +270,12 @@
   };
 
   const resolveCustomerEmail = function () {
+    const overrideEmail = normalizedEmail(configuredIdentifyEmailOverride);
+
+    if (overrideEmail) {
+      return Promise.resolve({ email: overrideEmail, source: "config_override" });
+    }
+
     const inMemorySources = [
       window.KlaviyoSiteEventTracking,
       window.ceresStore && window.ceresStore.state,
@@ -320,6 +328,10 @@
 
       return identifyWithEmail(result.email, result.source + ":" + trigger);
     });
+  };
+
+  const hasIdentifyEmailOverride = function () {
+    return !!normalizedEmail(configuredIdentifyEmailOverride);
   };
 
   const startIdentifyPolling = function () {
@@ -1767,12 +1779,22 @@
   registerIdentifyListeners();
   scheduleViewedProductTrack("bootstrap");
 
+  if (hasIdentifyEmailOverride()) {
+    identifyLog("Debug identify email override active. Runtime email discovery is skipped.", {
+      source: "config",
+      email: normalizedEmail(configuredIdentifyEmailOverride),
+    });
+    runIdentifyFlow("override_bootstrap");
+  }
+
   if (existingManagedScript || existingKlaviyoScript) {
     debugLog("Klaviyo onsite script is already present. Skipping injection.", {
       hasManagedScript: !!existingManagedScript,
       hasKlaviyoScript: !!existingKlaviyoScript,
     });
-    startIdentifyPolling();
+    if (!hasIdentifyEmailOverride()) {
+      startIdentifyPolling();
+    }
     scheduleViewedProductTrack("existing_script");
     return;
   }
@@ -1796,6 +1818,8 @@
     source: scriptSource,
   });
 
-  startIdentifyPolling();
+  if (!hasIdentifyEmailOverride()) {
+    startIdentifyPolling();
+  }
   scheduleViewedProductTrack("script_injected", 350);
 })();

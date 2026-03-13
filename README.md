@@ -90,6 +90,8 @@ Plugin config is now split into dedicated tabs:
     - Enabled by default; writes a bootstrap heartbeat info log that reports whether `publicApiKey` was detected and includes the key value when available
   - `tracking.logIdentifyCalls`
     - Emits identify diagnostics (`console.info`) for resolution attempts, lifecycle/auth triggers, successful identify calls, and deduped identify skips
+  - `tracking.debugIdentifyEmailOverride`
+    - Optional debug override email; when set to a valid email, runtime identity discovery is skipped and identify uses this configured address
   - `tracking.logTrackCalls`
     - Enabled by default; emits track diagnostics (`console.info`) for Viewed Product detection/payload/dispatch diagnostics and Added to Cart intent-capture, basket-snapshot (including totals-only snapshot fallback), payload, skip, and dedupe diagnostics
   - `tracking.logErrorsOnly`
@@ -106,7 +108,8 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 | `tracking.enableDebugLogging` | boolean | Enables plugin `console.info` logs that confirm init path and script handling decisions. | Base switch for debug output. |
 | `tracking.logPluginHeartbeat` | boolean | Enabled by default; emits a startup `console.info` heartbeat with API-key detection status and the detected key value (if present). | Independent from `enableDebugLogging`; can be disabled if too noisy. |
 | `tracking.logErrorsOnly` | boolean | Suppresses plugin `console.info` logs (including heartbeat) even if other logging toggles are enabled. | `console.warn` messages still appear. |
-| `tracking.logIdentifyCalls` | boolean | Emits identify diagnostics (`console.info`) for no-email resolution, lifecycle/auth trigger attempts, successful identify calls, and duplicate-skip decisions. | Suppressed when `tracking.logErrorsOnly = true`. Also accepts common truthy/falsey string values (`"true"`, `"false"`, `"yes"`, `"no"`, etc.) for safer config parsing. |
+| `tracking.logIdentifyCalls` | boolean | Emits identify diagnostics (`console.info`) for no-email resolution, lifecycle/auth trigger attempts, successful identify calls, override activation, and duplicate-skip decisions. | Suppressed when `tracking.logErrorsOnly = true`. Also accepts common truthy/falsey string values (`"true"`, `"false"`, `"yes"`, `"no"`, etc.) for safer config parsing. |
+| `tracking.debugIdentifyEmailOverride` | string | Optional debug-only identify override email. When valid, runtime/DOM/endpoint email discovery is skipped and identify always uses this value. | Intended for staging/testing to avoid repeated login cycles across deployments. Leave empty in production. |
 | `tracking.logTrackCalls` | boolean | Enabled by default; emits track diagnostics (`console.info`) for Viewed Product trigger diagnostics plus Added to Cart listener-registration, intent capture, basket snapshot resolution (including totals-only detail fallback), payload resolution, config/required-field skips, dedupe skips, and successful `track` / `trackViewedItem` dispatches. | Suppressed when `tracking.logErrorsOnly = true`. |
 | `tracking.enableViewedProductEvent` | boolean | Enabled by default; toggles whether the `Viewed Product` tracking flow runs at all. | When disabled and `tracking.logTrackCalls = true`, logs a per-trigger skip diagnostic. |
 | `tracking.enableAddedToCartEvent` | boolean | Enabled by default; toggles whether the `Added to Cart` tracking flow runs at all. | When disabled and `tracking.logTrackCalls = true`, logs `Added to Cart skipped (disabled by configuration).` on basket changes. |
@@ -163,6 +166,16 @@ If `tracking.logIdentifyCalls = true` and `tracking.logErrorsOnly = false`, expe
 
 ```text
 [KlaviyoSiteEventTracking] Klaviyo identify executed. { email: "[email protected]", source: "runtime_state:login_success", usingKlaviyoObject: true|false }
+```
+
+When `tracking.debugIdentifyEmailOverride` is set to a valid email and `tracking.logIdentifyCalls = true`, expected identify diagnostics include:
+
+```text
+[KlaviyoSiteEventTracking] Debug identify email override active. Runtime email discovery is skipped. { source: "config", email: "[email protected]" }
+```
+
+```text
+[KlaviyoSiteEventTracking] Klaviyo identify executed. { email: "[email protected]", source: "config_override:override_bootstrap", usingKlaviyoObject: true|false }
 ```
 
 ```text

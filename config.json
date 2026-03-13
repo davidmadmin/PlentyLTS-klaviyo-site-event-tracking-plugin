@@ -90,6 +90,15 @@
             "defaultValue": false
           }
         },
+        "tracking.debugIdentifyEmailOverride": {
+          "type": "inputText",
+          "required": false,
+          "label": "Config.debugIdentifyEmailOverrideLabel",
+          "options": {
+            "tooltip": "Config.debugIdentifyEmailOverrideTooltip",
+            "defaultValue": ""
+          }
+        },
         "tracking.logTrackCalls": {
           "type": "checkBox",
           "required": false,
