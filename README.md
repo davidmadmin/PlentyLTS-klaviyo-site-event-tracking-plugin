@@ -282,7 +282,7 @@ If `tracking.logTrackCalls = true` and `tracking.logErrorsOnly = false`, expecte
 [KlaviyoSiteEventTracking] Added to Cart using inverted event-order fallback. { trigger: "afterBasketChanged|intent_followup" }
 ```
 
-Added to Cart dispatch uses metric name `"Added to Cart"` and keeps filterable top-level properties (`$value`, `AddedItem*`, `ItemNames`, `CheckoutURL`, `Items`) as top-level keys for Klaviyo segment usability.
+Added to Cart dispatch uses metric name `"Added to Cart"` and keeps filterable top-level properties (`$value`, `AddedItem*`, `ItemNames`, `CheckoutURL`, `Items`) as top-level keys for Klaviyo segment usability. `$value` resolution now checks both top-level basket totals and nested `data.*` basket totals commonly returned by Ceres, then falls back to summed line `RowTotal` values (and finally added-line price × quantity) to avoid empty/zero-value payloads when totals are only available in alternate basket shapes.
 
 
 When `afterBasketChanged.detail` only includes basket totals (for example `basketAmount`, `itemQuantity`, `currency`) and no line array, Added to Cart now resolves the matching line from runtime basket sources using the captured `variationId`; payload logs expose this via `sourceLabel` values such as `afterBasketChanged.detail.totals_only->runtime_basket.window.ceresStore.state.basket`.

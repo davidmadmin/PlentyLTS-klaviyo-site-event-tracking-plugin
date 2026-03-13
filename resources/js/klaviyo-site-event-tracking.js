@@ -940,10 +940,43 @@
       normalizedNumber(getNestedValue(basket, ["totals", "total"])),
       normalizedNumber(getNestedValue(basket, ["basketAmount"])),
       normalizedNumber(getNestedValue(basket, ["basketAmountNet"])),
+      normalizedNumber(getNestedValue(basket, ["data", "basketAmount"])),
+      normalizedNumber(getNestedValue(basket, ["data", "basketAmountNet"])),
+      normalizedNumber(getNestedValue(basket, ["data", "totals", "basketTotalGross"])),
+      normalizedNumber(getNestedValue(basket, ["data", "totals", "total"])),
+      normalizedNumber(getNestedValue(basket, ["data", "totals", "amount"])),
       normalizedNumber(getNestedValue(basket, ["totalSum"])),
       normalizedNumber(getNestedValue(basket, ["totals", "amount"])),
+      extractNumberFromPriceCandidate(getNestedValue(basket, ["data", "totals", "basketTotal"])),
       extractNumberFromPriceCandidate(getNestedValue(basket, ["totals", "basketTotal"])),
     ]);
+  };
+
+  const sumBasketLineRowTotals = function (basketLines) {
+    if (!Array.isArray(basketLines) || basketLines.length === 0) {
+      return null;
+    }
+
+    let hasNumericRowTotal = false;
+    let runningTotal = 0;
+
+    for (let i = 0; i < basketLines.length; i += 1) {
+      const line = basketLines[i];
+      const rowTotal = normalizedNumber(line && line.RowTotal);
+
+      if (rowTotal === null) {
+        continue;
+      }
+
+      hasNumericRowTotal = true;
+      runningTotal += rowTotal;
+    }
+
+    if (!hasNumericRowTotal) {
+      return null;
+    }
+
+    return Number(runningTotal.toFixed(4));
   };
 
   const extractBasketLine = function (item) {
@@ -1210,7 +1243,13 @@
     }
 
     const checkoutUrl = normalizedAbsoluteUrl('/checkout', true);
-    const basketValue = extractBasketTotal(basket);
+    const basketValue = firstDefinedNumber([
+      extractBasketTotal(basket),
+      sumBasketLineRowTotals(basketLines),
+      (addedLine && addedLine.ItemPrice !== null)
+        ? Number((addedLine.ItemPrice * (effectiveIntent && effectiveIntent.requestedQuantity ? effectiveIntent.requestedQuantity : addedLine.Quantity)).toFixed(4))
+        : null,
+    ]);
 
     return {
       payload: {
