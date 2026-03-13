@@ -936,6 +936,12 @@
 
   const extractBasketTotal = function (basket) {
     return firstDefinedNumber([
+      normalizedNumber(getNestedValue(basket, ["data", "basketAmount"])),
+      normalizedNumber(getNestedValue(basket, ["data", "basketAmountNet"])),
+      normalizedNumber(getNestedValue(basket, ["data", "totals", "basketTotalGross"])),
+      normalizedNumber(getNestedValue(basket, ["data", "totals", "total"])),
+      normalizedNumber(getNestedValue(basket, ["data", "totals", "amount"])),
+      extractNumberFromPriceCandidate(getNestedValue(basket, ["data", "totals", "basketTotal"])),
       normalizedNumber(getNestedValue(basket, ["totals", "basketTotalGross"])),
       normalizedNumber(getNestedValue(basket, ["totals", "total"])),
       normalizedNumber(getNestedValue(basket, ["basketAmount"])),
@@ -944,6 +950,40 @@
       normalizedNumber(getNestedValue(basket, ["totals", "amount"])),
       extractNumberFromPriceCandidate(getNestedValue(basket, ["totals", "basketTotal"])),
     ]);
+  };
+
+  const sumBasketLineRowTotals = function (basketLines) {
+    if (!Array.isArray(basketLines) || basketLines.length === 0) {
+      return null;
+    }
+
+    let hasNumericRowTotal = false;
+    let runningTotal = 0;
+
+    for (let i = 0; i < basketLines.length; i += 1) {
+      const line = basketLines[i];
+      const rowTotal = firstDefinedNumber([
+        normalizedNumber(getNestedValue(line, ["RowTotal"])),
+        normalizedNumber(getNestedValue(line, ["rowTotal"])),
+        normalizedNumber(getNestedValue(line, ["total"])),
+        normalizedNumber(getNestedValue(line, ["totalGross"])),
+        extractNumberFromPriceCandidate(getNestedValue(line, ["basketItemOrderParams", "rowTotal"])),
+        extractNumberFromPriceCandidate(getNestedValue(line, ["basketItemOrderParams", "total"])),
+      ]);
+
+      if (rowTotal === null) {
+        continue;
+      }
+
+      hasNumericRowTotal = true;
+      runningTotal += rowTotal;
+    }
+
+    if (!hasNumericRowTotal) {
+      return null;
+    }
+
+    return Number(runningTotal.toFixed(4));
   };
 
   const extractBasketLine = function (item) {
@@ -973,6 +1013,14 @@
       extractNumberFromPriceCandidate(getNestedValue(item, ["variation", "prices", "default", "price", "value"])),
       normalizedNumber(getNestedValue(item, ["priceGross"])),
     ]);
+    const explicitRowTotal = firstDefinedNumber([
+      normalizedNumber(getNestedValue(item, ["RowTotal"])),
+      normalizedNumber(getNestedValue(item, ["rowTotal"])),
+      normalizedNumber(getNestedValue(item, ["total"])),
+      normalizedNumber(getNestedValue(item, ["totalGross"])),
+      extractNumberFromPriceCandidate(getNestedValue(item, ["basketItemOrderParams", "rowTotal"])),
+      extractNumberFromPriceCandidate(getNestedValue(item, ["basketItemOrderParams", "total"])),
+    ]);
 
     const categories = extractCategories(item);
 
@@ -994,7 +1042,7 @@
         normalizedString(getNestedValue(item, ["sku"])),
       Quantity: quantity,
       ItemPrice: price,
-      RowTotal: price !== null ? Number((price * quantity).toFixed(4)) : null,
+      RowTotal: explicitRowTotal !== null ? explicitRowTotal : (price !== null ? Number((price * quantity).toFixed(4)) : null),
       ImageURL: normalizedAbsoluteUrl(
         normalizedString(getNestedValue(item, ["image"])) ||
           normalizedString(getNestedValue(item, ["imageUrl"])) ||
@@ -1210,7 +1258,13 @@
     }
 
     const checkoutUrl = normalizedAbsoluteUrl('/checkout', true);
-    const basketValue = extractBasketTotal(basket);
+    const basketValue = firstDefinedNumber([
+      extractBasketTotal(basket),
+      sumBasketLineRowTotals(basketLines),
+      (addedLine && addedLine.ItemPrice !== null)
+        ? Number((addedLine.ItemPrice * (effectiveIntent && effectiveIntent.requestedQuantity ? effectiveIntent.requestedQuantity : addedLine.Quantity)).toFixed(4))
+        : null,
+    ]);
 
     return {
       payload: {
