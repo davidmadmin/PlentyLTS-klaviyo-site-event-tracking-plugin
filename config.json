@@ -63,15 +63,6 @@
       "label": "Config.debuggingLabel",
       "fullWidth": true,
       "formFields": {
-        "tracking.enableDebugLogging": {
-          "type": "checkBox",
-          "required": false,
-          "label": "Config.enableDebugLoggingLabel",
-          "options": {
-            "tooltip": "Config.enableDebugLoggingTooltip",
-            "defaultValue": false
-          }
-        },
         "tracking.logPluginHeartbeat": {
           "type": "checkBox",
           "required": false,
@@ -81,12 +72,12 @@
             "defaultValue": true
           }
         },
-        "tracking.logIdentifyCalls": {
+        "tracking.logIdentifyEventDebug": {
           "type": "checkBox",
           "required": false,
-          "label": "Config.logIdentifyCallsLabel",
+          "label": "Config.logIdentifyEventDebugLabel",
           "options": {
-            "tooltip": "Config.logIdentifyCallsTooltip",
+            "tooltip": "Config.logIdentifyEventDebugTooltip",
             "defaultValue": false
           }
         },
@@ -99,21 +90,21 @@
             "defaultValue": ""
           }
         },
-        "tracking.logTrackCalls": {
+        "tracking.logViewedProductEventDebug": {
           "type": "checkBox",
           "required": false,
-          "label": "Config.logTrackCallsLabel",
+          "label": "Config.logViewedProductEventDebugLabel",
           "options": {
-            "tooltip": "Config.logTrackCallsTooltip",
+            "tooltip": "Config.logViewedProductEventDebugTooltip",
             "defaultValue": false
           }
         },
-        "tracking.logErrorsOnly": {
+        "tracking.logAddedToCartEventDebug": {
           "type": "checkBox",
           "required": false,
-          "label": "Config.logErrorsOnlyLabel",
+          "label": "Config.logAddedToCartEventDebugLabel",
           "options": {
-            "tooltip": "Config.logErrorsOnlyTooltip",
+            "tooltip": "Config.logAddedToCartEventDebugTooltip",
             "defaultValue": false
           }
         }

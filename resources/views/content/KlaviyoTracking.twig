@@ -3,25 +3,21 @@
 {% set checkboxEnabledValues = ["1", "true", "on"] %}
 {% set checkboxDisabledValues = ["0", "false", ""] %}
 
-{% set enableDebugLoggingRaw = config("KlaviyoSiteEventTracking.tracking.enableDebugLogging")|default("") %}
-{% set enableDebugLoggingNormalized = (enableDebugLoggingRaw ~ "")|trim|lower %}
-{% set enableDebugLogging = (enableDebugLoggingRaw is same as(true)) or (enableDebugLoggingRaw is same as(1)) or (enableDebugLoggingNormalized in checkboxEnabledValues) ? true : ((enableDebugLoggingRaw is same as(false)) or (enableDebugLoggingRaw is same as(0)) or (enableDebugLoggingNormalized in checkboxDisabledValues) ? false : false) %}
-
 {% set logPluginHeartbeatRaw = config("KlaviyoSiteEventTracking.tracking.logPluginHeartbeat")|default("") %}
 {% set logPluginHeartbeatNormalized = (logPluginHeartbeatRaw ~ "")|trim|lower %}
 {% set logPluginHeartbeat = (logPluginHeartbeatRaw is same as(true)) or (logPluginHeartbeatRaw is same as(1)) or (logPluginHeartbeatNormalized in checkboxEnabledValues) ? true : ((logPluginHeartbeatRaw is same as(false)) or (logPluginHeartbeatRaw is same as(0)) or (logPluginHeartbeatNormalized in checkboxDisabledValues) ? false : false) %}
 
-{% set logIdentifyCallsRaw = config("KlaviyoSiteEventTracking.tracking.logIdentifyCalls")|default("") %}
-{% set logIdentifyCallsNormalized = (logIdentifyCallsRaw ~ "")|trim|lower %}
-{% set logIdentifyCalls = (logIdentifyCallsRaw is same as(true)) or (logIdentifyCallsRaw is same as(1)) or (logIdentifyCallsNormalized in checkboxEnabledValues) ? true : ((logIdentifyCallsRaw is same as(false)) or (logIdentifyCallsRaw is same as(0)) or (logIdentifyCallsNormalized in checkboxDisabledValues) ? false : false) %}
+{% set logIdentifyEventDebugRaw = config("KlaviyoSiteEventTracking.tracking.logIdentifyEventDebug")|default("") %}
+{% set logIdentifyEventDebugNormalized = (logIdentifyEventDebugRaw ~ "")|trim|lower %}
+{% set logIdentifyEventDebug = (logIdentifyEventDebugRaw is same as(true)) or (logIdentifyEventDebugRaw is same as(1)) or (logIdentifyEventDebugNormalized in checkboxEnabledValues) ? true : ((logIdentifyEventDebugRaw is same as(false)) or (logIdentifyEventDebugRaw is same as(0)) or (logIdentifyEventDebugNormalized in checkboxDisabledValues) ? false : false) %}
 
-{% set logTrackCallsRaw = config("KlaviyoSiteEventTracking.tracking.logTrackCalls")|default("") %}
-{% set logTrackCallsNormalized = (logTrackCallsRaw ~ "")|trim|lower %}
-{% set logTrackCalls = (logTrackCallsRaw is same as(true)) or (logTrackCallsRaw is same as(1)) or (logTrackCallsNormalized in checkboxEnabledValues) ? true : ((logTrackCallsRaw is same as(false)) or (logTrackCallsRaw is same as(0)) or (logTrackCallsNormalized in checkboxDisabledValues) ? false : false) %}
+{% set logViewedProductEventDebugRaw = config("KlaviyoSiteEventTracking.tracking.logViewedProductEventDebug")|default("") %}
+{% set logViewedProductEventDebugNormalized = (logViewedProductEventDebugRaw ~ "")|trim|lower %}
+{% set logViewedProductEventDebug = (logViewedProductEventDebugRaw is same as(true)) or (logViewedProductEventDebugRaw is same as(1)) or (logViewedProductEventDebugNormalized in checkboxEnabledValues) ? true : ((logViewedProductEventDebugRaw is same as(false)) or (logViewedProductEventDebugRaw is same as(0)) or (logViewedProductEventDebugNormalized in checkboxDisabledValues) ? false : false) %}
 
-{% set logErrorsOnlyRaw = config("KlaviyoSiteEventTracking.tracking.logErrorsOnly")|default("") %}
-{% set logErrorsOnlyNormalized = (logErrorsOnlyRaw ~ "")|trim|lower %}
-{% set logErrorsOnly = (logErrorsOnlyRaw is same as(true)) or (logErrorsOnlyRaw is same as(1)) or (logErrorsOnlyNormalized in checkboxEnabledValues) ? true : ((logErrorsOnlyRaw is same as(false)) or (logErrorsOnlyRaw is same as(0)) or (logErrorsOnlyNormalized in checkboxDisabledValues) ? false : false) %}
+{% set logAddedToCartEventDebugRaw = config("KlaviyoSiteEventTracking.tracking.logAddedToCartEventDebug")|default("") %}
+{% set logAddedToCartEventDebugNormalized = (logAddedToCartEventDebugRaw ~ "")|trim|lower %}
+{% set logAddedToCartEventDebug = (logAddedToCartEventDebugRaw is same as(true)) or (logAddedToCartEventDebugRaw is same as(1)) or (logAddedToCartEventDebugNormalized in checkboxEnabledValues) ? true : ((logAddedToCartEventDebugRaw is same as(false)) or (logAddedToCartEventDebugRaw is same as(0)) or (logAddedToCartEventDebugNormalized in checkboxDisabledValues) ? false : false) %}
 
 {% set debugIdentifyEmailOverride = config("KlaviyoSiteEventTracking.tracking.debugIdentifyEmailOverride")|default("") %}
 {% set enableViewedProductEventRaw = config("KlaviyoSiteEventTracking.tracking.enableViewedProductEvent")|default(null) %}
@@ -37,12 +33,11 @@
   window.KlaviyoSiteEventTracking = window.KlaviyoSiteEventTracking || {};
   window.KlaviyoSiteEventTracking.integrationMode = "{{ integrationMode|e('js') }}";
   window.KlaviyoSiteEventTracking.publicApiKey = "{{ publicApiKey|e('js') }}";
-  window.KlaviyoSiteEventTracking.enableDebugLogging = {{ enableDebugLogging ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.logPluginHeartbeat = {{ logPluginHeartbeat ? 'true' : 'false' }};
-  window.KlaviyoSiteEventTracking.logIdentifyCalls = {{ logIdentifyCalls ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.logIdentifyEventDebug = {{ logIdentifyEventDebug ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.debugIdentifyEmailOverride = "{{ debugIdentifyEmailOverride|e('js') }}";
-  window.KlaviyoSiteEventTracking.logTrackCalls = {{ logTrackCalls ? 'true' : 'false' }};
-  window.KlaviyoSiteEventTracking.logErrorsOnly = {{ logErrorsOnly ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.logViewedProductEventDebug = {{ logViewedProductEventDebug ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.logAddedToCartEventDebug = {{ logAddedToCartEventDebug ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.enableViewedProductEvent = {{ enableViewedProductEvent ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.enableAddedToCartEvent = {{ enableAddedToCartEvent ? 'true' : 'false' }};
 </script>

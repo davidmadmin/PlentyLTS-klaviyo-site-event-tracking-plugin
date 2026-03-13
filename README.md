@@ -68,7 +68,7 @@ At this time, the repository provides a **partial implementation** with bootstra
 
 ## Configuration
 
-Plugin config is now split into dedicated tabs:
+Plugin config is split into dedicated tabs:
 
 - **Setup tab**
   - `tracking.integrationMode`
@@ -84,18 +84,16 @@ Plugin config is now split into dedicated tabs:
     - Enabled by default; activates/deactivates the `Added to Cart` tracking flow
 
 - **Debugging tab**
-  - `tracking.enableDebugLogging`
-    - Enables informational console diagnostics from this plugin
   - `tracking.logPluginHeartbeat`
-    - Enabled by default; writes a bootstrap heartbeat info log that reports whether `publicApiKey` was detected and includes the key value when available
-  - `tracking.logIdentifyCalls`
-    - Emits identify diagnostics (`console.info`) for resolution attempts, lifecycle/auth triggers, successful identify calls, and deduped identify skips
+    - Enabled by default; writes bootstrap/lifecycle diagnostics for plugin heartbeat and script bootstrap handling
+  - `tracking.logIdentifyEventDebug`
+    - Emits identify-event diagnostics (`console.info`) for resolution attempts, trigger sources, successful identify calls, and deduped identify skips
   - `tracking.debugIdentifyEmailOverride`
     - Optional debug override email; when set to a valid email, runtime identity discovery is skipped and identify uses this configured address
-  - `tracking.logTrackCalls`
-    - Enabled by default; emits track diagnostics (`console.info`) for Viewed Product detection/payload/dispatch diagnostics and Added to Cart intent-capture, basket-snapshot (including totals-only snapshot fallback), payload, skip, and dedupe diagnostics
-  - `tracking.logErrorsOnly`
-    - When `true`, suppresses info/debug logs and keeps warnings/errors visible
+  - `tracking.logViewedProductEventDebug`
+    - Emits `Viewed Product` diagnostics (`console.info`) for page detection, payload resolution, dedupe handling, and track dispatch
+  - `tracking.logAddedToCartEventDebug`
+    - Emits `Added to Cart` diagnostics (`console.info`) for listener registration, intent/snapshot correlation, payload resolution, dedupe handling, and track dispatch
 
 ## Troubleshooting
 
@@ -105,14 +103,13 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 
 | Option | Type | Current effect | Notes |
 |---|---|---|---|
-| `tracking.enableDebugLogging` | boolean | Enables plugin `console.info` logs that confirm init path and script handling decisions. | Base switch for debug output. |
-| `tracking.logPluginHeartbeat` | boolean | Enabled by default; emits a startup `console.info` heartbeat with API-key detection status and the detected key value (if present). | Independent from `enableDebugLogging`; can be disabled if too noisy. |
-| `tracking.logErrorsOnly` | boolean | Suppresses plugin `console.info` logs (including heartbeat) even if other logging toggles are enabled. | `console.warn` messages still appear. |
-| `tracking.logIdentifyCalls` | boolean | Emits identify diagnostics (`console.info`) for no-email resolution, lifecycle/auth trigger attempts, successful identify calls, override activation, and duplicate-skip decisions. | Suppressed when `tracking.logErrorsOnly = true`. Also accepts common truthy/falsey string values (`"true"`, `"false"`, `"yes"`, `"no"`, etc.) for safer config parsing. |
+| `tracking.logPluginHeartbeat` | boolean | Enabled by default; emits startup/lifecycle `console.info` diagnostics like plugin heartbeat, bootstrap mode decisions, and script injection handling. | Disable in production if bootstrap noise is not needed. |
+| `tracking.logIdentifyEventDebug` | boolean | Emits identify diagnostics (`console.info`) for no-email resolution, lifecycle/auth trigger attempts, successful identify calls, override activation, and duplicate-skip decisions. | Event-specific toggle for identify debugging. |
 | `tracking.debugIdentifyEmailOverride` | string | Optional debug-only identify override email. When valid, runtime/DOM/endpoint email discovery is skipped and identify always uses this value. | Intended for staging/testing to avoid repeated login cycles across deployments. Leave empty in production. |
-| `tracking.logTrackCalls` | boolean | Enabled by default; emits track diagnostics (`console.info`) for Viewed Product trigger diagnostics plus Added to Cart listener-registration, intent capture, basket snapshot resolution (including totals-only detail fallback), payload resolution, config/required-field skips, dedupe skips, and successful `track` / `trackViewedItem` dispatches. | Suppressed when `tracking.logErrorsOnly = true`. |
-| `tracking.enableViewedProductEvent` | boolean | Enabled by default; toggles whether the `Viewed Product` tracking flow runs at all. | When disabled and `tracking.logTrackCalls = true`, logs a per-trigger skip diagnostic. |
-| `tracking.enableAddedToCartEvent` | boolean | Enabled by default; toggles whether the `Added to Cart` tracking flow runs at all. | When disabled and `tracking.logTrackCalls = true`, logs `Added to Cart skipped (disabled by configuration).` on basket changes. |
+| `tracking.logViewedProductEventDebug` | boolean | Emits `Viewed Product` diagnostics (`console.info`) for trigger detection, payload resolution, config/required-field skips, dedupe skips, and successful `track` / `trackViewedItem` dispatches. | Event-specific toggle for `Viewed Product` debugging. |
+| `tracking.logAddedToCartEventDebug` | boolean | Emits `Added to Cart` diagnostics (`console.info`) for listener registration, intent capture, basket snapshot resolution (including totals-only detail fallback), payload resolution, config/required-field skips, dedupe skips, and successful `track` dispatches. | Event-specific toggle for `Added to Cart` debugging. |
+| `tracking.enableViewedProductEvent` | boolean | Enabled by default; toggles whether the `Viewed Product` tracking flow runs at all. | When disabled and `tracking.logViewedProductEventDebug = true`, logs a per-trigger skip diagnostic. |
+| `tracking.enableAddedToCartEvent` | boolean | Enabled by default; toggles whether the `Added to Cart` tracking flow runs at all. | When disabled and `tracking.logAddedToCartEventDebug = true`, logs `Added to Cart skipped (disabled by configuration).` on basket changes. |
 
 ### Expected console output by condition
 
@@ -129,7 +126,6 @@ Recommended config:
 - `tracking.integrationMode = plugin`
 - `tracking.publicApiKey = <your-site-id>`
 - `tracking.logPluginHeartbeat = true` (default)
-- `tracking.logErrorsOnly = false`
 
 Expected startup heartbeat log:
 
@@ -137,7 +133,7 @@ Expected startup heartbeat log:
 [KlaviyoSiteEventTracking] Plugin heartbeat. { publicApiKeyDetected: true, publicApiKey: "<your-site-id>", integrationMode: "plugin" }
 ```
 
-If `tracking.enableDebugLogging = true`, expected additional log (first load, script not yet present):
+Expected bootstrap log (first load, script not yet present):
 
 ```text
 [KlaviyoSiteEventTracking] Klaviyo onsite script bootstrap injected. { source: "https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=..." }
@@ -149,175 +145,48 @@ Expected log (if Klaviyo script already exists on page):
 [KlaviyoSiteEventTracking] Klaviyo onsite script is already present. Skipping injection. { hasManagedScript: true|false, hasKlaviyoScript: true|false }
 ```
 
-If `tracking.logIdentifyCalls = true` and `tracking.logErrorsOnly = false`, expected identify diagnostics include:
+If `tracking.logIdentifyEventDebug = true`, expected identify diagnostics include:
 
 ```text
 [KlaviyoSiteEventTracking] No identifiable customer email resolved. { trigger: "poll_1" }
-```
-
-
-```text
-[KlaviyoSiteEventTracking] No identifiable customer email resolved. { trigger: "account_route" }
-```
-
-```text
-[KlaviyoSiteEventTracking] No identifiable customer email resolved. { trigger: "login_success_delayed" }
 ```
 
 ```text
 [KlaviyoSiteEventTracking] Klaviyo identify executed. { email: "[email protected]", source: "runtime_state:login_success", usingKlaviyoObject: true|false }
 ```
 
-When `tracking.debugIdentifyEmailOverride` is set to a valid email and `tracking.logIdentifyCalls = true`, expected identify diagnostics include:
+When `tracking.debugIdentifyEmailOverride` is set to a valid email and `tracking.logIdentifyEventDebug = true`, expected identify diagnostics include:
 
 ```text
 [KlaviyoSiteEventTracking] Debug identify email override active. Runtime email discovery is skipped. { source: "config", email: "[email protected]" }
 ```
 
-```text
-[KlaviyoSiteEventTracking] Klaviyo identify executed. { email: "[email protected]", source: "config_override:override_bootstrap", usingKlaviyoObject: true|false }
-```
-
-```text
-[KlaviyoSiteEventTracking] Identify skipped (already identified for this browser session). { email: "[email protected]", source: "runtime_state:visibility_visible" }
-```
-
-If identify execution throws at runtime, expected warning:
-
-```text
-[KlaviyoSiteEventTracking] Failed to execute Klaviyo identify call. { source: "...", message: "..." }
-```
-
-If `tracking.logTrackCalls = true` and `tracking.logErrorsOnly = false`, expected Viewed Product diagnostics include:
-
-```text
-[KlaviyoSiteEventTracking] Viewed Product tracking disabled by configuration. { trigger: "bootstrap" }
-```
+If `tracking.logViewedProductEventDebug = true`, expected Viewed Product diagnostics include:
 
 ```text
 [KlaviyoSiteEventTracking] Viewed Product page detection evaluated. { trigger: "bootstrap", isProductPage: true|false, detectionSource: "runtime_app_isItemView"|"runtime_app_templateType"|"path_regex"|"none", path: "/..." }
 ```
 
 ```text
-[KlaviyoSiteEventTracking] Viewed Product skipped (required payload fields missing). { trigger: "bootstrap" }
-```
-```text
-[KlaviyoSiteEventTracking] Viewed Product payload resolved. { trigger: "bootstrap", sourceLabel: "ceresStore.getters.currentItemVariation"|"ceresStore.getters.<namespace>/currentItemVariation"|"window.KlaviyoSiteEventTracking"|"window.ceresStore.state"|"window.ceresStore.getters"|"window.App"|"window.CeresApp"|"window.ceresApp"|"dom_data_attributes", productId: "...", productName: "..." }
+[KlaviyoSiteEventTracking] Viewed Product payload resolved. { trigger: "bootstrap", sourceLabel: "...", productId: "...", productName: "..." }
 ```
 
-
-```text
-[KlaviyoSiteEventTracking] Klaviyo track executed. { metric: "Viewed Product", trigger: "route_history_pushState|<dedup-key>", payload: { ProductName: "...", ProductID: "...", ... } }
-```
-
-```text
-[KlaviyoSiteEventTracking] Viewed Product skipped (deduped). { trigger: "variation_change", dedupKey: "<product|variation|path>" }
-```
-
-```text
-[KlaviyoSiteEventTracking] Viewed Product dedupe key not updated because track dispatch failed. { trigger: "variation_click", dedupKey: "<product|variation|path>" }
-```
+If `tracking.logAddedToCartEventDebug = true`, expected Added to Cart diagnostics include:
 
 ```text
 [KlaviyoSiteEventTracking] Added to Cart listener attached. { target: "document", event: "afterBasketItemAdded" }
 ```
 
 ```text
-[KlaviyoSiteEventTracking] Added to Cart listener attached. { target: "document", event: "afterBasketChanged" }
+[KlaviyoSiteEventTracking] Added to Cart payload resolved. { trigger: "afterBasketChanged|intent_followup", sourceLabel: "...", correlationMode: "intent_matched", addedItemProductId: "...", addedItemProductName: "...", addedItemQuantity: 1 }
 ```
 
-```text
-[KlaviyoSiteEventTracking] Added to Cart listeners already registered. Skipping duplicate registration.
-```
-
-```text
-[KlaviyoSiteEventTracking] Added to Cart trigger captured. { variationId: "...", productId: "...", requestedQuantity: 1, triggerSource: "afterBasketItemAdded" }
-```
-
-```text
-[KlaviyoSiteEventTracking] Added to Cart basket snapshot resolved. { trigger: "afterBasketChanged", sourceLabel: "afterBasketChanged.detail"|"afterBasketChanged.detail.totals_only", itemCount: 2|0 }
-```
-
-```text
-[KlaviyoSiteEventTracking] Added to Cart basket snapshot buffered awaiting intent correlation. { trigger: "afterBasketChanged", sourceLabel: "afterBasketChanged.detail" }
-```
-
-```text
-[KlaviyoSiteEventTracking] Added to Cart intent correlated with buffered basket snapshot. { trigger: "afterBasketChanged", sourceLabel: "afterBasketChanged.detail" }
-```
-
-```text
-[KlaviyoSiteEventTracking] Added to Cart payload resolved. { trigger: "afterBasketChanged|intent_followup", sourceLabel: "afterBasketChanged.detail"|"afterBasketChanged.detail.totals_only->runtime_basket.window.ceresStore.state.basket"|"afterBasketChanged.detail.totals_only->runtime_basket.window.ceresStore.getters.basket"|"afterBasketChanged.detail.totals_only->runtime_basket.window.App.basket"|"afterBasketChanged.detail.totals_only->runtime_basket.window.CeresApp.basket"|"afterBasketChanged.detail.totals_only->runtime_basket.window.ceresApp.basket", correlationMode: "intent_matched", addedItemProductId: "...", addedItemProductName: "...", addedItemQuantity: 1 }
-```
-
-```text
-[KlaviyoSiteEventTracking] Added to Cart skipped (disabled by configuration). { trigger: "afterBasketChanged" }
-```
-
-```text
-[KlaviyoSiteEventTracking] Added to Cart skipped (required payload fields missing). { trigger: "afterBasketChanged", reason: "basket_snapshot_missing" }
-```
-
-```text
-[KlaviyoSiteEventTracking] Added to Cart skipped (intent and snapshot could not be correlated). { trigger: "afterBasketChanged", reason: "intent_missing_or_expired" }
-```
-
-```text
-[KlaviyoSiteEventTracking] Added to Cart intent expired before basket correlation. { triggerSource: "afterBasketItemAdded" }
-```
-
-```text
-[KlaviyoSiteEventTracking] Added to Cart basket snapshot expired before intent correlation. { trigger: "afterBasketChanged" }
-```
-
-```text
-[KlaviyoSiteEventTracking] Added to Cart skipped (deduped). { trigger: "afterBasketChanged", dedupKey: "<product|qty|basket|bucket>" }
-```
-
-```text
-[KlaviyoSiteEventTracking] Added to Cart using normal event order. { trigger: "afterBasketChanged" }
-```
-
-```text
-[KlaviyoSiteEventTracking] Added to Cart using inverted event-order fallback. { trigger: "afterBasketChanged|intent_followup" }
-```
-
-Added to Cart dispatch uses metric name `"Added to Cart"` and keeps filterable top-level properties (`$value`, `AddedItem*`, `ItemNames`, `CheckoutURL`, `Items`) as top-level keys for Klaviyo segment usability. `$value` resolution now prioritizes nested `data.*` basket totals commonly returned by Ceres before top-level basket totals, then falls back to summed line-level `RowTotal` values (and finally added-line price × quantity) to avoid empty/zero-value payloads when totals are only available in alternate basket shapes.
-
-
-When `afterBasketChanged.detail` only includes basket totals (for example `basketAmount`, `itemQuantity`, `currency`) and no line array, Added to Cart now resolves the matching line from runtime basket sources using the captured `variationId`; payload logs expose this via `sourceLabel` values such as `afterBasketChanged.detail.totals_only->runtime_basket.window.ceresStore.state.basket`.
-
-Viewed Product tracking now first checks Plenty runtime item-view flags (`window.App.isItemView === true` or `window.App.templateType === "item"`, case-insensitive) and only then falls back to PDP URL heuristics.
-
-Fallback URL detection still supports common PDP routes (`/p/`, `/item/`) and SEO item suffixes like `..._1514_10645` with or without a trailing slash.
-
-Once PDP detection passes, tracking dispatch proceeds when either:
-
-- getter-first runtime payload resolution finds valid product data (`ProductID`, `ProductName`, `URL`) from `window.ceresStore.getters.currentItemVariation` first, then namespaced getter keys ending in `/currentItemVariation`, then existing fallback runtime objects, or
-- optional DOM fallback attributes (`data-kse-product-id`, `data-kse-variation-id`, `data-kse-product-name`, etc.) are present.
-
-When getter candidates are present and `tracking.logTrackCalls = true`, the payload-resolution diagnostic includes `sourceLabel` to show exactly which runtime source won.
-
-For category payload quality on `Viewed Product`, category extraction now follows this order:
-
-1. Use runtime category labels (for example `name`, `details[0].name`, `path`, `url`, `label`, `value`) when available.
-2. If runtime categories only resolve to ID fallbacks (for example `category:534`) or no categories are present, use breadcrumb labels from the PDP DOM (`.breadcrumb a`, `.breadcrumbs a`, `[data-testing='breadcrumb'] a`, `nav[aria-label*='breadcrumb' i] a`) while filtering obvious home entries.
-3. If no breadcrumb labels can be resolved, retain ID fallback behavior.
-
-`Viewed Product` includes normalized category hierarchy fields:
-
-- `TopCategory`
-- `CategoryPath` (joined as `Level1 > Level2 > ...`)
-
-Variant transitions are handled through route/history hooks and delegated variant-control interactions (`change`/`click`); duplicate transitions are suppressed with a browser-session dedupe key.
-
-#### 2) Debug enabled, GTM mode
+#### 2) Heartbeat enabled, GTM mode
 
 Recommended config:
 
 - `tracking.integrationMode = gtm`
-- `tracking.enableDebugLogging = true`
-- `tracking.logErrorsOnly = false`
+- `tracking.logPluginHeartbeat = true`
 
 Expected startup log:
 
@@ -344,7 +213,7 @@ Any debug setting:
 - `tracking.integrationMode = plugin`
 - `tracking.publicApiKey = ""`
 
-Expected heartbeat info log (if `tracking.logPluginHeartbeat = true` and `tracking.logErrorsOnly = false`):
+Expected heartbeat info log (if `tracking.logPluginHeartbeat = true`):
 
 ```text
 [KlaviyoSiteEventTracking] Plugin heartbeat. { publicApiKeyDetected: false, publicApiKey: null, integrationMode: "plugin" }
@@ -383,19 +252,20 @@ If the snippet executes more than once during page lifecycle, Added-to-Cart list
 [KlaviyoSiteEventTracking] Bootstrap already initialized. Skipping duplicate initialization.
 ```
 
-The listener-duplicate log appears when `tracking.logTrackCalls = true` and `tracking.logErrorsOnly = false`. The bootstrap-duplicate log appears when `tracking.enableDebugLogging = true` and `tracking.logErrorsOnly = false`.
+The listener-duplicate log appears when `tracking.logAddedToCartEventDebug = true`. The bootstrap-duplicate log appears when `tracking.logPluginHeartbeat = true`.
 
 ### Practical logging combinations
 
 - **Troubleshooting setup issues**
-  - `enableDebugLogging = true`, `logErrorsOnly = false`
+  - `logPluginHeartbeat = true`
   - Use when validating mode decisions and script injection order.
-- **Production with minimal noise**
-  - `enableDebugLogging = false`, `logPluginHeartbeat = false`
-  - Keeps console free of informational diagnostics from plugin internals.
-- **Error-focused diagnostics**
-  - `enableDebugLogging = true`, `logErrorsOnly = true`
-  - Shows warnings, hides info logs.
+- **Event-specific troubleshoot for Viewed Product**
+  - `logViewedProductEventDebug = true`
+- **Event-specific troubleshoot for Added to Cart**
+  - `logAddedToCartEventDebug = true`
+- **Event-specific troubleshoot for Identify**
+  - `logIdentifyEventDebug = true`
+
 
 ## Notes
 

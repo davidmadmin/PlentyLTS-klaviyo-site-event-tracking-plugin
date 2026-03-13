@@ -28,11 +28,10 @@
     return defaultValue;
   };
 
-  const debugEnabled = isEnabled(settings.enableDebugLogging, false);
-  const logErrorsOnly = isEnabled(settings.logErrorsOnly, false);
   const logPluginHeartbeat = isEnabled(settings.logPluginHeartbeat, true);
-  const logIdentifyCalls = isEnabled(settings.logIdentifyCalls, false);
-  const logTrackCalls = isEnabled(settings.logTrackCalls, true);
+  const logIdentifyEventDebug = isEnabled(settings.logIdentifyEventDebug, false);
+  const logViewedProductEventDebug = isEnabled(settings.logViewedProductEventDebug, false);
+  const logAddedToCartEventDebug = isEnabled(settings.logAddedToCartEventDebug, false);
   const enableViewedProductEvent = isEnabled(settings.enableViewedProductEvent, true);
   const enableAddedToCartEvent = isEnabled(settings.enableAddedToCartEvent, true);
   const identifyPollAttempts = 8;
@@ -48,7 +47,7 @@
   };
 
   const identifyLog = function (message, payload) {
-    if (!logIdentifyCalls || logErrorsOnly) {
+    if (!logIdentifyEventDebug) {
       return;
     }
 
@@ -61,7 +60,7 @@
   };
 
   const debugLog = function (message, payload) {
-    if (!debugEnabled || logErrorsOnly) {
+    if (!logPluginHeartbeat) {
       return;
     }
 
@@ -74,7 +73,7 @@
   };
 
   const heartbeatLog = function (message, payload) {
-    if (!logPluginHeartbeat || logErrorsOnly) {
+    if (!logPluginHeartbeat) {
       return;
     }
 
@@ -86,8 +85,21 @@
     console.info("[KlaviyoSiteEventTracking] " + message);
   };
 
-  const trackLog = function (message, payload) {
-    if (!logTrackCalls || logErrorsOnly) {
+  const viewedProductLog = function (message, payload) {
+    if (!logViewedProductEventDebug) {
+      return;
+    }
+
+    if (typeof payload !== "undefined") {
+      console.info("[KlaviyoSiteEventTracking] " + message, payload);
+      return;
+    }
+
+    console.info("[KlaviyoSiteEventTracking] " + message);
+  };
+
+  const addedToCartLog = function (message, payload) {
+    if (!logAddedToCartEventDebug) {
       return;
     }
 
@@ -1306,7 +1318,7 @@
     }
 
     if (Date.now() - lastAddedToCartIntent.timestamp > maxAddedToCartIntentAgeMs) {
-      trackLog('Added to Cart intent expired before basket correlation.', {
+      addedToCartLog('Added to Cart intent expired before basket correlation.', {
         triggerSource: lastAddedToCartIntent.triggerSource,
       });
       lastAddedToCartIntent = null;
@@ -1322,7 +1334,7 @@
     }
 
     if (Date.now() - pendingAddedToCartBasketResolution.timestamp > maxPendingAddedToCartBasketAgeMs) {
-      trackLog('Added to Cart basket snapshot expired before intent correlation.', {
+      addedToCartLog('Added to Cart basket snapshot expired before intent correlation.', {
         trigger: pendingAddedToCartBasketResolution.trigger,
       });
       pendingAddedToCartBasketResolution = null;
@@ -1337,14 +1349,14 @@
     const payload = payloadResolution && payloadResolution.payload;
 
     if (!payload || !payload.AddedItemProductName || !payload.AddedItemProductID || payload.AddedItemPrice === null || !payload.AddedItemQuantity) {
-      trackLog('Added to Cart skipped (required payload fields missing).', {
+      addedToCartLog('Added to Cart skipped (required payload fields missing).', {
         trigger: trigger,
         hasPayload: !!payload,
       });
       return false;
     }
 
-    trackLog('Added to Cart payload resolved.', {
+    addedToCartLog('Added to Cart payload resolved.', {
       trigger: trigger,
       sourceLabel: payloadResolution.sourceLabel,
       correlationMode: payloadResolution.correlationMode,
@@ -1357,7 +1369,7 @@
     const dedupKey = buildAddedToCartDedupKey(payload, dedupeBucket);
 
     if (window.__KlaviyoSiteEventTrackingLastAddedToCartKey === dedupKey) {
-      trackLog('Added to Cart skipped (deduped).', {
+      addedToCartLog('Added to Cart skipped (deduped).', {
         trigger: trigger,
         dedupKey: dedupKey,
       });
@@ -1369,7 +1381,7 @@
     const didTrack = trackEvent('Added to Cart', payload, trigger + '|' + dedupKey);
 
     if (!didTrack) {
-      trackLog('Added to Cart dedupe key not updated because track dispatch failed.', {
+      addedToCartLog('Added to Cart dedupe key not updated because track dispatch failed.', {
         trigger: trigger,
         dedupKey: dedupKey,
       });
@@ -1377,11 +1389,11 @@
     }
 
     if (trigger.indexOf('|intent_followup') !== -1) {
-      trackLog('Added to Cart using inverted event-order fallback.', {
+      addedToCartLog('Added to Cart using inverted event-order fallback.', {
         trigger: trigger,
       });
     } else {
-      trackLog('Added to Cart using normal event order.', {
+      addedToCartLog('Added to Cart using normal event order.', {
         trigger: trigger,
       });
     }
@@ -1414,7 +1426,7 @@
       triggerSource: normalizedString(detail.source) || 'afterBasketItemAdded',
     };
 
-    trackLog('Added to Cart trigger captured.', {
+    addedToCartLog('Added to Cart trigger captured.', {
       variationId: lastAddedToCartIntent.variationId,
       productId: lastAddedToCartIntent.productId,
       requestedQuantity: lastAddedToCartIntent.requestedQuantity,
@@ -1427,7 +1439,7 @@
       return;
     }
 
-    trackLog('Added to Cart intent correlated with buffered basket snapshot.', {
+    addedToCartLog('Added to Cart intent correlated with buffered basket snapshot.', {
       trigger: pendingBasket.trigger,
       sourceLabel: pendingBasket.basketResolution.sourceLabel,
     });
@@ -1439,7 +1451,7 @@
     );
 
     if (!didDispatch) {
-      trackLog('Added to Cart skipped (intent and snapshot could not be correlated).', {
+      addedToCartLog('Added to Cart skipped (intent and snapshot could not be correlated).', {
         trigger: pendingBasket.trigger,
       });
     }
@@ -1447,7 +1459,7 @@
 
   const trackAddedToCart = function (event, trigger) {
     if (!enableAddedToCartEvent) {
-      trackLog('Added to Cart skipped (disabled by configuration).', {
+      addedToCartLog('Added to Cart skipped (disabled by configuration).', {
         trigger: trigger,
       });
       return;
@@ -1456,14 +1468,14 @@
     const basketResolution = resolveBasketSnapshot(event);
 
     if (!basketResolution) {
-      trackLog('Added to Cart skipped (required payload fields missing).', {
+      addedToCartLog('Added to Cart skipped (required payload fields missing).', {
         trigger: trigger,
         reason: 'basket_snapshot_missing',
       });
       return;
     }
 
-    trackLog('Added to Cart basket snapshot resolved.', {
+    addedToCartLog('Added to Cart basket snapshot resolved.', {
       trigger: trigger,
       sourceLabel: basketResolution.sourceLabel,
       itemCount: basketResolution.items.length,
@@ -1475,7 +1487,7 @@
       trigger: trigger,
     };
 
-    trackLog('Added to Cart basket snapshot buffered awaiting intent correlation.', {
+    addedToCartLog('Added to Cart basket snapshot buffered awaiting intent correlation.', {
       trigger: trigger,
       sourceLabel: basketResolution.sourceLabel,
     });
@@ -1483,7 +1495,7 @@
     const freshIntent = readFreshAddedToCartIntent();
 
     if (!freshIntent) {
-      trackLog('Added to Cart skipped (intent and snapshot could not be correlated).', {
+      addedToCartLog('Added to Cart skipped (intent and snapshot could not be correlated).', {
         trigger: trigger,
         reason: 'intent_missing_or_expired',
       });
@@ -1501,11 +1513,21 @@
         window._learnq.push(["track", metricName, payload]);
       }
 
-      trackLog("Klaviyo track executed.", {
-        metric: metricName,
-        trigger: context,
-        payload: payload,
-      });
+      if (metricName === "Viewed Product") {
+        viewedProductLog("Klaviyo track executed.", {
+          metric: metricName,
+          trigger: context,
+          payload: payload,
+        });
+      }
+
+      if (metricName === "Added to Cart") {
+        addedToCartLog("Klaviyo track executed.", {
+          metric: metricName,
+          trigger: context,
+          payload: payload,
+        });
+      }
 
       return true;
     } catch (error) {
@@ -1539,7 +1561,7 @@
         },
       });
 
-      trackLog("Klaviyo trackViewedItem executed.", {
+      viewedProductLog("Klaviyo trackViewedItem executed.", {
         trigger: context,
         itemId: payload.ProductID,
       });
@@ -1553,7 +1575,7 @@
 
   const trackViewedProduct = function (trigger) {
     if (!enableViewedProductEvent) {
-      trackLog("Viewed Product tracking disabled by configuration.", {
+      viewedProductLog("Viewed Product tracking disabled by configuration.", {
         trigger: trigger,
       });
       return;
@@ -1562,7 +1584,7 @@
     const pageDetection = isProductPagePath();
     const isDetectedProductPage = !!(pageDetection && pageDetection.isProductPage);
 
-    trackLog("Viewed Product page detection evaluated.", {
+    viewedProductLog("Viewed Product page detection evaluated.", {
       trigger: trigger,
       isProductPage: isDetectedProductPage,
       detectionSource: pageDetection && pageDetection.detectionSource ? pageDetection.detectionSource : "none",
@@ -1570,7 +1592,7 @@
     });
 
     if (!isDetectedProductPage) {
-      trackLog("Viewed Product skipped (not a detected product page path).", {
+      viewedProductLog("Viewed Product skipped (not a detected product page path).", {
         trigger: trigger,
         path: window.location ? window.location.pathname : "",
       });
@@ -1581,13 +1603,13 @@
     const payload = payloadResolution && payloadResolution.payload;
 
     if (!payload || !payload.ProductID || !payload.ProductName || !payload.URL) {
-      trackLog("Viewed Product skipped (required payload fields missing).", {
+      viewedProductLog("Viewed Product skipped (required payload fields missing).", {
         trigger: trigger,
       });
       return;
     }
 
-    trackLog("Viewed Product payload resolved.", {
+    viewedProductLog("Viewed Product payload resolved.", {
       trigger: trigger,
       sourceLabel: payloadResolution && payloadResolution.sourceLabel ? payloadResolution.sourceLabel : "unknown",
       productId: payload.ProductID,
@@ -1597,7 +1619,7 @@
     const dedupKey = buildViewedProductDedupKey(payload);
 
     if (window.__KlaviyoSiteEventTrackingLastViewedProductKey === dedupKey) {
-      trackLog("Viewed Product skipped (deduped).", {
+      viewedProductLog("Viewed Product skipped (deduped).", {
         trigger: trigger,
         dedupKey: dedupKey,
       });
@@ -1607,7 +1629,7 @@
     const didTrack = trackEvent("Viewed Product", payload, trigger + "|" + dedupKey);
 
     if (!didTrack) {
-      trackLog("Viewed Product dedupe key not updated because track dispatch failed.", {
+      viewedProductLog("Viewed Product dedupe key not updated because track dispatch failed.", {
         trigger: trigger,
         dedupKey: dedupKey,
       });
@@ -1736,14 +1758,14 @@
 
   const registerAddedToCartListeners = function () {
     if (window.__KlaviyoSiteEventTrackingAddedToCartListenersRegistered === true) {
-      trackLog("Added to Cart listeners already registered. Skipping duplicate registration.");
+      addedToCartLog("Added to Cart listeners already registered. Skipping duplicate registration.");
       return;
     }
 
     document.addEventListener("afterBasketItemAdded", function (event) {
       captureAddedToCartIntent(event);
     });
-    trackLog("Added to Cart listener attached.", {
+    addedToCartLog("Added to Cart listener attached.", {
       target: "document",
       event: "afterBasketItemAdded",
     });
@@ -1751,7 +1773,7 @@
     document.addEventListener("afterBasketChanged", function (event) {
       trackAddedToCart(event, "afterBasketChanged");
     });
-    trackLog("Added to Cart listener attached.", {
+    addedToCartLog("Added to Cart listener attached.", {
       target: "document",
       event: "afterBasketChanged",
     });
