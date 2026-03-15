@@ -1257,6 +1257,18 @@
 
       let addedLine = null;
 
+      if (!intent) {
+        addedLine = basketLines[basketLines.length - 1] || null;
+
+        return {
+          sourceLabel: runtimeCandidate.sourceLabel,
+          basket: runtimeCandidate.basket,
+          items: items,
+          basketLines: basketLines,
+          addedLine: addedLine,
+        };
+      }
+
       if (intent && intent.variationId) {
         for (let j = 0; j < basketLines.length; j += 1) {
           if (basketLines[j].VariationID === intent.variationId) {

@@ -47,7 +47,7 @@ At this time, the repository provides a **partial implementation** with bootstra
 - 🟢 Frontend identify flow implemented (email-based profile identification for logged-in users)
 - 🟢 Frontend Viewed Product tracking implemented with runtime-store + DOM fallback payload resolution and deduped variant transitions
 - 🟢 Frontend Added to Cart tracking implemented with add-intent buffering, basket-snapshot payload resolution, and deduped dispatch
-- 🟢 Frontend Started Checkout tracking implemented via Plenty runtime `templateType = checkout` detection with shared basket-line payload extraction and deduped dispatch
+- 🟢 Frontend Started Checkout tracking implemented via Plenty runtime `templateType = checkout` detection with shared basket-line payload extraction (including runtime basket fallback when no add-intent context exists) and deduped dispatch
 - 🟢 Frontend Viewed Homepage tracking implemented via Plenty runtime `templateType = home` detection and deduped dispatch
 - 🟢 Frontend Viewed Category tracking implemented via Plenty runtime `templateType = category` detection and deduped dispatch
 - 🟡 Configuration and debug logging controls are available and evolving
@@ -140,7 +140,7 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 | `tracking.enableAddedToCartEvent` | boolean | Enabled by default; toggles whether the `Added to Cart` tracking flow runs at all. | When disabled and `tracking.logAddedToCartEventDebug = true`, logs `Added to Cart skipped (disabled by configuration).` on basket changes. |
 | `tracking.logViewedHomepageEventDebug` | boolean | Emits `Viewed Homepage` diagnostics (`console.info`) for template-type detection, config skips, dedupe skips, and successful `track` dispatches. | Event-specific toggle for `Viewed Homepage` debugging. |
 | `tracking.logViewedCategoryEventDebug` | boolean | Emits `Viewed Category` diagnostics (`console.info`) for template-type detection, payload resolution, config/required-field skips, dedupe skips, and successful `track` dispatches. | Event-specific toggle for `Viewed Category` debugging. |
-| `tracking.logStartedCheckoutEventDebug` | boolean | Emits `Started Checkout` diagnostics (`console.info`) for checkout template detection, shared basket-line payload resolution, config/required-field skips, dedupe skips, and successful `track` dispatches. | Event-specific toggle for `Started Checkout` debugging. |
+| `tracking.logStartedCheckoutEventDebug` | boolean | Emits `Started Checkout` diagnostics (`console.info`) for checkout template detection, shared basket-line payload resolution (including runtime basket fallback when no add-intent context exists), config/required-field skips, dedupe skips, and successful `track` dispatches. | Event-specific toggle for `Started Checkout` debugging. |
 | `tracking.enableViewedHomepageEvent` | boolean | Enabled by default; toggles whether the `Viewed Homepage` tracking flow runs at all. | When disabled and `tracking.logViewedHomepageEventDebug = true`, logs `Viewed Homepage skipped (disabled by configuration).`. |
 | `tracking.enableViewedCategoryEvent` | boolean | Enabled by default; toggles whether the `Viewed Category` tracking flow runs at all. | When disabled and `tracking.logViewedCategoryEventDebug = true`, logs `Viewed Category skipped (disabled by configuration).`. |
 | `tracking.enableStartedCheckoutEvent` | boolean | Enabled by default; toggles whether the `Started Checkout` tracking flow runs at all. | When disabled and `tracking.logStartedCheckoutEventDebug = true`, logs `Started Checkout skipped (disabled by configuration).`. |
@@ -236,6 +236,8 @@ If `tracking.logStartedCheckoutEventDebug = true`, expected Started Checkout dia
 ```text
 [KlaviyoSiteEventTracking] Started Checkout payload resolved. { trigger: "bootstrap", sourceLabel: "...", itemCount: 2, eventId: "<basket-or-path>_<unix>", value: 29.98 }
 ```
+
+When checkout payload resolution begins without an add-intent context, runtime basket candidate lookup now falls back to the active basket lines directly. In debug output this can surface as a runtime source-chain label (for example `basket_candidate_0->runtime_basket.window.ceresStore.state.basket`) instead of a pure event-detail source label.
 
 #### 2) Heartbeat enabled, GTM mode
 
