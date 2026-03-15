@@ -1343,14 +1343,16 @@
     let resolvedSourceLabel = basketResolution && basketResolution.sourceLabel ? basketResolution.sourceLabel : 'unknown';
     let addedLine = null;
 
-    if (basketLines.length === 0 && allowRuntimeLookup && basketResolution && basketResolution.totalsOnly) {
+    if (basketLines.length === 0 && allowRuntimeLookup) {
       const runtimeResolution = resolveRuntimeBasketLines(intent || null);
 
       if (runtimeResolution) {
         basket = runtimeResolution.basket || basket;
         basketLines = runtimeResolution.basketLines;
         addedLine = runtimeResolution.addedLine;
-        resolvedSourceLabel = (basketResolution.sourceLabel || 'afterBasketChanged.detail.totals_only') + '->' + runtimeResolution.sourceLabel;
+        resolvedSourceLabel = basketResolution && basketResolution.sourceLabel
+          ? basketResolution.sourceLabel + '->' + runtimeResolution.sourceLabel
+          : runtimeResolution.sourceLabel;
       }
     }
 
@@ -1477,8 +1479,8 @@
         return line && line.ItemName;
       })
     );
-    const eventTimestamp = Math.floor(Date.now() / 1000);
-    const eventId = getCheckoutSessionIdentifier() + '_' + String(eventTimestamp);
+    const checkoutSessionIdentifier = getCheckoutSessionIdentifier();
+    const eventId = checkoutSessionIdentifier + '_started_checkout';
 
     return {
       payload: {
@@ -1543,8 +1545,7 @@
       value: payload.$value,
     });
 
-    const dedupeBucket = Math.floor(Date.now() / 5000);
-    const dedupKey = [payload.CheckoutURL, normalizedString(payload.$value), payload.ItemNames.join('|'), String(dedupeBucket)].join('|');
+    const dedupKey = [payload.CheckoutURL, getCheckoutSessionIdentifier()].join('|');
 
     if (window.__KlaviyoSiteEventTrackingLastStartedCheckoutKey === dedupKey) {
       startedCheckoutLog('Started Checkout skipped (deduped).', { trigger: trigger, dedupKey: dedupKey });
