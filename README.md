@@ -20,10 +20,10 @@ The table below is optimized for a quick implementation and product-status scan.
 | 🟢 | **Active on Site** | Baseline site engagement and profile activity | Covered by the identify lifecycle because profile activity is established when identify resolves |
 | 🟢 | **Viewed Product** | Product interest and browse intent | PDP runtime-state detection plus variant/route changes dispatch product metadata |
 | 🟢 | **Added to Cart** | Purchase intent signal for abandoned-cart journeys | Add-intent capture (`afterBasketItemAdded`) plus basket-snapshot reconciliation (`afterBasketChanged`) |
+| 🟢 | **Started Checkout** | Funnel entry and checkout abandonment flows | Checkout page detection (`window.App.templateType === "checkout"`) with shared basket-line snapshot payload resolution |
 | 🟢 | **Viewed Homepage** | Baseline landing engagement and session context | Runtime page-type detection when Plenty `window.App.templateType === "home"` |
 | 🟢 | **Viewed Category / Listing** | Discovery behavior and merchandising effectiveness | Runtime page-type detection when Plenty `window.App.templateType === "category"` |
 | 🔴 | **Removed from Cart** | Cart friction insight and drop-off analysis | Remove-line-item action in cart/minicart |
-| 🔴 | **Started Checkout** | Funnel entry and checkout abandonment flows | First transition from cart to checkout |
 | 🔴 | **Checkout Step Progression** | Diagnose checkout friction points | Movement between checkout steps (address, shipping, payment, review) |
 | 🔴 | **Placed Order** | Conversion tracking and post-purchase automation | Successful order placement confirmation |
 | 🔴 | **Refunded Order** | Revenue quality and customer lifecycle signals | Order status/payment reversal recognized by storefront/account event feed |
@@ -47,6 +47,7 @@ At this time, the repository provides a **partial implementation** with bootstra
 - 🟢 Frontend identify flow implemented (email-based profile identification for logged-in users)
 - 🟢 Frontend Viewed Product tracking implemented with runtime-store + DOM fallback payload resolution and deduped variant transitions
 - 🟢 Frontend Added to Cart tracking implemented with add-intent buffering, basket-snapshot payload resolution, and deduped dispatch
+- 🟢 Frontend Started Checkout tracking implemented via Plenty runtime `templateType = checkout` detection with shared basket-line payload extraction and deduped dispatch
 - 🟢 Frontend Viewed Homepage tracking implemented via Plenty runtime `templateType = home` detection and deduped dispatch
 - 🟢 Frontend Viewed Category tracking implemented via Plenty runtime `templateType = category` detection and deduped dispatch
 - 🟡 Configuration and debug logging controls are available and evolving
@@ -101,6 +102,8 @@ Plugin config is split into dedicated tabs:
     - Enabled by default; activates/deactivates the `Viewed Homepage` tracking flow
   - `tracking.enableViewedCategoryEvent`
     - Enabled by default; activates/deactivates the `Viewed Category` tracking flow
+  - `tracking.enableStartedCheckoutEvent`
+    - Enabled by default; activates/deactivates the `Started Checkout` tracking flow
 
 - **Debugging tab**
   - `tracking.logPluginHeartbeat`
@@ -117,6 +120,8 @@ Plugin config is split into dedicated tabs:
     - Emits `Viewed Homepage` diagnostics (`console.info`) for template-type detection, dedupe handling, and track dispatch
   - `tracking.logViewedCategoryEventDebug`
     - Emits `Viewed Category` diagnostics (`console.info`) for template-type detection, payload resolution, dedupe handling, and track dispatch
+  - `tracking.logStartedCheckoutEventDebug`
+    - Emits `Started Checkout` diagnostics (`console.info`) for checkout page detection, basket payload resolution, dedupe handling, and track dispatch
 
 ## Troubleshooting
 
@@ -135,8 +140,10 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 | `tracking.enableAddedToCartEvent` | boolean | Enabled by default; toggles whether the `Added to Cart` tracking flow runs at all. | When disabled and `tracking.logAddedToCartEventDebug = true`, logs `Added to Cart skipped (disabled by configuration).` on basket changes. |
 | `tracking.logViewedHomepageEventDebug` | boolean | Emits `Viewed Homepage` diagnostics (`console.info`) for template-type detection, config skips, dedupe skips, and successful `track` dispatches. | Event-specific toggle for `Viewed Homepage` debugging. |
 | `tracking.logViewedCategoryEventDebug` | boolean | Emits `Viewed Category` diagnostics (`console.info`) for template-type detection, payload resolution, config/required-field skips, dedupe skips, and successful `track` dispatches. | Event-specific toggle for `Viewed Category` debugging. |
+| `tracking.logStartedCheckoutEventDebug` | boolean | Emits `Started Checkout` diagnostics (`console.info`) for checkout template detection, shared basket-line payload resolution, config/required-field skips, dedupe skips, and successful `track` dispatches. | Event-specific toggle for `Started Checkout` debugging. |
 | `tracking.enableViewedHomepageEvent` | boolean | Enabled by default; toggles whether the `Viewed Homepage` tracking flow runs at all. | When disabled and `tracking.logViewedHomepageEventDebug = true`, logs `Viewed Homepage skipped (disabled by configuration).`. |
 | `tracking.enableViewedCategoryEvent` | boolean | Enabled by default; toggles whether the `Viewed Category` tracking flow runs at all. | When disabled and `tracking.logViewedCategoryEventDebug = true`, logs `Viewed Category skipped (disabled by configuration).`. |
+| `tracking.enableStartedCheckoutEvent` | boolean | Enabled by default; toggles whether the `Started Checkout` tracking flow runs at all. | When disabled and `tracking.logStartedCheckoutEventDebug = true`, logs `Started Checkout skipped (disabled by configuration).`. |
 
 ### Expected console output by condition
 
@@ -218,6 +225,16 @@ If `tracking.logAddedToCartEventDebug = true`, expected Added to Cart diagnostic
 
 ```text
 [KlaviyoSiteEventTracking] Added to Cart payload resolved. { trigger: "afterBasketChanged|intent_followup", sourceLabel: "...", correlationMode: "intent_matched", addedItemProductId: "...", addedItemProductName: "...", addedItemQuantity: 1 }
+```
+
+If `tracking.logStartedCheckoutEventDebug = true`, expected Started Checkout diagnostics include:
+
+```text
+[KlaviyoSiteEventTracking] Started Checkout page detection evaluated. { trigger: "bootstrap", isCheckout: true|false, detectionSource: "runtime_app_templateType"|"none", templateType: "checkout"|"...", path: "/checkout" }
+```
+
+```text
+[KlaviyoSiteEventTracking] Started Checkout payload resolved. { trigger: "bootstrap", sourceLabel: "...", itemCount: 2, eventId: "<basket-or-path>_<unix>", value: 29.98 }
 ```
 
 #### 2) Heartbeat enabled, GTM mode

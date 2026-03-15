@@ -74,6 +74,15 @@
             "tooltip": "Config.enableViewedCategoryEventTooltip",
             "defaultValue": true
           }
+        },
+        "tracking.enableStartedCheckoutEvent": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.enableStartedCheckoutEventLabel",
+          "options": {
+            "tooltip": "Config.enableStartedCheckoutEventTooltip",
+            "defaultValue": true
+          }
         }
       }
     },
@@ -141,6 +150,15 @@
           "label": "Config.logViewedCategoryEventDebugLabel",
           "options": {
             "tooltip": "Config.logViewedCategoryEventDebugTooltip",
+            "defaultValue": false
+          }
+        },
+        "tracking.logStartedCheckoutEventDebug": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.logStartedCheckoutEventDebugLabel",
+          "options": {
+            "tooltip": "Config.logStartedCheckoutEventDebugTooltip",
             "defaultValue": false
           }
         }

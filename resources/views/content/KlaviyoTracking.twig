@@ -37,6 +37,10 @@
 {% set logViewedCategoryEventDebugNormalized = (logViewedCategoryEventDebugRaw ~ "")|trim|lower %}
 {% set logViewedCategoryEventDebug = (logViewedCategoryEventDebugRaw is same as(true)) or (logViewedCategoryEventDebugRaw is same as(1)) or (logViewedCategoryEventDebugNormalized in checkboxEnabledValues) ? true : ((logViewedCategoryEventDebugRaw is same as(false)) or (logViewedCategoryEventDebugRaw is same as(0)) or (logViewedCategoryEventDebugNormalized in checkboxDisabledValues) ? false : false) %}
 
+{% set logStartedCheckoutEventDebugRaw = config("KlaviyoSiteEventTracking.tracking.logStartedCheckoutEventDebug")|default("") %}
+{% set logStartedCheckoutEventDebugNormalized = (logStartedCheckoutEventDebugRaw ~ "")|trim|lower %}
+{% set logStartedCheckoutEventDebug = (logStartedCheckoutEventDebugRaw is same as(true)) or (logStartedCheckoutEventDebugRaw is same as(1)) or (logStartedCheckoutEventDebugNormalized in checkboxEnabledValues) ? true : ((logStartedCheckoutEventDebugRaw is same as(false)) or (logStartedCheckoutEventDebugRaw is same as(0)) or (logStartedCheckoutEventDebugNormalized in checkboxDisabledValues) ? false : false) %}
+
 {% set enableViewedHomepageEventRaw = config("KlaviyoSiteEventTracking.tracking.enableViewedHomepageEvent")|default(null) %}
 {% set enableViewedHomepageEventNormalized = (enableViewedHomepageEventRaw ~ "")|trim|lower %}
 {% set enableViewedHomepageEvent = (enableViewedHomepageEventRaw is same as(true)) or (enableViewedHomepageEventRaw is same as(1)) or (enableViewedHomepageEventNormalized in checkboxEnabledValues) ? true : ((enableViewedHomepageEventRaw is same as(false)) or (enableViewedHomepageEventRaw is same as(0)) or (enableViewedHomepageEventNormalized in checkboxDisabledValues) ? false : true) %}
@@ -44,6 +48,10 @@
 {% set enableViewedCategoryEventRaw = config("KlaviyoSiteEventTracking.tracking.enableViewedCategoryEvent")|default(null) %}
 {% set enableViewedCategoryEventNormalized = (enableViewedCategoryEventRaw ~ "")|trim|lower %}
 {% set enableViewedCategoryEvent = (enableViewedCategoryEventRaw is same as(true)) or (enableViewedCategoryEventRaw is same as(1)) or (enableViewedCategoryEventNormalized in checkboxEnabledValues) ? true : ((enableViewedCategoryEventRaw is same as(false)) or (enableViewedCategoryEventRaw is same as(0)) or (enableViewedCategoryEventNormalized in checkboxDisabledValues) ? false : true) %}
+
+{% set enableStartedCheckoutEventRaw = config("KlaviyoSiteEventTracking.tracking.enableStartedCheckoutEvent")|default(null) %}
+{% set enableStartedCheckoutEventNormalized = (enableStartedCheckoutEventRaw ~ "")|trim|lower %}
+{% set enableStartedCheckoutEvent = (enableStartedCheckoutEventRaw is same as(true)) or (enableStartedCheckoutEventRaw is same as(1)) or (enableStartedCheckoutEventNormalized in checkboxEnabledValues) ? true : ((enableStartedCheckoutEventRaw is same as(false)) or (enableStartedCheckoutEventRaw is same as(0)) or (enableStartedCheckoutEventNormalized in checkboxDisabledValues) ? false : true) %}
 
 <script>
   window.KlaviyoSiteEventTracking = window.KlaviyoSiteEventTracking || {};
@@ -56,9 +64,11 @@
   window.KlaviyoSiteEventTracking.logAddedToCartEventDebug = {{ logAddedToCartEventDebug ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.logViewedHomepageEventDebug = {{ logViewedHomepageEventDebug ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.logViewedCategoryEventDebug = {{ logViewedCategoryEventDebug ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.logStartedCheckoutEventDebug = {{ logStartedCheckoutEventDebug ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.enableViewedProductEvent = {{ enableViewedProductEvent ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.enableAddedToCartEvent = {{ enableAddedToCartEvent ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.enableViewedHomepageEvent = {{ enableViewedHomepageEvent ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.enableViewedCategoryEvent = {{ enableViewedCategoryEvent ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.enableStartedCheckoutEvent = {{ enableStartedCheckoutEvent ? 'true' : 'false' }};
 </script>
 <script src="{{ plugin_path('KlaviyoSiteEventTracking') }}/js/klaviyo-site-event-tracking.js"></script>
