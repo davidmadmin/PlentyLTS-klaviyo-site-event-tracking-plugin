@@ -56,3 +56,26 @@ For this project and environment, page-type checks should primarily use `window.
 - `privacy-policy`, `cancellation-rights`, `legal-disclosure` (legal pages)
 
 For legal-page tracking, use an allow-list of templateType values rather than a single generic legal type.
+
+## Troubleshooting Mode (human + AI)
+Use this mode to identify all required/optional fields for a target event on the real live PlentyLTS runtime and map exact access paths.
+
+### Workflow loop
+1. AI provides browser-console probes.
+2. Human runs probes on the live storefront and shares screenshots.
+3. AI updates its hypothesis and provides the next probes.
+4. Repeat until all required fields are confirmed with concrete runtime paths.
+
+### Required evidence per step
+- Current page type (`window.App.templateType`).
+- Raw basket candidates from runtime objects.
+- Normalized item-line viability (for example: has ProductID/quantity/price).
+- Event skip reason or dispatch payload.
+
+### Exit criteria
+- Full required field list for the target event.
+- Confirmed runtime source path(s) per field for the current PlentyLTS/Ceres version.
+- Concrete implementation guidance: use path X first, fallback Y.
+
+### Screenshot naming convention
+Use sequential filenames for shared evidence (for example: `step-01-template.png`, `step-02-basket-candidates.png`) to keep iterative analysis organized.
