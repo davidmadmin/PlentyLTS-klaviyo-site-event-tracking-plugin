@@ -1533,11 +1533,24 @@
       })
     );
     const checkoutSessionIdentifier = getCheckoutSessionIdentifier();
-    const eventId = checkoutSessionIdentifier + '_started_checkout';
+    const eventIdState = window.__KlaviyoSiteEventTrackingStartedCheckoutEventIdState || {};
+    const isExistingSessionEventId = eventIdState.sessionIdentifier === checkoutSessionIdentifier && normalizedString(eventIdState.eventId);
+
+    if (!isExistingSessionEventId) {
+      const suffixBucket = Math.floor(Date.now() / 1000);
+      const suffixCounter = Number.isFinite(window.__KlaviyoSiteEventTrackingStartedCheckoutEventCounter)
+        ? ((window.__KlaviyoSiteEventTrackingStartedCheckoutEventCounter + 1) % 1000)
+        : 0;
+
+      window.__KlaviyoSiteEventTrackingStartedCheckoutEventCounter = suffixCounter;
+      eventIdState.sessionIdentifier = checkoutSessionIdentifier;
+      eventIdState.eventId = [checkoutSessionIdentifier, 'started_checkout', String(suffixBucket), String(suffixCounter)].join('_');
+      window.__KlaviyoSiteEventTrackingStartedCheckoutEventIdState = eventIdState;
+    }
 
     return {
       payload: {
-        $event_id: eventId,
+        $event_id: eventIdState.eventId,
         $value: firstDefinedNumber([
           extractBasketTotal(basketLinesResolution.basket),
           sumBasketLineRowTotals(basketLines),
@@ -1598,6 +1611,7 @@
       window.__KlaviyoSiteEventTrackingStartedCheckoutRetryCount = 0;
       window.__KlaviyoSiteEventTrackingAnonymousCheckoutSessionId = null;
       window.__KlaviyoSiteEventTrackingLastStartedCheckoutKey = null;
+      window.__KlaviyoSiteEventTrackingStartedCheckoutEventIdState = null;
       return;
     }
 

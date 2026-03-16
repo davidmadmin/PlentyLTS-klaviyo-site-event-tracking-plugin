@@ -239,7 +239,7 @@ If checkout is detected before basket lines are fully ready, Started Checkout sc
 ```
 
 ```text
-[KlaviyoSiteEventTracking] Started Checkout payload resolved. { trigger: "bootstrap", sourceLabel: "...", itemCount: 2, eventId: "<basket-or-path>_<unix>", value: 29.98 }
+[KlaviyoSiteEventTracking] Started Checkout payload resolved. { trigger: "bootstrap", sourceLabel: "...", itemCount: 2, eventId: "<checkout-session>_started_checkout_<unix-bucket>_<counter>", value: 29.98 }
 ```
 
 ```text
