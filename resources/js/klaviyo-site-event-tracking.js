@@ -1530,6 +1530,8 @@
   };
 
   const trackStartedCheckout = function (trigger) {
+    const isRetryAttempt = /\|retry_\d+$/.test(trigger || '');
+
     if (!enableStartedCheckoutEvent) {
       startedCheckoutLog('Started Checkout skipped (disabled by configuration).', { trigger: trigger });
       return;
@@ -1545,6 +1547,19 @@
     });
 
     if (!pageDetection.isMatch) {
+      if (window.__KlaviyoSiteEventTrackingStartedCheckoutRetryTimeoutId) {
+        window.clearTimeout(window.__KlaviyoSiteEventTrackingStartedCheckoutRetryTimeoutId);
+        window.__KlaviyoSiteEventTrackingStartedCheckoutRetryTimeoutId = null;
+      }
+
+      if (window.__KlaviyoSiteEventTrackingStartedCheckoutRetryCount) {
+        startedCheckoutLog('Started Checkout retry canceled (left checkout page).', {
+          trigger: trigger,
+          retryAttempts: window.__KlaviyoSiteEventTrackingStartedCheckoutRetryCount,
+        });
+      }
+
+      window.__KlaviyoSiteEventTrackingStartedCheckoutRetryCount = 0;
       window.__KlaviyoSiteEventTrackingAnonymousCheckoutSessionId = null;
       window.__KlaviyoSiteEventTrackingLastStartedCheckoutKey = null;
       return;
@@ -1554,9 +1569,62 @@
     const payload = payloadResolution && payloadResolution.payload;
 
     if (!payload || !payload.CheckoutURL || !Array.isArray(payload.Items) || payload.Items.length === 0) {
+      const maxStartedCheckoutRetryAttempts = 10;
+      const startedCheckoutRetryDelayMs = 300;
+      const currentRetryCount = Number.isFinite(window.__KlaviyoSiteEventTrackingStartedCheckoutRetryCount)
+        ? window.__KlaviyoSiteEventTrackingStartedCheckoutRetryCount
+        : 0;
+
+      if (currentRetryCount >= maxStartedCheckoutRetryAttempts) {
+        startedCheckoutLog('Started Checkout skipped (required payload fields missing; retry exhausted).', {
+          trigger: trigger,
+          retryAttempts: currentRetryCount,
+          maxRetryAttempts: maxStartedCheckoutRetryAttempts,
+        });
+        return;
+      }
+
+      if (window.__KlaviyoSiteEventTrackingStartedCheckoutRetryTimeoutId) {
+        startedCheckoutLog('Started Checkout payload missing; retry already scheduled.', {
+          trigger: trigger,
+          retryAttempts: currentRetryCount,
+          maxRetryAttempts: maxStartedCheckoutRetryAttempts,
+        });
+        return;
+      }
+
+      const retryAttempt = currentRetryCount + 1;
+      window.__KlaviyoSiteEventTrackingStartedCheckoutRetryCount = retryAttempt;
+
+      startedCheckoutLog('Started Checkout payload missing; scheduling retry.', {
+        trigger: trigger,
+        retryAttempt: retryAttempt,
+        maxRetryAttempts: maxStartedCheckoutRetryAttempts,
+        retryDelayMs: startedCheckoutRetryDelayMs,
+      });
+
+      window.__KlaviyoSiteEventTrackingStartedCheckoutRetryTimeoutId = window.setTimeout(function () {
+        window.__KlaviyoSiteEventTrackingStartedCheckoutRetryTimeoutId = null;
+        trackStartedCheckout((trigger || 'started_checkout') + '|retry_' + retryAttempt);
+      }, startedCheckoutRetryDelayMs);
+
       startedCheckoutLog('Started Checkout skipped (required payload fields missing).', { trigger: trigger });
       return;
     }
+
+    if (window.__KlaviyoSiteEventTrackingStartedCheckoutRetryTimeoutId) {
+      window.clearTimeout(window.__KlaviyoSiteEventTrackingStartedCheckoutRetryTimeoutId);
+      window.__KlaviyoSiteEventTrackingStartedCheckoutRetryTimeoutId = null;
+    }
+
+    if (isRetryAttempt || window.__KlaviyoSiteEventTrackingStartedCheckoutRetryCount) {
+      startedCheckoutLog('Started Checkout retry succeeded.', {
+        trigger: trigger,
+        retryAttempts: window.__KlaviyoSiteEventTrackingStartedCheckoutRetryCount || 0,
+      });
+    }
+
+    window.__KlaviyoSiteEventTrackingStartedCheckoutRetryCount = 0;
 
     startedCheckoutLog('Started Checkout payload resolved.', {
       trigger: trigger,

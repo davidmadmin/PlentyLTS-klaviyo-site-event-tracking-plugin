@@ -47,7 +47,7 @@ At this time, the repository provides a **partial implementation** with bootstra
 - 🟢 Frontend identify flow implemented (email-based profile identification for logged-in users)
 - 🟢 Frontend Viewed Product tracking implemented with runtime-store + DOM fallback payload resolution and deduped variant transitions
 - 🟢 Frontend Added to Cart tracking implemented with add-intent buffering, basket-snapshot payload resolution, and deduped dispatch
-- 🟢 Frontend Started Checkout tracking implemented via Plenty runtime `templateType = checkout` detection with shared basket-line payload extraction (including no-intent runtime basket fallback) and deduped dispatch
+- 🟢 Frontend Started Checkout tracking implemented via Plenty runtime `templateType = checkout` detection with shared basket-line payload extraction (including no-intent runtime basket fallback), payload-readiness retry handling, and deduped dispatch
 - 🟢 Frontend Viewed Homepage tracking implemented via Plenty runtime `templateType = home` detection and deduped dispatch
 - 🟢 Frontend Viewed Category tracking implemented via Plenty runtime `templateType = category` detection and deduped dispatch
 - 🟡 Configuration and debug logging controls are available and evolving
@@ -121,7 +121,7 @@ Plugin config is split into dedicated tabs:
   - `tracking.logViewedCategoryEventDebug`
     - Emits `Viewed Category` diagnostics (`console.info`) for template-type detection, payload resolution, dedupe handling, and track dispatch
   - `tracking.logStartedCheckoutEventDebug`
-    - Emits `Started Checkout` diagnostics (`console.info`) for checkout page detection, basket payload resolution (including no-intent runtime fallback), dedupe handling, and track dispatch
+    - Emits `Started Checkout` diagnostics (`console.info`) for checkout page detection, basket payload resolution (including no-intent runtime fallback), payload-readiness retry scheduling, dedupe handling, and track dispatch
 
 ## Troubleshooting
 
@@ -140,7 +140,7 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 | `tracking.enableAddedToCartEvent` | boolean | Enabled by default; toggles whether the `Added to Cart` tracking flow runs at all. | When disabled and `tracking.logAddedToCartEventDebug = true`, logs `Added to Cart skipped (disabled by configuration).` on basket changes. |
 | `tracking.logViewedHomepageEventDebug` | boolean | Emits `Viewed Homepage` diagnostics (`console.info`) for template-type detection, config skips, dedupe skips, and successful `track` dispatches. | Event-specific toggle for `Viewed Homepage` debugging. |
 | `tracking.logViewedCategoryEventDebug` | boolean | Emits `Viewed Category` diagnostics (`console.info`) for template-type detection, payload resolution, config/required-field skips, dedupe skips, and successful `track` dispatches. | Event-specific toggle for `Viewed Category` debugging. |
-| `tracking.logStartedCheckoutEventDebug` | boolean | Emits `Started Checkout` diagnostics (`console.info`) for checkout template detection, shared basket-line payload resolution (including no-intent runtime basket fallback), config/required-field skips, dedupe skips, and successful `track` dispatches. | Event-specific toggle for `Started Checkout` debugging. |
+| `tracking.logStartedCheckoutEventDebug` | boolean | Emits `Started Checkout` diagnostics (`console.info`) for checkout template detection, shared basket-line payload resolution (including no-intent runtime basket fallback), payload-missing retry scheduling/exhaustion, config/required-field skips, dedupe skips, and successful `track` dispatches. | Event-specific toggle for `Started Checkout` debugging. |
 | `tracking.enableViewedHomepageEvent` | boolean | Enabled by default; toggles whether the `Viewed Homepage` tracking flow runs at all. | When disabled and `tracking.logViewedHomepageEventDebug = true`, logs `Viewed Homepage skipped (disabled by configuration).`. |
 | `tracking.enableViewedCategoryEvent` | boolean | Enabled by default; toggles whether the `Viewed Category` tracking flow runs at all. | When disabled and `tracking.logViewedCategoryEventDebug = true`, logs `Viewed Category skipped (disabled by configuration).`. |
 | `tracking.enableStartedCheckoutEvent` | boolean | Enabled by default; toggles whether the `Started Checkout` tracking flow runs at all. | When disabled and `tracking.logStartedCheckoutEventDebug = true`, logs `Started Checkout skipped (disabled by configuration).`. |
@@ -231,12 +231,22 @@ If `tracking.logStartedCheckoutEventDebug = true`, expected Started Checkout dia
 
 When checkout is detected and no Added-to-Cart intent context exists, Started Checkout still resolves basket lines from runtime basket candidates and can proceed to dispatch with the standard payload/dedupe flow. In those cases, `sourceLabel` in the payload log may be runtime-derived (for example `runtime_basket.window.ceresStore.state.basket` or a chained value such as `basket_candidate_0->runtime_basket.window.App.basket`).
 
+If checkout is detected before basket lines are fully ready, Started Checkout schedules a short retry window before giving up. During that window, debug logs include retry scheduling and final retry success/exhaustion details.
+
 ```text
 [KlaviyoSiteEventTracking] Started Checkout page detection evaluated. { trigger: "bootstrap", isCheckout: true|false, detectionSource: "runtime_app_templateType"|"none", templateType: "checkout"|"...", path: "/checkout" }
 ```
 
 ```text
 [KlaviyoSiteEventTracking] Started Checkout payload resolved. { trigger: "bootstrap", sourceLabel: "...", itemCount: 2, eventId: "<basket-or-path>_<unix>", value: 29.98 }
+```
+
+```text
+[KlaviyoSiteEventTracking] Started Checkout payload missing; scheduling retry. { trigger: "route_history_replaceState", retryAttempt: 1, maxRetryAttempts: 10, retryDelayMs: 300 }
+```
+
+```text
+[KlaviyoSiteEventTracking] Started Checkout retry succeeded. { trigger: "route_history_replaceState|retry_1", retryAttempts: 1 }
 ```
 
 #### 2) Heartbeat enabled, GTM mode
