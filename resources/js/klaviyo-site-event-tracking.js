@@ -1157,7 +1157,11 @@
       extractNumberFromPriceCandidate(getNestedValue(item, ["basketItemOrderParams", "total"])),
     ]);
 
-    const categories = extractCategories(item);
+    const categories = uniqueStringArray(
+      (extractCategories(item) || [])
+        .concat(extractCategories(getNestedValue(item, ["variation", "data"])) || [])
+        .concat(extractCategories(getNestedValue(item, ["variation", "data", "item"])) || [])
+    );
 
     const itemName =
       normalizedString(getNestedValue(item, ["itemName"])) ||
@@ -1171,7 +1175,10 @@
     const productUrl = normalizedAbsoluteUrl(
       normalizedString(getNestedValue(item, ["url"])) ||
         normalizedString(getNestedValue(item, ["item", "url"])) ||
-        normalizedString(getNestedValue(item, ["variation", "url"])),
+        normalizedString(getNestedValue(item, ["variation", "url"])) ||
+        normalizedString(getNestedValue(item, ["variation", "data", "texts", "urlPath"])) ||
+        normalizedString(getNestedValue(item, ["variation", "data", "texts", "url"])) ||
+        normalizedString(getNestedValue(item, ["variation", "data", "url"])),
       false
     );
 
@@ -1183,14 +1190,22 @@
       SKU:
         normalizedString(getNestedValue(item, ["variationNumber"])) ||
         normalizedString(getNestedValue(item, ["variation", "number"])) ||
-        normalizedString(getNestedValue(item, ["sku"])),
+        normalizedString(getNestedValue(item, ["sku"])) ||
+        normalizedString(getNestedValue(item, ["variation", "data", "variation", "number"])) ||
+        normalizedString(getNestedValue(item, ["variation", "data", "variation", "model"])) ||
+        normalizedString(getNestedValue(item, ["variation", "data", "variation", "externalId"])),
       Quantity: quantity,
       ItemPrice: price,
       RowTotal: explicitRowTotal !== null ? explicitRowTotal : (price !== null ? Number((price * quantity).toFixed(4)) : null),
       ImageURL: normalizedAbsoluteUrl(
         normalizedString(getNestedValue(item, ["image"])) ||
           normalizedString(getNestedValue(item, ["imageUrl"])) ||
-          normalizedString(getNestedValue(item, ["variation", "images", 0, "url"])),
+          normalizedString(getNestedValue(item, ["variation", "images", 0, "url"])) ||
+          normalizedString(getNestedValue(item, ["variation", "images", 0, "urlMiddle"])) ||
+          normalizedString(getNestedValue(item, ["variation", "data", "images", "all", 0, "url"])) ||
+          normalizedString(getNestedValue(item, ["variation", "data", "images", "all", 0, "urlMiddle"])) ||
+          normalizedString(getNestedValue(item, ["variation", "data", "images", 0, "url"])) ||
+          normalizedString(getNestedValue(item, ["variation", "data", "images", 0, "urlMiddle"])),
         false
       ),
       URL: productUrl,
