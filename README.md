@@ -230,6 +230,7 @@ If `tracking.logAddedToCartEventDebug = true`, expected Added to Cart diagnostic
 If `tracking.logStartedCheckoutEventDebug = true`, expected Started Checkout diagnostics include:
 
 When checkout is detected and no Added-to-Cart intent context exists, Started Checkout still resolves basket lines from runtime basket candidates and can proceed to dispatch with the standard payload/dedupe flow. In those cases, `sourceLabel` in the payload log may be runtime-derived (for example `runtime_basket.window.ceresStore.state.basket` or a chained value such as `basket_candidate_0->runtime_basket.window.App.basket`).
+The Started Checkout `Items` array now emits Klaviyo-aligned per-line keys (`ProductName`, `ProductURL`, `ProductCategories`) while legacy aliases (`ItemName`, `URL`, `Categories`) remain available internally for compatibility with existing correlation logic.
 
 If checkout is detected before basket lines are fully ready, Started Checkout schedules a short retry window before giving up. During that window, debug logs include retry scheduling and final retry success/exhaustion details.
 

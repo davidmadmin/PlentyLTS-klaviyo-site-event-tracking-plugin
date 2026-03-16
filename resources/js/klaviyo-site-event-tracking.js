@@ -1159,16 +1159,25 @@
 
     const categories = extractCategories(item);
 
+    const itemName =
+      normalizedString(getNestedValue(item, ["itemName"])) ||
+      normalizedString(getNestedValue(item, ["variation", "name"])) ||
+      normalizedString(getNestedValue(item, ["variation", "data", "texts", "name1"])) ||
+      normalizedString(getNestedValue(item, ["item", "data", "texts", "name1"])) ||
+      normalizedString(getNestedValue(item, ["variation", "texts", "name1"])) ||
+      normalizedString(getNestedValue(item, ["item", "texts", "name1"])) ||
+      normalizedString(getNestedValue(item, ["data", "texts", "name1"])) ||
+      normalizedString(getNestedValue(item, ["name"]));
+    const productUrl = normalizedAbsoluteUrl(
+      normalizedString(getNestedValue(item, ["url"])) ||
+        normalizedString(getNestedValue(item, ["item", "url"])) ||
+        normalizedString(getNestedValue(item, ["variation", "url"])),
+      false
+    );
+
     return {
-      ItemName:
-        normalizedString(getNestedValue(item, ["itemName"])) ||
-        normalizedString(getNestedValue(item, ["variation", "name"])) ||
-        normalizedString(getNestedValue(item, ["variation", "data", "texts", "name1"])) ||
-        normalizedString(getNestedValue(item, ["item", "data", "texts", "name1"])) ||
-        normalizedString(getNestedValue(item, ["variation", "texts", "name1"])) ||
-        normalizedString(getNestedValue(item, ["item", "texts", "name1"])) ||
-        normalizedString(getNestedValue(item, ["data", "texts", "name1"])) ||
-        normalizedString(getNestedValue(item, ["name"])),
+      ItemName: itemName,
+      ProductName: itemName,
       ProductID: productId,
       VariationID: variationId,
       SKU:
@@ -1184,13 +1193,10 @@
           normalizedString(getNestedValue(item, ["variation", "images", 0, "url"])),
         false
       ),
-      URL: normalizedAbsoluteUrl(
-        normalizedString(getNestedValue(item, ["url"])) ||
-          normalizedString(getNestedValue(item, ["item", "url"])) ||
-          normalizedString(getNestedValue(item, ["variation", "url"])),
-        false
-      ),
+      URL: productUrl,
+      ProductURL: productUrl,
       Categories: categories,
+      ProductCategories: categories,
     };
   };
 
@@ -1489,13 +1495,15 @@
     const checkoutUrl = normalizedAbsoluteUrl('/checkout', true);
     const categories = uniqueStringArray(
       basketLines.reduce(function (allCategories, line) {
-        const lineCategories = Array.isArray(line && line.Categories) ? line.Categories : [];
+        const lineCategories = Array.isArray(line && line.ProductCategories)
+          ? line.ProductCategories
+          : (Array.isArray(line && line.Categories) ? line.Categories : []);
         return allCategories.concat(lineCategories);
       }, [])
     );
     const itemNames = uniqueStringArray(
       basketLines.map(function (line) {
-        return line && line.ItemName;
+        return line && (line.ProductName || line.ItemName);
       })
     );
     const checkoutSessionIdentifier = getCheckoutSessionIdentifier();
@@ -1515,13 +1523,15 @@
           return {
             ProductID: line.ProductID,
             SKU: line.SKU,
-            ProductName: line.ItemName,
+            ProductName: line.ProductName || line.ItemName,
             Quantity: line.Quantity,
             ItemPrice: line.ItemPrice,
             RowTotal: line.RowTotal,
-            ProductURL: line.URL,
+            ProductURL: line.ProductURL || line.URL,
             ImageURL: line.ImageURL,
-            ProductCategories: Array.isArray(line.Categories) ? line.Categories : [],
+            ProductCategories: Array.isArray(line.ProductCategories)
+              ? line.ProductCategories
+              : (Array.isArray(line.Categories) ? line.Categories : []),
           };
         }),
       },
