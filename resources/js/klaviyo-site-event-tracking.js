@@ -270,6 +270,8 @@
     }
 
     try {
+      const usingKlaviyoObject = !!(window.klaviyo && typeof window.klaviyo.identify === "function");
+
       if (window.klaviyo && typeof window.klaviyo.identify === "function") {
         window.klaviyo.identify({ email: candidateEmail });
       } else {
@@ -277,11 +279,11 @@
       }
 
       window.__KlaviyoSiteEventTrackingLastIdentifiedEmail = candidateEmail;
-      identifyLog("Klaviyo identify executed.", {
+      identifyLog("Klaviyo identify accepted client-side (SDK call invoked or queue push completed).", {
         email: candidateEmail,
         source: source,
-        usingKlaviyoObject:
-          !!(window.klaviyo && typeof window.klaviyo.identify === "function"),
+        usingKlaviyoObject: usingKlaviyoObject,
+        deliveryConfirmed: false,
       });
       return true;
     } catch (error) {
@@ -1909,6 +1911,8 @@
 
   const trackEvent = function (metricName, payload, context) {
     try {
+      const usingKlaviyoObject = !!(window.klaviyo && typeof window.klaviyo.track === "function");
+
       if (window.klaviyo && typeof window.klaviyo.track === "function") {
         window.klaviyo.track(metricName, payload);
       } else {
@@ -1916,42 +1920,52 @@
       }
 
       if (metricName === "Viewed Product") {
-        viewedProductLog("Klaviyo track executed.", {
+        viewedProductLog("Klaviyo track accepted client-side (SDK call invoked or queue push completed).", {
           metric: metricName,
           trigger: context,
           payload: payload,
+          usingKlaviyoObject: usingKlaviyoObject,
+          deliveryConfirmed: false,
         });
       }
 
       if (metricName === "Added to Cart") {
-        addedToCartLog("Klaviyo track executed.", {
+        addedToCartLog("Klaviyo track accepted client-side (SDK call invoked or queue push completed).", {
           metric: metricName,
           trigger: context,
           payload: payload,
+          usingKlaviyoObject: usingKlaviyoObject,
+          deliveryConfirmed: false,
         });
       }
 
       if (metricName === "Viewed Homepage") {
-        viewedHomepageLog("Klaviyo track executed.", {
+        viewedHomepageLog("Klaviyo track accepted client-side (SDK call invoked or queue push completed).", {
           metric: metricName,
           trigger: context,
           payload: payload,
+          usingKlaviyoObject: usingKlaviyoObject,
+          deliveryConfirmed: false,
         });
       }
 
       if (metricName === "Viewed Category") {
-        viewedCategoryLog("Klaviyo track executed.", {
+        viewedCategoryLog("Klaviyo track accepted client-side (SDK call invoked or queue push completed).", {
           metric: metricName,
           trigger: context,
           payload: payload,
+          usingKlaviyoObject: usingKlaviyoObject,
+          deliveryConfirmed: false,
         });
       }
 
       if (metricName === "Started Checkout") {
-        startedCheckoutLog("Klaviyo track executed.", {
+        startedCheckoutLog("Klaviyo track accepted client-side (SDK call invoked or queue push completed).", {
           metric: metricName,
           trigger: context,
           payload: payload,
+          usingKlaviyoObject: usingKlaviyoObject,
+          deliveryConfirmed: false,
         });
       }
 
@@ -1987,9 +2001,10 @@
         },
       });
 
-      viewedProductLog("Klaviyo trackViewedItem executed.", {
+      viewedProductLog("Klaviyo trackViewedItem accepted client-side (SDK call invoked).", {
         trigger: context,
         itemId: payload.ProductID,
+        deliveryConfirmed: false,
       });
     } catch (error) {
       warn("Failed to execute Klaviyo trackViewedItem call.", {

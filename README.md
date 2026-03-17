@@ -109,19 +109,19 @@ Plugin config is split into dedicated tabs:
   - `tracking.logPluginHeartbeat`
     - Enabled by default; writes bootstrap/lifecycle diagnostics for plugin heartbeat and script bootstrap handling
   - `tracking.logIdentifyEventDebug`
-    - Emits identify-event diagnostics (`console.info`) for resolution attempts, trigger sources, successful identify calls, and deduped identify skips
+    - Emits identify-event diagnostics (`console.info`) for resolution attempts, trigger sources, client-side accepted identify invocations (SDK call invoked or queue push completed; delivery not confirmed), and deduped identify skips
   - `tracking.debugIdentifyEmailOverride`
     - Optional debug override email; when set to a valid email, runtime identity discovery is skipped and identify uses this configured address
   - `tracking.logViewedProductEventDebug`
-    - Emits `Viewed Product` diagnostics (`console.info`) for page detection, payload resolution, dedupe handling, and track dispatch
+    - Emits `Viewed Product` diagnostics (`console.info`) for page detection, payload resolution, dedupe handling, and client-side accepted track invocation logging (SDK call invoked or queue push completed; delivery not confirmed)
   - `tracking.logAddedToCartEventDebug`
-    - Emits `Added to Cart` diagnostics (`console.info`) for listener registration, intent/snapshot correlation, payload resolution, dedupe handling, and track dispatch
+    - Emits `Added to Cart` diagnostics (`console.info`) for listener registration, intent/snapshot correlation, payload resolution, dedupe handling, and client-side accepted track invocation logging (SDK call invoked or queue push completed; delivery not confirmed)
   - `tracking.logViewedHomepageEventDebug`
-    - Emits `Viewed Homepage` diagnostics (`console.info`) for template-type detection, dedupe handling, and track dispatch
+    - Emits `Viewed Homepage` diagnostics (`console.info`) for template-type detection, dedupe handling, and client-side accepted track invocation logging (SDK call invoked or queue push completed; delivery not confirmed)
   - `tracking.logViewedCategoryEventDebug`
-    - Emits `Viewed Category` diagnostics (`console.info`) for template-type detection, payload resolution, dedupe handling, and track dispatch
+    - Emits `Viewed Category` diagnostics (`console.info`) for template-type detection, payload resolution, dedupe handling, and client-side accepted track invocation logging (SDK call invoked or queue push completed; delivery not confirmed)
   - `tracking.logStartedCheckoutEventDebug`
-    - Emits `Started Checkout` diagnostics (`console.info`) for checkout page detection, basket payload resolution (including no-intent runtime fallback), payload-readiness retry scheduling, dedupe handling, and track dispatch
+    - Emits `Started Checkout` diagnostics (`console.info`) for checkout page detection, basket payload resolution (including no-intent runtime fallback), payload-readiness retry scheduling, dedupe handling, and client-side accepted track invocation logging (SDK call invoked or queue push completed; delivery not confirmed)
 
 ## Troubleshooting
 
@@ -132,15 +132,15 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 | Option | Type | Current effect | Notes |
 |---|---|---|---|
 | `tracking.logPluginHeartbeat` | boolean | Enabled by default; emits startup/lifecycle `console.info` diagnostics like plugin heartbeat, bootstrap mode decisions, and script injection handling. | Disable in production if bootstrap noise is not needed. |
-| `tracking.logIdentifyEventDebug` | boolean | Emits identify diagnostics (`console.info`) for no-email resolution, lifecycle/auth trigger attempts, successful identify calls, override activation, and duplicate-skip decisions. | Event-specific toggle for identify debugging. |
+| `tracking.logIdentifyEventDebug` | boolean | Emits identify diagnostics (`console.info`) for no-email resolution, lifecycle/auth trigger attempts, client-side accepted identify invocations (SDK call invoked or queue push completed; delivery not confirmed), override activation, and duplicate-skip decisions. | Event-specific toggle for identify debugging. |
 | `tracking.debugIdentifyEmailOverride` | string | Optional debug-only identify override email. When valid, runtime/DOM/endpoint email discovery is skipped and identify always uses this value. | Intended for staging/testing to avoid repeated login cycles across deployments. Leave empty in production. |
-| `tracking.logViewedProductEventDebug` | boolean | Emits `Viewed Product` diagnostics (`console.info`) for trigger detection, payload resolution, config/required-field skips, dedupe skips, and successful `track` / `trackViewedItem` dispatches. | Event-specific toggle for `Viewed Product` debugging. |
-| `tracking.logAddedToCartEventDebug` | boolean | Emits `Added to Cart` diagnostics (`console.info`) for listener registration, intent capture, basket snapshot resolution (including totals-only detail fallback), payload resolution, config/required-field skips, dedupe skips, and successful `track` dispatches. | Event-specific toggle for `Added to Cart` debugging. |
+| `tracking.logViewedProductEventDebug` | boolean | Emits `Viewed Product` diagnostics (`console.info`) for trigger detection, payload resolution, config/required-field skips, dedupe skips, and client-side accepted `track` / `trackViewedItem` invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for `Viewed Product` debugging. |
+| `tracking.logAddedToCartEventDebug` | boolean | Emits `Added to Cart` diagnostics (`console.info`) for listener registration, intent capture, basket snapshot resolution (including totals-only detail fallback), payload resolution, config/required-field skips, dedupe skips, and client-side accepted `track` invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for `Added to Cart` debugging. |
 | `tracking.enableViewedProductEvent` | boolean | Enabled by default; toggles whether the `Viewed Product` tracking flow runs at all. | When disabled and `tracking.logViewedProductEventDebug = true`, logs a per-trigger skip diagnostic. |
 | `tracking.enableAddedToCartEvent` | boolean | Enabled by default; toggles whether the `Added to Cart` tracking flow runs at all. | When disabled and `tracking.logAddedToCartEventDebug = true`, logs `Added to Cart skipped (disabled by configuration).` on basket changes. |
-| `tracking.logViewedHomepageEventDebug` | boolean | Emits `Viewed Homepage` diagnostics (`console.info`) for template-type detection, config skips, dedupe skips, and successful `track` dispatches. | Event-specific toggle for `Viewed Homepage` debugging. |
-| `tracking.logViewedCategoryEventDebug` | boolean | Emits `Viewed Category` diagnostics (`console.info`) for template-type detection, payload resolution, config/required-field skips, dedupe skips, and successful `track` dispatches. | Event-specific toggle for `Viewed Category` debugging. |
-| `tracking.logStartedCheckoutEventDebug` | boolean | Emits `Started Checkout` diagnostics (`console.info`) for checkout template detection, shared basket-line payload resolution (including no-intent runtime basket fallback), payload-missing retry scheduling/exhaustion, config/required-field skips, dedupe skips, and successful `track` dispatches. | Event-specific toggle for `Started Checkout` debugging. |
+| `tracking.logViewedHomepageEventDebug` | boolean | Emits `Viewed Homepage` diagnostics (`console.info`) for template-type detection, config skips, dedupe skips, and client-side accepted `track` invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for `Viewed Homepage` debugging. |
+| `tracking.logViewedCategoryEventDebug` | boolean | Emits `Viewed Category` diagnostics (`console.info`) for template-type detection, payload resolution, config/required-field skips, dedupe skips, and client-side accepted `track` invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for `Viewed Category` debugging. |
+| `tracking.logStartedCheckoutEventDebug` | boolean | Emits `Started Checkout` diagnostics (`console.info`) for checkout template detection, shared basket-line payload resolution (including no-intent runtime basket fallback), payload-missing retry scheduling/exhaustion, config/required-field skips, dedupe skips, and client-side accepted `track` invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for `Started Checkout` debugging. |
 | `tracking.enableViewedHomepageEvent` | boolean | Enabled by default; toggles whether the `Viewed Homepage` tracking flow runs at all. | When disabled and `tracking.logViewedHomepageEventDebug = true`, logs `Viewed Homepage skipped (disabled by configuration).`. |
 | `tracking.enableViewedCategoryEvent` | boolean | Enabled by default; toggles whether the `Viewed Category` tracking flow runs at all. | When disabled and `tracking.logViewedCategoryEventDebug = true`, logs `Viewed Category skipped (disabled by configuration).`. |
 | `tracking.enableStartedCheckoutEvent` | boolean | Enabled by default; toggles whether the `Started Checkout` tracking flow runs at all. | When disabled and `tracking.logStartedCheckoutEventDebug = true`, logs `Started Checkout skipped (disabled by configuration).`. |
@@ -152,6 +152,8 @@ All plugin messages are prefixed with:
 ```text
 [KlaviyoSiteEventTracking]
 ```
+
+Important semantics: logs that say an identify/track call was "accepted client-side" only confirm that the browser SDK function was invoked or the `_learnq` queue push succeeded locally. They do **not** confirm Klaviyo ingestion or delivery. Successful logs include `deliveryConfirmed: false` to make this explicit.
 
 #### 1) Heartbeat enabled (default), plugin mode, valid public API key
 
@@ -186,7 +188,7 @@ If `tracking.logIdentifyEventDebug = true`, expected identify diagnostics includ
 ```
 
 ```text
-[KlaviyoSiteEventTracking] Klaviyo identify executed. { email: "[email protected]", source: "runtime_state:login_success", usingKlaviyoObject: true|false }
+[KlaviyoSiteEventTracking] Klaviyo identify accepted client-side (SDK call invoked or queue push completed). { email: "[email protected]", source: "runtime_state:login_success", usingKlaviyoObject: true|false, deliveryConfirmed: false }
 ```
 
 When `tracking.debugIdentifyEmailOverride` is set to a valid email and `tracking.logIdentifyEventDebug = true`, expected identify diagnostics include:
@@ -203,6 +205,14 @@ If `tracking.logViewedProductEventDebug = true`, expected Viewed Product diagnos
 
 ```text
 [KlaviyoSiteEventTracking] Viewed Product payload resolved. { trigger: "bootstrap", sourceLabel: "...", productId: "...", productName: "..." }
+```
+
+```text
+[KlaviyoSiteEventTracking] Klaviyo track accepted client-side (SDK call invoked or queue push completed). { metric: "Viewed Product", trigger: "bootstrap|...", payload: { ... }, usingKlaviyoObject: true|false, deliveryConfirmed: false }
+```
+
+```text
+[KlaviyoSiteEventTracking] Klaviyo trackViewedItem accepted client-side (SDK call invoked). { trigger: "bootstrap|...", itemId: "...", deliveryConfirmed: false }
 ```
 
 If `tracking.logViewedHomepageEventDebug = true`, expected Viewed Homepage diagnostics include:
