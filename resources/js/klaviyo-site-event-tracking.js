@@ -399,29 +399,111 @@
     return orderedValues.join("|");
   };
 
+  const compactIdentifyPayload = function (payload) {
+    if (!payload || typeof payload !== "object") {
+      return null;
+    }
+
+    const compactedPayload = {
+      email: normalizedEmail(payload.email),
+    };
+
+    if (!compactedPayload.email) {
+      return null;
+    }
+
+    const optionalProfileFields = [
+      "first_name",
+      "last_name",
+      "phone_number",
+      "organization",
+      "title",
+      "customer_number",
+      "plenty_user_id",
+    ];
+
+    for (let i = 0; i < optionalProfileFields.length; i += 1) {
+      const field = optionalProfileFields[i];
+      const normalizedValue = normalizedText(payload[field]);
+
+      if (normalizedValue) {
+        compactedPayload[field] = normalizedValue;
+      }
+    }
+
+    const rawLocation = payload.location && typeof payload.location === "object"
+      ? payload.location
+      : null;
+    const compactedLocation = {};
+
+    if (rawLocation) {
+      const locationFields = ["address1", "address2", "city", "zip", "region", "country"];
+
+      for (let i = 0; i < locationFields.length; i += 1) {
+        const field = locationFields[i];
+        const normalizedValue = normalizedText(rawLocation[field]);
+
+        if (normalizedValue) {
+          compactedLocation[field] = normalizedValue;
+        }
+      }
+    }
+
+    if (Object.keys(compactedLocation).length > 0) {
+      compactedPayload.location = compactedLocation;
+    }
+
+    return compactedPayload;
+  };
+
   const buildLearnqIdentifyPayload = function (payload) {
     if (!payload || typeof payload !== "object") {
       return null;
     }
 
-    return {
-      $email: payload.email || "",
-      $first_name: payload.first_name || "",
-      $last_name: payload.last_name || "",
-      $phone_number: payload.phone_number || "",
-      organization: payload.organization || "",
-      title: payload.title || "",
-      customer_number: payload.customer_number || "",
-      plenty_user_id: payload.plenty_user_id || "",
-      location: payload.location || {
-        address1: "",
-        address2: "",
-        city: "",
-        zip: "",
-        region: "",
-        country: "",
-      },
+    const compactedPayload = compactIdentifyPayload(payload);
+
+    if (!compactedPayload || !compactedPayload.email) {
+      return null;
+    }
+
+    const learnqPayload = {
+      $email: compactedPayload.email,
     };
+
+    if (compactedPayload.first_name) {
+      learnqPayload.$first_name = compactedPayload.first_name;
+    }
+
+    if (compactedPayload.last_name) {
+      learnqPayload.$last_name = compactedPayload.last_name;
+    }
+
+    if (compactedPayload.phone_number) {
+      learnqPayload.$phone_number = compactedPayload.phone_number;
+    }
+
+    if (compactedPayload.organization) {
+      learnqPayload.organization = compactedPayload.organization;
+    }
+
+    if (compactedPayload.title) {
+      learnqPayload.title = compactedPayload.title;
+    }
+
+    if (compactedPayload.customer_number) {
+      learnqPayload.customer_number = compactedPayload.customer_number;
+    }
+
+    if (compactedPayload.plenty_user_id) {
+      learnqPayload.plenty_user_id = compactedPayload.plenty_user_id;
+    }
+
+    if (compactedPayload.location) {
+      learnqPayload.location = compactedPayload.location;
+    }
+
+    return learnqPayload;
   };
 
   const identifyWithPayload = function (payload, source) {
@@ -429,13 +511,14 @@
       return false;
     }
 
-    const candidateEmail = normalizedEmail(payload.email);
+    const compactedPayload = compactIdentifyPayload(payload);
+    const candidateEmail = normalizedEmail(compactedPayload && compactedPayload.email);
 
     if (!candidateEmail) {
       return false;
     }
 
-    const payloadHash = buildIdentifyPayloadHash(payload);
+    const payloadHash = buildIdentifyPayloadHash(compactedPayload);
 
     if (
       payloadHash &&
@@ -453,9 +536,9 @@
       const usingKlaviyoObject = !!(window.klaviyo && typeof window.klaviyo.identify === "function");
 
       if (window.klaviyo && typeof window.klaviyo.identify === "function") {
-        window.klaviyo.identify(payload);
+        window.klaviyo.identify(compactedPayload);
       } else {
-        window._learnq.push(["identify", buildLearnqIdentifyPayload(payload)]);
+        window._learnq.push(["identify", buildLearnqIdentifyPayload(compactedPayload)]);
       }
 
       window.__KlaviyoSiteEventTrackingLastIdentifiedEmail = candidateEmail;
@@ -464,7 +547,7 @@
         email: candidateEmail,
         source: source,
         payloadHash: payloadHash,
-        payload: payload,
+        payload: compactedPayload,
         usingKlaviyoObject: usingKlaviyoObject,
         deliveryConfirmed: false,
       });
