@@ -44,7 +44,7 @@ The table below is optimized for a quick implementation and product-status scan.
 At this time, the repository provides a **partial implementation** with bootstrap and identity support:
 
 - 🟢 Klaviyo JavaScript bootstrap implemented for plugin and GTM modes
-- 🟢 Frontend identify flow implemented (email-based profile identification for logged-in users)
+- 🟢 Frontend identify flow implemented with enriched profile payload sync (email + runtime attributes + location) and payload-hash dedupe
 - 🟢 Frontend Viewed Product tracking implemented with runtime-store + DOM fallback payload resolution and deduped variant transitions
 - 🟢 Frontend Added to Cart tracking implemented with add-intent buffering, basket-snapshot payload resolution, and deduped dispatch
 - 🟢 Frontend Started Checkout tracking implemented via Plenty runtime `templateType = checkout` detection with shared basket-line payload extraction (including no-intent runtime basket fallback), payload-readiness retry handling, and deduped dispatch
@@ -132,7 +132,7 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 | Option | Type | Current effect | Notes |
 |---|---|---|---|
 | `tracking.logPluginHeartbeat` | boolean | Enabled by default; emits startup/lifecycle `console.info` diagnostics like plugin heartbeat, bootstrap mode decisions, and script injection handling. | Disable in production if bootstrap noise is not needed. |
-| `tracking.logIdentifyEventDebug` | boolean | Emits identify diagnostics (`console.info`) for no-email resolution, lifecycle/auth trigger attempts, client-side accepted identify invocations (SDK call invoked or queue push completed; delivery not confirmed), override activation, and duplicate-skip decisions. | Event-specific toggle for identify debugging. |
+| `tracking.logIdentifyEventDebug` | boolean | Emits identify diagnostics (`console.info`) for no-email resolution, lifecycle/auth trigger attempts, payload-build skips, override activation, payload-hash dedupe skips, and client-side accepted identify invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for identify debugging. |
 | `tracking.debugIdentifyEmailOverride` | string | Optional debug-only identify override email. When valid, runtime/DOM/endpoint email discovery is skipped and identify always uses this value. | Intended for staging/testing to avoid repeated login cycles across deployments. Leave empty in production. |
 | `tracking.logViewedProductEventDebug` | boolean | Emits `Viewed Product` diagnostics (`console.info`) for trigger detection, payload resolution, config/required-field skips, dedupe skips, and client-side accepted `track` / `trackViewedItem` invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for `Viewed Product` debugging. |
 | `tracking.logAddedToCartEventDebug` | boolean | Emits `Added to Cart` diagnostics (`console.info`) for listener registration, intent capture, basket snapshot resolution (including totals-only detail fallback), payload resolution, config/required-field skips, dedupe skips, and client-side accepted `track` invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for `Added to Cart` debugging. |
@@ -188,7 +188,11 @@ If `tracking.logIdentifyEventDebug = true`, expected identify diagnostics includ
 ```
 
 ```text
-[KlaviyoSiteEventTracking] Klaviyo identify accepted client-side (SDK call invoked or queue push completed). { email: "[email protected]", source: "runtime_state:login_success", usingKlaviyoObject: true|false, deliveryConfirmed: false }
+[KlaviyoSiteEventTracking] Klaviyo identify accepted client-side (SDK call invoked or queue push completed). { email: "[email protected]", source: "runtime_state:login_success", payloadHash: "...", payload: { ... }, usingKlaviyoObject: true|false, deliveryConfirmed: false }
+```
+
+```text
+[KlaviyoSiteEventTracking] Identify skipped (payload hash unchanged for this browser session). { email: "[email protected]", source: "runtime_state:visibility_visible", payloadHash: "..." }
 ```
 
 When `tracking.debugIdentifyEmailOverride` is set to a valid email and `tracking.logIdentifyEventDebug = true`, expected identify diagnostics include:
