@@ -237,14 +237,16 @@
     }
   };
 
-  const extractStringFromPaths = function (candidate, paths) {
+  const extractStringFromPaths = function (candidate, paths, normalizer) {
     if (!candidate || typeof candidate !== "object" || !Array.isArray(paths)) {
       return "";
     }
 
     for (let i = 0; i < paths.length; i += 1) {
       const rawValue = getNestedValue(candidate, paths[i]);
-      const normalizedValue = normalizedText(rawValue);
+      const normalizedValue = normalizer
+        ? normalizer(rawValue)
+        : normalizedText(rawValue);
 
       if (normalizedValue) {
         return normalizedValue;
@@ -329,8 +331,7 @@
     const firstValueFromSources = function (paths, normalizer) {
       for (let i = 0; i < inMemorySources.length; i += 1) {
         const source = inMemorySources[i];
-        const rawValue = extractStringFromPaths(source, paths);
-        const resolvedValue = normalizer ? normalizer(rawValue) : rawValue;
+        const resolvedValue = extractStringFromPaths(source, paths, normalizer);
 
         if (resolvedValue) {
           return resolvedValue;
