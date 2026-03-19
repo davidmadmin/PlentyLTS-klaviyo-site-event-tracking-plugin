@@ -75,6 +75,24 @@
             "defaultValue": true
           }
         },
+        "tracking.enableViewedLegalPageEvent": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.enableViewedLegalPageEventLabel",
+          "options": {
+            "tooltip": "Config.enableViewedLegalPageEventTooltip",
+            "defaultValue": true
+          }
+        },
+        "tracking.enableViewedAccountPageEvent": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.enableViewedAccountPageEventLabel",
+          "options": {
+            "tooltip": "Config.enableViewedAccountPageEventTooltip",
+            "defaultValue": true
+          }
+        },
         "tracking.enableStartedCheckoutEvent": {
           "type": "checkBox",
           "required": false,
@@ -150,6 +168,24 @@
           "label": "Config.logViewedCategoryEventDebugLabel",
           "options": {
             "tooltip": "Config.logViewedCategoryEventDebugTooltip",
+            "defaultValue": false
+          }
+        },
+        "tracking.logViewedLegalPageEventDebug": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.logViewedLegalPageEventDebugLabel",
+          "options": {
+            "tooltip": "Config.logViewedLegalPageEventDebugTooltip",
+            "defaultValue": false
+          }
+        },
+        "tracking.logViewedAccountPageEventDebug": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.logViewedAccountPageEventDebugLabel",
+          "options": {
+            "tooltip": "Config.logViewedAccountPageEventDebugTooltip",
             "defaultValue": false
           }
         },

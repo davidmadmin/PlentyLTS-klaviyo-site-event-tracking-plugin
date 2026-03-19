@@ -23,6 +23,8 @@ The table below is optimized for a quick implementation and product-status scan.
 | 🟢 | **Started Checkout** | Funnel entry and checkout abandonment flows | Checkout page detection (`window.App.templateType === "checkout"`) with shared basket-line snapshot payload resolution (includes runtime fallback when no Added-to-Cart intent is available) |
 | 🟢 | **Viewed Homepage** | Baseline landing engagement and session context | Runtime page-type detection when Plenty `window.App.templateType === "home"` |
 | 🟢 | **Viewed Category / Listing** | Discovery behavior and merchandising effectiveness | Runtime page-type detection when Plenty `window.App.templateType === "category"` |
+| 🟢 | **Viewed Legal Page** | Policy/compliance content engagement context | Runtime page-type detection with legal template allow-list (`privacy-policy`, `cancellation-rights`, `legal-disclosure`, `declaration-of-accessibility`, `gtc`) |
+| 🟢 | **Viewed Account Page** | Account-area engagement and lifecycle context | Runtime page-type detection when Plenty `window.App.templateType === "my-account"` |
 | 🔴 | **Removed from Cart** | Cart friction insight and drop-off analysis | Remove-line-item action in cart/minicart |
 | 🔴 | **Checkout Step Progression** | Diagnose checkout friction points | Movement between checkout steps (address, shipping, payment, review) |
 | 🔴 | **Placed Order** | Conversion tracking and post-purchase automation | Successful order placement confirmation |
@@ -50,6 +52,8 @@ At this time, the repository provides a **partial implementation** with bootstra
 - 🟢 Frontend Started Checkout tracking implemented via Plenty runtime `templateType = checkout` detection with shared basket-line payload extraction (including no-intent runtime basket fallback), payload-readiness retry handling, and deduped dispatch
 - 🟢 Frontend Viewed Homepage tracking implemented via Plenty runtime `templateType = home` detection and deduped dispatch
 - 🟢 Frontend Viewed Category tracking implemented via Plenty runtime `templateType = category` detection and deduped dispatch
+- 🟢 Frontend Viewed Legal Page tracking implemented via Plenty runtime legal `templateType` allow-list detection and deduped dispatch
+- 🟢 Frontend Viewed Account Page tracking implemented via Plenty runtime `templateType = my-account` detection and deduped dispatch
 - 🟡 Configuration and debug logging controls are available and evolving
 - 🔴 Most storefront business event mappings are still pending
 
@@ -78,7 +82,8 @@ The storefront runtime value `window.App.templateType` is the primary source use
 - Checkout: `checkout`
 - Product detail page: `item`
 - Category/listing page: `category`
-- Legal pages (examples): `privacy-policy`, `cancellation-rights`, `legal-disclosure`
+- Legal pages (examples): `privacy-policy`, `cancellation-rights`, `legal-disclosure`, `declaration-of-accessibility`, `gtc`
+- Account page: `my-account`
 
 This means legal tracking should be implemented as an allow-list of template types instead of a single generic `legal` value.
 
@@ -102,6 +107,10 @@ Plugin config is split into dedicated tabs:
     - Enabled by default; activates/deactivates the `Viewed Homepage` tracking flow
   - `tracking.enableViewedCategoryEvent`
     - Enabled by default; activates/deactivates the `Viewed Category` tracking flow
+  - `tracking.enableViewedLegalPageEvent`
+    - Enabled by default; activates/deactivates the `Viewed Legal Page` tracking flow
+  - `tracking.enableViewedAccountPageEvent`
+    - Enabled by default; activates/deactivates the `Viewed Account Page` tracking flow
   - `tracking.enableStartedCheckoutEvent`
     - Enabled by default; activates/deactivates the `Started Checkout` tracking flow
 
@@ -120,6 +129,10 @@ Plugin config is split into dedicated tabs:
     - Emits `Viewed Homepage` diagnostics (`console.info`) for template-type detection, dedupe handling, and client-side accepted track invocation logging (SDK call invoked or queue push completed; delivery not confirmed)
   - `tracking.logViewedCategoryEventDebug`
     - Emits `Viewed Category` diagnostics (`console.info`) for template-type detection, payload resolution, dedupe handling, and client-side accepted track invocation logging (SDK call invoked or queue push completed; delivery not confirmed)
+  - `tracking.logViewedLegalPageEventDebug`
+    - Emits `Viewed Legal Page` diagnostics (`console.info`) for legal allow-list template detection, dedupe handling, and client-side accepted track invocation logging (SDK call invoked or queue push completed; delivery not confirmed)
+  - `tracking.logViewedAccountPageEventDebug`
+    - Emits `Viewed Account Page` diagnostics (`console.info`) for account template detection, dedupe handling, and client-side accepted track invocation logging (SDK call invoked or queue push completed; delivery not confirmed)
   - `tracking.logStartedCheckoutEventDebug`
     - Emits `Started Checkout` diagnostics (`console.info`) for checkout page detection, basket payload resolution (including no-intent runtime fallback), payload-readiness retry scheduling, dedupe handling, and client-side accepted track invocation logging (SDK call invoked or queue push completed; delivery not confirmed)
 
@@ -140,9 +153,13 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 | `tracking.enableAddedToCartEvent` | boolean | Enabled by default; toggles whether the `Added to Cart` tracking flow runs at all. | When disabled and `tracking.logAddedToCartEventDebug = true`, logs `Added to Cart skipped (disabled by configuration).` on basket changes. |
 | `tracking.logViewedHomepageEventDebug` | boolean | Emits `Viewed Homepage` diagnostics (`console.info`) for template-type detection, config skips, dedupe skips, and client-side accepted `track` invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for `Viewed Homepage` debugging. |
 | `tracking.logViewedCategoryEventDebug` | boolean | Emits `Viewed Category` diagnostics (`console.info`) for template-type detection, payload resolution, config/required-field skips, dedupe skips, and client-side accepted `track` invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for `Viewed Category` debugging. |
+| `tracking.logViewedLegalPageEventDebug` | boolean | Emits `Viewed Legal Page` diagnostics (`console.info`) for legal-template allow-list detection, config skips, dedupe skips, and client-side accepted `track` invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for `Viewed Legal Page` debugging. |
+| `tracking.logViewedAccountPageEventDebug` | boolean | Emits `Viewed Account Page` diagnostics (`console.info`) for account template detection, config skips, dedupe skips, and client-side accepted `track` invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for `Viewed Account Page` debugging. |
 | `tracking.logStartedCheckoutEventDebug` | boolean | Emits `Started Checkout` diagnostics (`console.info`) for checkout template detection, shared basket-line payload resolution (including no-intent runtime basket fallback), payload-missing retry scheduling/exhaustion, config/required-field skips, dedupe skips, and client-side accepted `track` invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for `Started Checkout` debugging. |
 | `tracking.enableViewedHomepageEvent` | boolean | Enabled by default; toggles whether the `Viewed Homepage` tracking flow runs at all. | When disabled and `tracking.logViewedHomepageEventDebug = true`, logs `Viewed Homepage skipped (disabled by configuration).`. |
 | `tracking.enableViewedCategoryEvent` | boolean | Enabled by default; toggles whether the `Viewed Category` tracking flow runs at all. | When disabled and `tracking.logViewedCategoryEventDebug = true`, logs `Viewed Category skipped (disabled by configuration).`. |
+| `tracking.enableViewedLegalPageEvent` | boolean | Enabled by default; toggles whether the `Viewed Legal Page` tracking flow runs at all. | When disabled and `tracking.logViewedLegalPageEventDebug = true`, logs `Viewed Legal Page skipped (disabled by configuration).`. |
+| `tracking.enableViewedAccountPageEvent` | boolean | Enabled by default; toggles whether the `Viewed Account Page` tracking flow runs at all. | When disabled and `tracking.logViewedAccountPageEventDebug = true`, logs `Viewed Account Page skipped (disabled by configuration).`. |
 | `tracking.enableStartedCheckoutEvent` | boolean | Enabled by default; toggles whether the `Started Checkout` tracking flow runs at all. | When disabled and `tracking.logStartedCheckoutEventDebug = true`, logs `Started Checkout skipped (disabled by configuration).`. |
 
 ### Expected console output by condition
@@ -229,6 +246,18 @@ If `tracking.logViewedCategoryEventDebug = true`, expected Viewed Category diagn
 
 ```text
 [KlaviyoSiteEventTracking] Viewed Category payload resolved. { trigger: "bootstrap", categoryName: "...", path: "/..." }
+```
+
+If `tracking.logViewedLegalPageEventDebug = true`, expected Viewed Legal Page diagnostics include:
+
+```text
+[KlaviyoSiteEventTracking] Viewed Legal Page page detection evaluated. { trigger: "bootstrap", isLegalPage: true|false, detectionSource: "runtime_app_templateType_allowlist"|"none", templateType: "privacy-policy"|"legal-disclosure"|"declaration-of-accessibility"|"gtc"|"...", path: "/..." }
+```
+
+If `tracking.logViewedAccountPageEventDebug = true`, expected Viewed Account Page diagnostics include:
+
+```text
+[KlaviyoSiteEventTracking] Viewed Account Page page detection evaluated. { trigger: "bootstrap", isAccountPage: true|false, detectionSource: "runtime_app_templateType"|"none", templateType: "my-account"|"...", path: "/..." }
 ```
 
 If `tracking.logAddedToCartEventDebug = true`, expected Added to Cart diagnostics include:
