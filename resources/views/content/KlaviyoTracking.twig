@@ -37,6 +37,14 @@
 {% set logViewedCategoryEventDebugNormalized = (logViewedCategoryEventDebugRaw ~ "")|trim|lower %}
 {% set logViewedCategoryEventDebug = (logViewedCategoryEventDebugRaw is same as(true)) or (logViewedCategoryEventDebugRaw is same as(1)) or (logViewedCategoryEventDebugNormalized in checkboxEnabledValues) ? true : ((logViewedCategoryEventDebugRaw is same as(false)) or (logViewedCategoryEventDebugRaw is same as(0)) or (logViewedCategoryEventDebugNormalized in checkboxDisabledValues) ? false : false) %}
 
+{% set logViewedLegalPageEventDebugRaw = config("KlaviyoSiteEventTracking.tracking.logViewedLegalPageEventDebug")|default("") %}
+{% set logViewedLegalPageEventDebugNormalized = (logViewedLegalPageEventDebugRaw ~ "")|trim|lower %}
+{% set logViewedLegalPageEventDebug = (logViewedLegalPageEventDebugRaw is same as(true)) or (logViewedLegalPageEventDebugRaw is same as(1)) or (logViewedLegalPageEventDebugNormalized in checkboxEnabledValues) ? true : ((logViewedLegalPageEventDebugRaw is same as(false)) or (logViewedLegalPageEventDebugRaw is same as(0)) or (logViewedLegalPageEventDebugNormalized in checkboxDisabledValues) ? false : false) %}
+
+{% set logViewedAccountPageEventDebugRaw = config("KlaviyoSiteEventTracking.tracking.logViewedAccountPageEventDebug")|default("") %}
+{% set logViewedAccountPageEventDebugNormalized = (logViewedAccountPageEventDebugRaw ~ "")|trim|lower %}
+{% set logViewedAccountPageEventDebug = (logViewedAccountPageEventDebugRaw is same as(true)) or (logViewedAccountPageEventDebugRaw is same as(1)) or (logViewedAccountPageEventDebugNormalized in checkboxEnabledValues) ? true : ((logViewedAccountPageEventDebugRaw is same as(false)) or (logViewedAccountPageEventDebugRaw is same as(0)) or (logViewedAccountPageEventDebugNormalized in checkboxDisabledValues) ? false : false) %}
+
 {% set logStartedCheckoutEventDebugRaw = config("KlaviyoSiteEventTracking.tracking.logStartedCheckoutEventDebug")|default("") %}
 {% set logStartedCheckoutEventDebugNormalized = (logStartedCheckoutEventDebugRaw ~ "")|trim|lower %}
 {% set logStartedCheckoutEventDebug = (logStartedCheckoutEventDebugRaw is same as(true)) or (logStartedCheckoutEventDebugRaw is same as(1)) or (logStartedCheckoutEventDebugNormalized in checkboxEnabledValues) ? true : ((logStartedCheckoutEventDebugRaw is same as(false)) or (logStartedCheckoutEventDebugRaw is same as(0)) or (logStartedCheckoutEventDebugNormalized in checkboxDisabledValues) ? false : false) %}
@@ -48,6 +56,14 @@
 {% set enableViewedCategoryEventRaw = config("KlaviyoSiteEventTracking.tracking.enableViewedCategoryEvent")|default(null) %}
 {% set enableViewedCategoryEventNormalized = (enableViewedCategoryEventRaw ~ "")|trim|lower %}
 {% set enableViewedCategoryEvent = (enableViewedCategoryEventRaw is same as(true)) or (enableViewedCategoryEventRaw is same as(1)) or (enableViewedCategoryEventNormalized in checkboxEnabledValues) ? true : ((enableViewedCategoryEventRaw is same as(false)) or (enableViewedCategoryEventRaw is same as(0)) or (enableViewedCategoryEventNormalized in checkboxDisabledValues) ? false : true) %}
+
+{% set enableViewedLegalPageEventRaw = config("KlaviyoSiteEventTracking.tracking.enableViewedLegalPageEvent")|default(null) %}
+{% set enableViewedLegalPageEventNormalized = (enableViewedLegalPageEventRaw ~ "")|trim|lower %}
+{% set enableViewedLegalPageEvent = (enableViewedLegalPageEventRaw is same as(true)) or (enableViewedLegalPageEventRaw is same as(1)) or (enableViewedLegalPageEventNormalized in checkboxEnabledValues) ? true : ((enableViewedLegalPageEventRaw is same as(false)) or (enableViewedLegalPageEventRaw is same as(0)) or (enableViewedLegalPageEventNormalized in checkboxDisabledValues) ? false : true) %}
+
+{% set enableViewedAccountPageEventRaw = config("KlaviyoSiteEventTracking.tracking.enableViewedAccountPageEvent")|default(null) %}
+{% set enableViewedAccountPageEventNormalized = (enableViewedAccountPageEventRaw ~ "")|trim|lower %}
+{% set enableViewedAccountPageEvent = (enableViewedAccountPageEventRaw is same as(true)) or (enableViewedAccountPageEventRaw is same as(1)) or (enableViewedAccountPageEventNormalized in checkboxEnabledValues) ? true : ((enableViewedAccountPageEventRaw is same as(false)) or (enableViewedAccountPageEventRaw is same as(0)) or (enableViewedAccountPageEventNormalized in checkboxDisabledValues) ? false : true) %}
 
 {% set enableStartedCheckoutEventRaw = config("KlaviyoSiteEventTracking.tracking.enableStartedCheckoutEvent")|default(null) %}
 {% set enableStartedCheckoutEventNormalized = (enableStartedCheckoutEventRaw ~ "")|trim|lower %}
@@ -64,11 +80,15 @@
   window.KlaviyoSiteEventTracking.logAddedToCartEventDebug = {{ logAddedToCartEventDebug ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.logViewedHomepageEventDebug = {{ logViewedHomepageEventDebug ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.logViewedCategoryEventDebug = {{ logViewedCategoryEventDebug ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.logViewedLegalPageEventDebug = {{ logViewedLegalPageEventDebug ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.logViewedAccountPageEventDebug = {{ logViewedAccountPageEventDebug ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.logStartedCheckoutEventDebug = {{ logStartedCheckoutEventDebug ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.enableViewedProductEvent = {{ enableViewedProductEvent ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.enableAddedToCartEvent = {{ enableAddedToCartEvent ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.enableViewedHomepageEvent = {{ enableViewedHomepageEvent ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.enableViewedCategoryEvent = {{ enableViewedCategoryEvent ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.enableViewedLegalPageEvent = {{ enableViewedLegalPageEvent ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.enableViewedAccountPageEvent = {{ enableViewedAccountPageEvent ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.enableStartedCheckoutEvent = {{ enableStartedCheckoutEvent ? 'true' : 'false' }};
 </script>
 <script src="{{ plugin_path('KlaviyoSiteEventTracking') }}/js/klaviyo-site-event-tracking.js"></script>

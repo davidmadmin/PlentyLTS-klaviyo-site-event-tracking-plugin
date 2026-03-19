@@ -34,11 +34,15 @@
   const logAddedToCartEventDebug = isEnabled(settings.logAddedToCartEventDebug, false);
   const logViewedHomepageEventDebug = isEnabled(settings.logViewedHomepageEventDebug, false);
   const logViewedCategoryEventDebug = isEnabled(settings.logViewedCategoryEventDebug, false);
+  const logViewedLegalPageEventDebug = isEnabled(settings.logViewedLegalPageEventDebug, false);
+  const logViewedAccountPageEventDebug = isEnabled(settings.logViewedAccountPageEventDebug, false);
   const logStartedCheckoutEventDebug = isEnabled(settings.logStartedCheckoutEventDebug, false);
   const enableViewedProductEvent = isEnabled(settings.enableViewedProductEvent, true);
   const enableAddedToCartEvent = isEnabled(settings.enableAddedToCartEvent, true);
   const enableViewedHomepageEvent = isEnabled(settings.enableViewedHomepageEvent, true);
   const enableViewedCategoryEvent = isEnabled(settings.enableViewedCategoryEvent, true);
+  const enableViewedLegalPageEvent = isEnabled(settings.enableViewedLegalPageEvent, true);
+  const enableViewedAccountPageEvent = isEnabled(settings.enableViewedAccountPageEvent, true);
   const enableStartedCheckoutEvent = isEnabled(settings.enableStartedCheckoutEvent, true);
   const identifyPollAttempts = 8;
   const identifyPollIntervalMs = 1500;
@@ -132,6 +136,32 @@
 
   const viewedCategoryLog = function (message, payload) {
     if (!logViewedCategoryEventDebug) {
+      return;
+    }
+
+    if (typeof payload !== "undefined") {
+      console.info("[KlaviyoSiteEventTracking] " + message, payload);
+      return;
+    }
+
+    console.info("[KlaviyoSiteEventTracking] " + message);
+  };
+
+  const viewedLegalPageLog = function (message, payload) {
+    if (!logViewedLegalPageEventDebug) {
+      return;
+    }
+
+    if (typeof payload !== "undefined") {
+      console.info("[KlaviyoSiteEventTracking] " + message, payload);
+      return;
+    }
+
+    console.info("[KlaviyoSiteEventTracking] " + message);
+  };
+
+  const viewedAccountPageLog = function (message, payload) {
+    if (!logViewedAccountPageEventDebug) {
       return;
     }
 
@@ -1286,6 +1316,55 @@
     };
   };
 
+  const legalTemplateTypes = [
+    "privacy-policy",
+    "cancellation-rights",
+    "legal-disclosure",
+    "declaration-of-accessibility",
+    "gtc",
+  ];
+
+  const isLegalTemplatePageType = function () {
+    const appState = window.App && typeof window.App === "object" ? window.App : null;
+    const templateType = normalizedString(appState && appState.templateType).toLowerCase();
+
+    if (!templateType) {
+      return {
+        isMatch: false,
+        detectionSource: "none",
+        templateType: "",
+      };
+    }
+
+    return {
+      isMatch: legalTemplateTypes.indexOf(templateType) !== -1,
+      detectionSource: "runtime_app_templateType_allowlist",
+      templateType: templateType,
+    };
+  };
+
+  const resolveViewedLegalPagePayload = function (templateType) {
+    const pageTitle = normalizedString(document && document.title);
+    return {
+      URL: normalizedAbsoluteUrl(window.location ? window.location.href : "", true),
+      Path: normalizedString(window.location && window.location.pathname),
+      TemplateType: templateType || "",
+      PageTitle: pageTitle || "Legal Page",
+      PageGroup: "legal",
+    };
+  };
+
+  const resolveViewedAccountPagePayload = function (templateType) {
+    const pageTitle = normalizedString(document && document.title);
+    return {
+      URL: normalizedAbsoluteUrl(window.location ? window.location.href : "", true),
+      Path: normalizedString(window.location && window.location.pathname),
+      TemplateType: templateType || "my-account",
+      PageTitle: pageTitle || "Account Page",
+      PageGroup: "account",
+    };
+  };
+
   const resolveViewedProductPayload = function () {
     const sources = getProductCandidateSources();
 
@@ -2234,6 +2313,26 @@
         });
       }
 
+      if (metricName === "Viewed Legal Page") {
+        viewedLegalPageLog("Klaviyo track accepted client-side (SDK call invoked or queue push completed).", {
+          metric: metricName,
+          trigger: context,
+          payload: payload,
+          usingKlaviyoObject: usingKlaviyoObject,
+          deliveryConfirmed: false,
+        });
+      }
+
+      if (metricName === "Viewed Account Page") {
+        viewedAccountPageLog("Klaviyo track accepted client-side (SDK call invoked or queue push completed).", {
+          metric: metricName,
+          trigger: context,
+          payload: payload,
+          usingKlaviyoObject: usingKlaviyoObject,
+          deliveryConfirmed: false,
+        });
+      }
+
       if (metricName === "Started Checkout") {
         startedCheckoutLog("Klaviyo track accepted client-side (SDK call invoked or queue push completed).", {
           metric: metricName,
@@ -2442,6 +2541,81 @@
     window.__KlaviyoSiteEventTrackingLastViewedCategoryKey = dedupKey;
   };
 
+  const trackViewedLegalPage = function (trigger) {
+    if (!enableViewedLegalPageEvent) {
+      viewedLegalPageLog("Viewed Legal Page skipped (disabled by configuration).", { trigger: trigger });
+      return;
+    }
+
+    const pageDetection = isLegalTemplatePageType();
+    viewedLegalPageLog("Viewed Legal Page page detection evaluated.", {
+      trigger: trigger,
+      isLegalPage: pageDetection.isMatch,
+      detectionSource: pageDetection.detectionSource,
+      templateType: pageDetection.templateType,
+      path: window.location ? window.location.pathname : "",
+      legalTemplateTypes: legalTemplateTypes,
+    });
+
+    if (!pageDetection.isMatch) {
+      return;
+    }
+
+    const payload = resolveViewedLegalPagePayload(pageDetection.templateType);
+    const dedupKey = [payload.TemplateType, payload.Path].join("|");
+
+    if (window.__KlaviyoSiteEventTrackingLastViewedLegalPageKey === dedupKey) {
+      viewedLegalPageLog("Viewed Legal Page skipped (deduped).", { trigger: trigger, dedupKey: dedupKey });
+      return;
+    }
+
+    const didTrack = trackEvent("Viewed Legal Page", payload, trigger + "|" + dedupKey);
+
+    if (!didTrack) {
+      viewedLegalPageLog("Viewed Legal Page dedupe key not updated because track dispatch failed.", { trigger: trigger, dedupKey: dedupKey });
+      return;
+    }
+
+    window.__KlaviyoSiteEventTrackingLastViewedLegalPageKey = dedupKey;
+  };
+
+  const trackViewedAccountPage = function (trigger) {
+    if (!enableViewedAccountPageEvent) {
+      viewedAccountPageLog("Viewed Account Page skipped (disabled by configuration).", { trigger: trigger });
+      return;
+    }
+
+    const pageDetection = isTemplatePageType("my-account");
+    viewedAccountPageLog("Viewed Account Page page detection evaluated.", {
+      trigger: trigger,
+      isAccountPage: pageDetection.isMatch,
+      detectionSource: pageDetection.detectionSource,
+      templateType: pageDetection.templateType,
+      path: window.location ? window.location.pathname : "",
+    });
+
+    if (!pageDetection.isMatch) {
+      return;
+    }
+
+    const payload = resolveViewedAccountPagePayload(pageDetection.templateType);
+    const dedupKey = [payload.TemplateType, payload.Path].join("|");
+
+    if (window.__KlaviyoSiteEventTrackingLastViewedAccountPageKey === dedupKey) {
+      viewedAccountPageLog("Viewed Account Page skipped (deduped).", { trigger: trigger, dedupKey: dedupKey });
+      return;
+    }
+
+    const didTrack = trackEvent("Viewed Account Page", payload, trigger + "|" + dedupKey);
+
+    if (!didTrack) {
+      viewedAccountPageLog("Viewed Account Page dedupe key not updated because track dispatch failed.", { trigger: trigger, dedupKey: dedupKey });
+      return;
+    }
+
+    window.__KlaviyoSiteEventTrackingLastViewedAccountPageKey = dedupKey;
+  };
+
   let viewedProductTrackTimeoutId = null;
   const scheduleViewedProductTrack = function (trigger, delayMs) {
     const waitMs = typeof delayMs === "number" ? delayMs : 200;
@@ -2455,6 +2629,8 @@
       trackViewedProduct(trigger);
       trackViewedHomepage(trigger);
       trackViewedCategory(trigger);
+      trackViewedLegalPage(trigger);
+      trackViewedAccountPage(trigger);
       trackStartedCheckout(trigger);
     }, waitMs);
   };
