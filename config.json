@@ -57,6 +57,15 @@
             "defaultValue": true
           }
         },
+        "tracking.enableRemovedFromCartEvent": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.enableRemovedFromCartEventLabel",
+          "options": {
+            "tooltip": "Config.enableRemovedFromCartEventTooltip",
+            "defaultValue": true
+          }
+        },
         "tracking.enableAddedToWishlistEvent": {
           "type": "checkBox",
           "required": false,
@@ -168,6 +177,15 @@
           "label": "Config.logAddedToCartEventDebugLabel",
           "options": {
             "tooltip": "Config.logAddedToCartEventDebugTooltip",
+            "defaultValue": false
+          }
+        },
+        "tracking.logRemovedFromCartEventDebug": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.logRemovedFromCartEventDebugLabel",
+          "options": {
+            "tooltip": "Config.logRemovedFromCartEventDebugTooltip",
             "defaultValue": false
           }
         },

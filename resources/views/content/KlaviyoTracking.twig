@@ -18,6 +18,9 @@
 {% set logAddedToCartEventDebugRaw = config("KlaviyoSiteEventTracking.tracking.logAddedToCartEventDebug")|default("") %}
 {% set logAddedToCartEventDebugNormalized = (logAddedToCartEventDebugRaw ~ "")|trim|lower %}
 {% set logAddedToCartEventDebug = (logAddedToCartEventDebugRaw is same as(true)) or (logAddedToCartEventDebugRaw is same as(1)) or (logAddedToCartEventDebugNormalized in checkboxEnabledValues) ? true : ((logAddedToCartEventDebugRaw is same as(false)) or (logAddedToCartEventDebugRaw is same as(0)) or (logAddedToCartEventDebugNormalized in checkboxDisabledValues) ? false : false) %}
+{% set logRemovedFromCartEventDebugRaw = config("KlaviyoSiteEventTracking.tracking.logRemovedFromCartEventDebug")|default("") %}
+{% set logRemovedFromCartEventDebugNormalized = (logRemovedFromCartEventDebugRaw ~ "")|trim|lower %}
+{% set logRemovedFromCartEventDebug = (logRemovedFromCartEventDebugRaw is same as(true)) or (logRemovedFromCartEventDebugRaw is same as(1)) or (logRemovedFromCartEventDebugNormalized in checkboxEnabledValues) ? true : ((logRemovedFromCartEventDebugRaw is same as(false)) or (logRemovedFromCartEventDebugRaw is same as(0)) or (logRemovedFromCartEventDebugNormalized in checkboxDisabledValues) ? false : false) %}
 {% set logAddedToWishlistEventDebugRaw = config("KlaviyoSiteEventTracking.tracking.logAddedToWishlistEventDebug")|default("") %}
 {% set logAddedToWishlistEventDebugNormalized = (logAddedToWishlistEventDebugRaw ~ "")|trim|lower %}
 {% set logAddedToWishlistEventDebug = (logAddedToWishlistEventDebugRaw is same as(true)) or (logAddedToWishlistEventDebugRaw is same as(1)) or (logAddedToWishlistEventDebugNormalized in checkboxEnabledValues) ? true : ((logAddedToWishlistEventDebugRaw is same as(false)) or (logAddedToWishlistEventDebugRaw is same as(0)) or (logAddedToWishlistEventDebugNormalized in checkboxDisabledValues) ? false : false) %}
@@ -34,6 +37,9 @@
 {% set enableAddedToCartEventRaw = config("KlaviyoSiteEventTracking.tracking.enableAddedToCartEvent")|default(null) %}
 {% set enableAddedToCartEventNormalized = (enableAddedToCartEventRaw ~ "")|trim|lower %}
 {% set enableAddedToCartEvent = (enableAddedToCartEventRaw is same as(true)) or (enableAddedToCartEventRaw is same as(1)) or (enableAddedToCartEventNormalized in checkboxEnabledValues) ? true : ((enableAddedToCartEventRaw is same as(false)) or (enableAddedToCartEventRaw is same as(0)) or (enableAddedToCartEventNormalized in checkboxDisabledValues) ? false : true) %}
+{% set enableRemovedFromCartEventRaw = config("KlaviyoSiteEventTracking.tracking.enableRemovedFromCartEvent")|default(null) %}
+{% set enableRemovedFromCartEventNormalized = (enableRemovedFromCartEventRaw ~ "")|trim|lower %}
+{% set enableRemovedFromCartEvent = (enableRemovedFromCartEventRaw is same as(true)) or (enableRemovedFromCartEventRaw is same as(1)) or (enableRemovedFromCartEventNormalized in checkboxEnabledValues) ? true : ((enableRemovedFromCartEventRaw is same as(false)) or (enableRemovedFromCartEventRaw is same as(0)) or (enableRemovedFromCartEventNormalized in checkboxDisabledValues) ? false : true) %}
 {% set enableAddedToWishlistEventRaw = config("KlaviyoSiteEventTracking.tracking.enableAddedToWishlistEvent")|default(null) %}
 {% set enableAddedToWishlistEventNormalized = (enableAddedToWishlistEventRaw ~ "")|trim|lower %}
 {% set enableAddedToWishlistEvent = (enableAddedToWishlistEventRaw is same as(true)) or (enableAddedToWishlistEventRaw is same as(1)) or (enableAddedToWishlistEventNormalized in checkboxEnabledValues) ? true : ((enableAddedToWishlistEventRaw is same as(false)) or (enableAddedToWishlistEventRaw is same as(0)) or (enableAddedToWishlistEventNormalized in checkboxDisabledValues) ? false : true) %}
@@ -90,6 +96,7 @@
   window.KlaviyoSiteEventTracking.debugIdentifyEmailOverride = "{{ debugIdentifyEmailOverride|e('js') }}";
   window.KlaviyoSiteEventTracking.logViewedProductEventDebug = {{ logViewedProductEventDebug ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.logAddedToCartEventDebug = {{ logAddedToCartEventDebug ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.logRemovedFromCartEventDebug = {{ logRemovedFromCartEventDebug ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.logAddedToWishlistEventDebug = {{ logAddedToWishlistEventDebug ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.logRemovedFromWishlistEventDebug = {{ logRemovedFromWishlistEventDebug ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.logViewedHomepageEventDebug = {{ logViewedHomepageEventDebug ? 'true' : 'false' }};
@@ -99,6 +106,7 @@
   window.KlaviyoSiteEventTracking.logStartedCheckoutEventDebug = {{ logStartedCheckoutEventDebug ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.enableViewedProductEvent = {{ enableViewedProductEvent ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.enableAddedToCartEvent = {{ enableAddedToCartEvent ? 'true' : 'false' }};
+  window.KlaviyoSiteEventTracking.enableRemovedFromCartEvent = {{ enableRemovedFromCartEvent ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.enableAddedToWishlistEvent = {{ enableAddedToWishlistEvent ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.enableRemovedFromWishlistEvent = {{ enableRemovedFromWishlistEvent ? 'true' : 'false' }};
   window.KlaviyoSiteEventTracking.enableViewedHomepageEvent = {{ enableViewedHomepageEvent ? 'true' : 'false' }};
