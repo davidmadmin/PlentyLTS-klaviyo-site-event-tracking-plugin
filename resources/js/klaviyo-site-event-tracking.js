@@ -2464,19 +2464,35 @@
     const variationId = normalizedString(payload && payload.RemovedItemVariationID);
     const qty = normalizedString(payload && payload.RemovedItemQuantity);
     const value = normalizedString(payload && payload.$value);
+    let cartQuantityTotal = 0;
+    let cartValueTotal = 0;
+    let hasCartValueTotal = false;
     const itemsSignature = Array.isArray(payload && payload.Items)
       ? payload.Items
         .map(function (line) {
           const lineProductId = normalizedString(line && (line.ProductID || line.productId || line.itemId));
           const lineVariationId = normalizedString(line && (line.VariationID || line.variationId || getNestedValue(line, ['variation', 'id'])));
           const lineQty = normalizedInteger(line && (line.Quantity || line.quantity), 0);
+          const lineRowTotal = firstDefinedNumber([
+            normalizedNumber(line && line.RowTotal),
+            normalizedNumber(line && line.rowTotal),
+            normalizedNumber(line && line.total),
+            normalizedNumber(line && line.totalGross),
+          ]);
+          cartQuantityTotal += lineQty;
+          if (lineRowTotal !== null) {
+            hasCartValueTotal = true;
+            cartValueTotal += lineRowTotal;
+          }
           return [lineVariationId || lineProductId, String(lineQty)].join(':');
         })
         .filter(function (entry) { return !!entry; })
         .sort()
         .join(',')
       : '';
-    return [variationId || productId, qty, value, itemsSignature].join('|');
+    const cartDistinctCount = Array.isArray(payload && payload.Items) ? payload.Items.length : 0;
+    const roundedCartValueTotal = hasCartValueTotal ? Number(cartValueTotal.toFixed(4)) : '';
+    return [variationId || productId, qty, value, itemsSignature, String(cartDistinctCount), String(cartQuantityTotal), String(roundedCartValueTotal)].join('|');
   };
 
   const buildBasketLineMap = function (basketLines) {
@@ -2494,11 +2510,21 @@
         continue;
       }
 
-      map[lineKey] = {
-        key: lineKey,
-        quantity: normalizedInteger(line && line.Quantity, 0),
-        line: line,
-      };
+      if (!map[lineKey]) {
+        map[lineKey] = {
+          key: lineKey,
+          quantity: 0,
+          line: line,
+          lines: [],
+        };
+      }
+
+      map[lineKey].quantity += normalizedInteger(line && line.Quantity, 0);
+      map[lineKey].lines.push(line);
+
+      if (!map[lineKey].line) {
+        map[lineKey].line = line;
+      }
     }
 
     return map;
@@ -2618,6 +2644,30 @@
 
   let lastTrackedBasketLineMap = null;
 
+  const primeRemovedFromCartBasketBaseline = function (trigger) {
+    if (lastTrackedBasketLineMap) {
+      return true;
+    }
+
+    const basketResolution = resolveBasketSnapshot();
+    const basketLinesResolution = resolveBasketLinesSnapshot(basketResolution, null, { allowRuntimeLookup: true });
+    const basketLines = Array.isArray(basketLinesResolution && basketLinesResolution.basketLines)
+      ? basketLinesResolution.basketLines
+      : [];
+
+    if (basketLines.length === 0) {
+      return false;
+    }
+
+    lastTrackedBasketLineMap = buildBasketLineMap(basketLines);
+    removedFromCartLog('Removed from Cart basket baseline initialized.', {
+      trigger: trigger || 'baseline_prime',
+      sourceLabel: basketLinesResolution.sourceLabel,
+      itemCount: basketLines.length,
+    });
+    return true;
+  };
+
   const trackRemovedFromCartByBasketDiff = function (event, trigger) {
     const basketResolution = resolveBasketSnapshot(event);
     const basketLinesResolution = resolveBasketLinesSnapshot(basketResolution, null, { allowRuntimeLookup: true });
@@ -2626,7 +2676,7 @@
       : [];
     const currentLineMap = buildBasketLineMap(basketLines);
 
-    if (!lastTrackedBasketLineMap) {
+    if (!lastTrackedBasketLineMap && !primeRemovedFromCartBasketBaseline(trigger + '|prime')) {
       lastTrackedBasketLineMap = currentLineMap;
       removedFromCartLog('Removed from Cart basket baseline initialized.', {
         trigger: trigger,
@@ -3307,6 +3357,8 @@
       removedFromCartLog('Removed from Cart listeners already registered. Skipping duplicate registration.');
       return;
     }
+
+    primeRemovedFromCartBasketBaseline('listener_registration');
 
     document.addEventListener('afterBasketChanged', function (event) {
       if (!enableRemovedFromCartEvent) {
