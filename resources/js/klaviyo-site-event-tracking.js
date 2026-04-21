@@ -32,6 +32,8 @@
   const logIdentifyEventDebug = isEnabled(settings.logIdentifyEventDebug, false);
   const logViewedProductEventDebug = isEnabled(settings.logViewedProductEventDebug, false);
   const logAddedToCartEventDebug = isEnabled(settings.logAddedToCartEventDebug, false);
+  const logAddedToWishlistEventDebug = isEnabled(settings.logAddedToWishlistEventDebug, false);
+  const logRemovedFromWishlistEventDebug = isEnabled(settings.logRemovedFromWishlistEventDebug, false);
   const logViewedHomepageEventDebug = isEnabled(settings.logViewedHomepageEventDebug, false);
   const logViewedCategoryEventDebug = isEnabled(settings.logViewedCategoryEventDebug, false);
   const logViewedLegalPageEventDebug = isEnabled(settings.logViewedLegalPageEventDebug, false);
@@ -39,6 +41,8 @@
   const logStartedCheckoutEventDebug = isEnabled(settings.logStartedCheckoutEventDebug, false);
   const enableViewedProductEvent = isEnabled(settings.enableViewedProductEvent, true);
   const enableAddedToCartEvent = isEnabled(settings.enableAddedToCartEvent, true);
+  const enableAddedToWishlistEvent = isEnabled(settings.enableAddedToWishlistEvent, true);
+  const enableRemovedFromWishlistEvent = isEnabled(settings.enableRemovedFromWishlistEvent, true);
   const enableViewedHomepageEvent = isEnabled(settings.enableViewedHomepageEvent, true);
   const enableViewedCategoryEvent = isEnabled(settings.enableViewedCategoryEvent, true);
   const enableViewedLegalPageEvent = isEnabled(settings.enableViewedLegalPageEvent, true);
@@ -110,6 +114,32 @@
 
   const addedToCartLog = function (message, payload) {
     if (!logAddedToCartEventDebug) {
+      return;
+    }
+
+    if (typeof payload !== "undefined") {
+      console.info("[KlaviyoSiteEventTracking] " + message, payload);
+      return;
+    }
+
+    console.info("[KlaviyoSiteEventTracking] " + message);
+  };
+
+  const addedToWishlistLog = function (message, payload) {
+    if (!logAddedToWishlistEventDebug) {
+      return;
+    }
+
+    if (typeof payload !== "undefined") {
+      console.info("[KlaviyoSiteEventTracking] " + message, payload);
+      return;
+    }
+
+    console.info("[KlaviyoSiteEventTracking] " + message);
+  };
+
+  const removedFromWishlistLog = function (message, payload) {
+    if (!logRemovedFromWishlistEventDebug) {
       return;
     }
 
@@ -1400,6 +1430,157 @@
     return [productId || effectiveProductId, variationId || effectiveProductId, path].join("|");
   };
 
+  const parseQueryString = function (value) {
+    const output = {};
+    const normalizedValue = normalizedString(value);
+
+    if (!normalizedValue) {
+      return output;
+    }
+
+    const segments = normalizedValue.split("&");
+
+    for (let i = 0; i < segments.length; i += 1) {
+      const segment = segments[i];
+
+      if (!segment) {
+        continue;
+      }
+
+      const equalsIndex = segment.indexOf("=");
+      const key = equalsIndex === -1 ? segment : segment.slice(0, equalsIndex);
+      const rawValue = equalsIndex === -1 ? "" : segment.slice(equalsIndex + 1);
+      let decodedKey = "";
+      let decodedValue = "";
+
+      try {
+        decodedKey = normalizedString(decodeURIComponent(key.replace(/\+/g, " ")));
+        decodedValue = normalizedString(decodeURIComponent(rawValue.replace(/\+/g, " ")));
+      } catch (error) {
+        decodedKey = normalizedString(key);
+        decodedValue = normalizedString(rawValue);
+      }
+
+      if (!decodedKey) {
+        continue;
+      }
+
+      output[decodedKey] = decodedValue;
+    }
+
+    return output;
+  };
+
+  const buildWishlistPayloadFromProduct = function (metricName, productPayload, variationId, sourceLabel) {
+    if (!productPayload || typeof productPayload !== "object") {
+      return null;
+    }
+
+    const resolvedVariationId = normalizedString(variationId) || normalizedString(productPayload.VariationID) || normalizedString(productPayload.ProductID);
+    const categories = Array.isArray(productPayload.Categories) ? uniqueStringArray(productPayload.Categories) : [];
+    const productUrl = normalizedAbsoluteUrl(productPayload.URL, true);
+    const productName = normalizedString(productPayload.ProductName) || normalizedString(document && document.title) || "Wishlist Item";
+    const productId = normalizedString(productPayload.ProductID) || resolvedVariationId;
+    const price = firstDefinedNumber([
+      normalizedNumber(productPayload.Price),
+      normalizedNumber(productPayload.ItemPrice),
+    ]);
+
+    if (!productId || !productName) {
+      return null;
+    }
+
+    return {
+      payload: {
+        $value: price,
+        VariationID: resolvedVariationId,
+        ProductID: productId,
+        ProductName: productName,
+        SKU: normalizedString(productPayload.SKU),
+        Categories: categories,
+        ImageURL: normalizedAbsoluteUrl(productPayload.ImageURL, false),
+        URL: productUrl,
+        ItemPrice: price,
+        Quantity: 1,
+        ItemNames: [productName],
+        Items: [
+          {
+            ProductID: productId,
+            VariationID: resolvedVariationId,
+            ProductName: productName,
+            SKU: normalizedString(productPayload.SKU),
+            Quantity: 1,
+            ItemPrice: price,
+            ProductURL: productUrl,
+            ImageURL: normalizedAbsoluteUrl(productPayload.ImageURL, false),
+            ProductCategories: categories,
+          },
+        ],
+        SourceEvent: metricName,
+      },
+      sourceLabel: sourceLabel || "unknown",
+    };
+  };
+
+  const resolveWishlistRuntimeProductCandidate = function (variationId) {
+    const expectedVariationId = normalizedString(variationId);
+    const candidates = getProductCandidateSources();
+
+    for (let i = 0; i < candidates.length; i += 1) {
+      const extracted = extractViewedProductCandidate(candidates[i].candidate);
+
+      if (!extracted) {
+        continue;
+      }
+
+      const extractedVariationId = normalizedString(extracted.VariationID) || normalizedString(extracted.ProductID);
+
+      if (expectedVariationId && extractedVariationId && expectedVariationId !== extractedVariationId) {
+        continue;
+      }
+
+      return {
+        payload: extracted,
+        sourceLabel: candidates[i].sourceLabel,
+      };
+    }
+
+    const domPayload = getViewedProductFromDom();
+    const domVariationId = normalizedString(domPayload && domPayload.VariationID) || normalizedString(domPayload && domPayload.ProductID);
+
+    if (domPayload && (!expectedVariationId || !domVariationId || expectedVariationId === domVariationId)) {
+      return {
+        payload: domPayload,
+        sourceLabel: "dom_data_attributes",
+      };
+    }
+
+    return null;
+  };
+
+  const resolveWishlistPayload = function (metricName, variationId, context) {
+    const normalizedVariationId = normalizedString(variationId);
+    const runtimeCandidate = resolveWishlistRuntimeProductCandidate(normalizedVariationId);
+
+    if (runtimeCandidate && runtimeCandidate.payload) {
+      return buildWishlistPayloadFromProduct(metricName, runtimeCandidate.payload, normalizedVariationId, runtimeCandidate.sourceLabel);
+    }
+
+    const fallbackUrl = normalizedAbsoluteUrl(window.location ? window.location.href : "", true);
+    const fallbackPayload = {
+      ProductID: normalizedVariationId,
+      VariationID: normalizedVariationId,
+      ProductName: "Wishlist Item",
+      SKU: "",
+      Categories: [],
+      ImageURL: "",
+      URL: fallbackUrl,
+      Price: null,
+    };
+
+    return buildWishlistPayloadFromProduct(metricName, fallbackPayload, normalizedVariationId, context || "variation_id_only");
+  };
+
 
   const normalizedInteger = function (value, fallbackValue) {
     const numericValue = normalizedNumber(value);
@@ -2263,6 +2444,84 @@
     attemptAddedToCartDispatch(trigger, basketResolution, { allowWithoutIntent: false });
   };
 
+  const buildWishlistDedupKey = function (payload, bucketTimestamp) {
+    const variationId = normalizedString(payload && payload.VariationID);
+    const productId = normalizedString(payload && payload.ProductID);
+    const path = normalizedString(window.location && window.location.pathname).toLowerCase();
+    return [variationId || productId, path, String(bucketTimestamp)].join('|');
+  };
+
+  const trackWishlistMetric = function (metricName, options) {
+    const isAddedMetric = metricName === 'Added to Wishlist';
+    const logger = isAddedMetric ? addedToWishlistLog : removedFromWishlistLog;
+    const eventDetail = options && options.eventDetail && typeof options.eventDetail === 'object' ? options.eventDetail : {};
+    const trigger = normalizedString(options && options.trigger) || 'wishlist_event';
+    const variationId = normalizedString(options && options.variationId) ||
+      normalizedString(eventDetail.payload) ||
+      normalizedString(getNestedValue(eventDetail, ['variationId'])) ||
+      normalizedString(getNestedValue(eventDetail, ['itemId']));
+    const enabledByConfig = isAddedMetric ? enableAddedToWishlistEvent : enableRemovedFromWishlistEvent;
+
+    if (!enabledByConfig) {
+      logger(metricName + ' skipped (disabled by configuration).', {
+        trigger: trigger,
+        variationId: variationId || null,
+      });
+      return;
+    }
+
+    if (!variationId) {
+      logger(metricName + ' skipped (missing variation id).', { trigger: trigger });
+      return;
+    }
+
+    const payloadResolution = resolveWishlistPayload(metricName, variationId, trigger);
+    const payload = payloadResolution && payloadResolution.payload;
+
+    if (!payload || !payload.ProductID || !payload.ProductName) {
+      logger(metricName + ' skipped (required payload fields missing).', {
+        trigger: trigger,
+        variationId: variationId,
+        hasPayload: !!payload,
+      });
+      return;
+    }
+
+    logger(metricName + ' payload resolved.', {
+      trigger: trigger,
+      variationId: variationId,
+      sourceLabel: payloadResolution && payloadResolution.sourceLabel ? payloadResolution.sourceLabel : 'unknown',
+      productId: payload.ProductID,
+      productName: payload.ProductName,
+    });
+
+    const dedupeBucket = Math.floor(Date.now() / 5000);
+    const dedupKey = buildWishlistDedupKey(payload, dedupeBucket);
+    const dedupStoreKey = isAddedMetric
+      ? '__KlaviyoSiteEventTrackingLastAddedToWishlistKey'
+      : '__KlaviyoSiteEventTrackingLastRemovedFromWishlistKey';
+
+    if (window[dedupStoreKey] === dedupKey) {
+      logger(metricName + ' skipped (deduped).', {
+        trigger: trigger,
+        dedupKey: dedupKey,
+      });
+      return;
+    }
+
+    const didTrack = trackEvent(metricName, payload, trigger + '|' + dedupKey);
+
+    if (!didTrack) {
+      logger(metricName + ' dedupe key not updated because track dispatch failed.', {
+        trigger: trigger,
+        dedupKey: dedupKey,
+      });
+      return;
+    }
+
+    window[dedupStoreKey] = dedupKey;
+  };
+
   const trackEvent = function (metricName, payload, context) {
     try {
       const usingKlaviyoObject = !!(window.klaviyo && typeof window.klaviyo.track === "function");
@@ -2285,6 +2544,26 @@
 
       if (metricName === "Added to Cart") {
         addedToCartLog("Klaviyo track accepted client-side (SDK call invoked or queue push completed).", {
+          metric: metricName,
+          trigger: context,
+          payload: payload,
+          usingKlaviyoObject: usingKlaviyoObject,
+          deliveryConfirmed: false,
+        });
+      }
+
+      if (metricName === "Added to Wishlist") {
+        addedToWishlistLog("Klaviyo track accepted client-side (SDK call invoked or queue push completed).", {
+          metric: metricName,
+          trigger: context,
+          payload: payload,
+          usingKlaviyoObject: usingKlaviyoObject,
+          deliveryConfirmed: false,
+        });
+      }
+
+      if (metricName === "Removed from Wishlist") {
+        removedFromWishlistLog("Klaviyo track accepted client-side (SDK call invoked or queue push completed).", {
           metric: metricName,
           trigger: context,
           payload: payload,
@@ -2763,6 +3042,92 @@
   };
 
   registerAddedToCartListeners();
+
+  const registerWishlistListeners = function () {
+    if (window.__KlaviyoSiteEventTrackingWishlistListenersRegistered === true) {
+      addedToWishlistLog('Wishlist listeners already registered. Skipping duplicate registration.');
+      removedFromWishlistLog('Wishlist listeners already registered. Skipping duplicate registration.');
+      return;
+    }
+
+    document.addEventListener('onAddWishListId', function (event) {
+      const detail = event && event.detail && typeof event.detail === 'object' ? event.detail : {};
+      trackWishlistMetric('Added to Wishlist', {
+        trigger: 'event_onAddWishListId',
+        eventDetail: detail,
+      });
+    });
+    addedToWishlistLog('Wishlist listener attached.', {
+      target: 'document',
+      event: 'onAddWishListId',
+    });
+
+    document.addEventListener('onRemoveWishListId', function (event) {
+      const detail = event && event.detail && typeof event.detail === 'object' ? event.detail : {};
+      trackWishlistMetric('Removed from Wishlist', {
+        trigger: 'event_onRemoveWishListId',
+        eventDetail: detail,
+      });
+    });
+    removedFromWishlistLog('Wishlist listener attached.', {
+      target: 'document',
+      event: 'onRemoveWishListId',
+    });
+
+    const originalXmlHttpRequestOpen = XMLHttpRequest && XMLHttpRequest.prototype && XMLHttpRequest.prototype.open;
+    const originalXmlHttpRequestSend = XMLHttpRequest && XMLHttpRequest.prototype && XMLHttpRequest.prototype.send;
+
+    if (
+      originalXmlHttpRequestOpen &&
+      originalXmlHttpRequestSend &&
+      window.__KlaviyoSiteEventTrackingWishlistXhrHooksRegistered !== true
+    ) {
+      XMLHttpRequest.prototype.open = function (method, url) {
+        this.__KlaviyoSiteEventTrackingWishlistMethod = normalizedString(method).toUpperCase();
+        this.__KlaviyoSiteEventTrackingWishlistUrl = normalizedString(url);
+        return originalXmlHttpRequestOpen.apply(this, arguments);
+      };
+
+      XMLHttpRequest.prototype.send = function (body) {
+        const requestUrl = normalizedString(this.__KlaviyoSiteEventTrackingWishlistUrl);
+        const requestMethod = normalizedString(this.__KlaviyoSiteEventTrackingWishlistMethod).toUpperCase();
+
+        if (/\/rest\/io\/itemWishList(\/|$)/i.test(requestUrl)) {
+          const requestBodyMap = parseQueryString(typeof body === 'string' ? body : '');
+          const variationIdFromBody = normalizedString(requestBodyMap.variationId);
+          const variationIdFromUrlMatch = requestUrl.match(/\/rest\/io\/itemWishList\/([^/?#]+)/i);
+          const variationIdFromUrl = variationIdFromUrlMatch ? normalizedString(variationIdFromUrlMatch[1]) : '';
+
+          this.addEventListener('load', function () {
+            if (requestMethod === 'POST') {
+              trackWishlistMetric('Added to Wishlist', {
+                trigger: 'xhr_post_itemWishList',
+                variationId: variationIdFromBody,
+                eventDetail: { payload: variationIdFromBody },
+              });
+              return;
+            }
+
+            if (requestMethod === 'DELETE') {
+              trackWishlistMetric('Removed from Wishlist', {
+                trigger: 'xhr_delete_itemWishList',
+                variationId: variationIdFromUrl,
+                eventDetail: { payload: variationIdFromUrl },
+              });
+            }
+          });
+        }
+
+        return originalXmlHttpRequestSend.apply(this, arguments);
+      };
+
+      window.__KlaviyoSiteEventTrackingWishlistXhrHooksRegistered = true;
+    }
+
+    window.__KlaviyoSiteEventTrackingWishlistListenersRegistered = true;
+  };
+
+  registerWishlistListeners();
 
   if (window.__KlaviyoSiteEventTrackingInitialized === true) {
     debugLog("Bootstrap already initialized. Skipping duplicate initialization.");

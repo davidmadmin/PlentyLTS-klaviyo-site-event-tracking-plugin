@@ -57,6 +57,24 @@
             "defaultValue": true
           }
         },
+        "tracking.enableAddedToWishlistEvent": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.enableAddedToWishlistEventLabel",
+          "options": {
+            "tooltip": "Config.enableAddedToWishlistEventTooltip",
+            "defaultValue": true
+          }
+        },
+        "tracking.enableRemovedFromWishlistEvent": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.enableRemovedFromWishlistEventLabel",
+          "options": {
+            "tooltip": "Config.enableRemovedFromWishlistEventTooltip",
+            "defaultValue": true
+          }
+        },
         "tracking.enableViewedHomepageEvent": {
           "type": "checkBox",
           "required": false,
@@ -150,6 +168,24 @@
           "label": "Config.logAddedToCartEventDebugLabel",
           "options": {
             "tooltip": "Config.logAddedToCartEventDebugTooltip",
+            "defaultValue": false
+          }
+        },
+        "tracking.logAddedToWishlistEventDebug": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.logAddedToWishlistEventDebugLabel",
+          "options": {
+            "tooltip": "Config.logAddedToWishlistEventDebugTooltip",
+            "defaultValue": false
+          }
+        },
+        "tracking.logRemovedFromWishlistEventDebug": {
+          "type": "checkBox",
+          "required": false,
+          "label": "Config.logRemovedFromWishlistEventDebugLabel",
+          "options": {
+            "tooltip": "Config.logRemovedFromWishlistEventDebugTooltip",
             "defaultValue": false
           }
         },

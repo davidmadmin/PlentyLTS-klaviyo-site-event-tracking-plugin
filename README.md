@@ -25,6 +25,8 @@ The table below is optimized for a quick implementation and product-status scan.
 | 🟢 | **Viewed Category / Listing** | Discovery behavior and merchandising effectiveness | Runtime page-type detection when Plenty `window.App.templateType === "category"` |
 | 🟢 | **Viewed Legal Page** | Policy/compliance content engagement context | Runtime page-type detection with legal template allow-list (`privacy-policy`, `cancellation-rights`, `legal-disclosure`, `declaration-of-accessibility`, `gtc`) |
 | 🟢 | **Viewed Account Page** | Account-area engagement and lifecycle context | Runtime page-type detection when Plenty `window.App.templateType === "my-account"` |
+| 🟢 | **Added to Wishlist** | High-intent product affinity signal | Strict add-only tracking via `onAddWishListId` and `/rest/io/itemWishList` POST fallback with variation-id payload enrichment |
+| 🟢 | **Removed from Wishlist** | Intent change / product preference shifts | Wishlist remove tracking across PDP and non-PDP pages via `onRemoveWishListId` and `/rest/io/itemWishList/{variationId}` DELETE fallback |
 | 🔴 | **Removed from Cart** | Cart friction insight and drop-off analysis | Remove-line-item action in cart/minicart |
 | 🔴 | **Checkout Step Progression** | Diagnose checkout friction points | Movement between checkout steps (address, shipping, payment, review) |
 | 🔴 | **Placed Order** | Conversion tracking and post-purchase automation | Successful order placement confirmation |
@@ -35,8 +37,6 @@ The table below is optimized for a quick implementation and product-status scan.
 | 🔴 | **Signed Up for Newsletter** | Lead acquisition and welcome-flow trigger | Newsletter subscription success event |
 | 🔴 | **Logged In** | Lifecycle stage and re-engagement qualifier | Successful account login |
 | 🔴 | **Created Account** | New-customer lifecycle start | Successful account registration |
-| 🔴 | **Added to Wishlist** | High-intent product affinity signal | Wishlist add action |
-| 🔴 | **Removed from Wishlist** | Intent change / product preference shifts | Wishlist remove action |
 | 🔴 | **Viewed Cart** | Mid-funnel behavior context | Cart page or minicart expanded with line items present |
 | 🔴 | **Applied Coupon** | Promotion sensitivity and conversion quality | Coupon code accepted in cart/checkout |
 | 🔴 | **Failed Coupon Attempt** | Promotion friction and UX insight | Coupon code rejected/invalid |
@@ -54,6 +54,8 @@ At this time, the repository provides a **partial implementation** with bootstra
 - 🟢 Frontend Viewed Category tracking implemented via Plenty runtime `templateType = category` detection and deduped dispatch
 - 🟢 Frontend Viewed Legal Page tracking implemented via Plenty runtime legal `templateType` allow-list detection and deduped dispatch
 - 🟢 Frontend Viewed Account Page tracking implemented via Plenty runtime `templateType = my-account` detection and deduped dispatch
+- 🟢 Frontend Added to Wishlist tracking implemented (strict add-only) via Plenty `onAddWishListId` with `/rest/io/itemWishList` POST fallback and variation-id based payload enrichment
+- 🟢 Frontend Removed from Wishlist tracking implemented via Plenty `onRemoveWishListId` with `/rest/io/itemWishList/{variationId}` DELETE fallback and non-PDP support
 - 🟡 Configuration and debug logging controls are available and evolving
 - 🔴 Most storefront business event mappings are still pending
 
@@ -103,6 +105,10 @@ Plugin config is split into dedicated tabs:
     - Enabled by default; activates/deactivates the `Viewed Product` tracking flow
   - `tracking.enableAddedToCartEvent`
     - Enabled by default; activates/deactivates the `Added to Cart` tracking flow
+  - `tracking.enableAddedToWishlistEvent`
+    - Enabled by default; activates/deactivates the `Added to Wishlist` tracking flow
+  - `tracking.enableRemovedFromWishlistEvent`
+    - Enabled by default; activates/deactivates the `Removed from Wishlist` tracking flow
   - `tracking.enableViewedHomepageEvent`
     - Enabled by default; activates/deactivates the `Viewed Homepage` tracking flow
   - `tracking.enableViewedCategoryEvent`
@@ -125,6 +131,10 @@ Plugin config is split into dedicated tabs:
     - Emits `Viewed Product` diagnostics (`console.info`) for page detection, payload resolution, dedupe handling, and client-side accepted track invocation logging (SDK call invoked or queue push completed; delivery not confirmed)
   - `tracking.logAddedToCartEventDebug`
     - Emits `Added to Cart` diagnostics (`console.info`) for listener registration, intent/snapshot correlation, payload resolution, dedupe handling, and client-side accepted track invocation logging (SDK call invoked or queue push completed; delivery not confirmed)
+  - `tracking.logAddedToWishlistEventDebug`
+    - Emits `Added to Wishlist` diagnostics (`console.info`) for listener/XHR fallback registration, variation-id extraction, payload enrichment, dedupe handling, and client-side accepted track invocation logging (SDK call invoked or queue push completed; delivery not confirmed)
+  - `tracking.logRemovedFromWishlistEventDebug`
+    - Emits `Removed from Wishlist` diagnostics (`console.info`) for listener/XHR fallback registration across PDP and non-PDP pages, variation-id extraction, payload enrichment, dedupe handling, and client-side accepted track invocation logging (SDK call invoked or queue push completed; delivery not confirmed)
   - `tracking.logViewedHomepageEventDebug`
     - Emits `Viewed Homepage` diagnostics (`console.info`) for template-type detection, dedupe handling, and client-side accepted track invocation logging (SDK call invoked or queue push completed; delivery not confirmed)
   - `tracking.logViewedCategoryEventDebug`
@@ -149,8 +159,12 @@ Use this section to validate current bootstrap behavior in browser dev tools.
 | `tracking.debugIdentifyEmailOverride` | string | Optional debug-only identify override email. When valid, runtime/DOM/endpoint email discovery is skipped and identify always uses this value. | Intended for staging/testing to avoid repeated login cycles across deployments. Leave empty in production. |
 | `tracking.logViewedProductEventDebug` | boolean | Emits `Viewed Product` diagnostics (`console.info`) for trigger detection, payload resolution, config/required-field skips, dedupe skips, and client-side accepted `track` / `trackViewedItem` invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for `Viewed Product` debugging. |
 | `tracking.logAddedToCartEventDebug` | boolean | Emits `Added to Cart` diagnostics (`console.info`) for listener registration, intent capture, basket snapshot resolution (including totals-only detail fallback), payload resolution, config/required-field skips, dedupe skips, and client-side accepted `track` invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for `Added to Cart` debugging. |
+| `tracking.logAddedToWishlistEventDebug` | boolean | Emits `Added to Wishlist` diagnostics (`console.info`) for `onAddWishListId` listener handling, `/rest/io/itemWishList` POST fallback handling, variation-id extraction, payload enrichment, config/required-field skips, dedupe skips, and client-side accepted `track` invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for `Added to Wishlist` debugging. |
+| `tracking.logRemovedFromWishlistEventDebug` | boolean | Emits `Removed from Wishlist` diagnostics (`console.info`) for `onRemoveWishListId` listener handling, `/rest/io/itemWishList/{variationId}` DELETE fallback handling, variation-id extraction, payload enrichment, config/required-field skips, dedupe skips, and client-side accepted `track` invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for `Removed from Wishlist` debugging. |
 | `tracking.enableViewedProductEvent` | boolean | Enabled by default; toggles whether the `Viewed Product` tracking flow runs at all. | When disabled and `tracking.logViewedProductEventDebug = true`, logs a per-trigger skip diagnostic. |
 | `tracking.enableAddedToCartEvent` | boolean | Enabled by default; toggles whether the `Added to Cart` tracking flow runs at all. | When disabled and `tracking.logAddedToCartEventDebug = true`, logs `Added to Cart skipped (disabled by configuration).` on basket changes. |
+| `tracking.enableAddedToWishlistEvent` | boolean | Enabled by default; toggles whether the `Added to Wishlist` tracking flow runs at all. | When disabled and `tracking.logAddedToWishlistEventDebug = true`, logs `Added to Wishlist skipped (disabled by configuration).`. |
+| `tracking.enableRemovedFromWishlistEvent` | boolean | Enabled by default; toggles whether the `Removed from Wishlist` tracking flow runs at all. | When disabled and `tracking.logRemovedFromWishlistEventDebug = true`, logs `Removed from Wishlist skipped (disabled by configuration).`. |
 | `tracking.logViewedHomepageEventDebug` | boolean | Emits `Viewed Homepage` diagnostics (`console.info`) for template-type detection, config skips, dedupe skips, and client-side accepted `track` invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for `Viewed Homepage` debugging. |
 | `tracking.logViewedCategoryEventDebug` | boolean | Emits `Viewed Category` diagnostics (`console.info`) for template-type detection, payload resolution, config/required-field skips, dedupe skips, and client-side accepted `track` invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for `Viewed Category` debugging. |
 | `tracking.logViewedLegalPageEventDebug` | boolean | Emits `Viewed Legal Page` diagnostics (`console.info`) for legal-template allow-list detection, config skips, dedupe skips, and client-side accepted `track` invocations (SDK call invoked or queue push completed; delivery not confirmed). | Event-specific toggle for `Viewed Legal Page` debugging. |
@@ -272,6 +286,26 @@ Added to Cart payload value semantics: `$value` is resolved from the current bas
 [KlaviyoSiteEventTracking] Added to Cart payload resolved. { trigger: "afterBasketChanged|intent_followup", sourceLabel: "...", correlationMode: "intent_matched", addedItemProductId: "...", addedItemProductName: "...", addedItemQuantity: 1 }
 ```
 
+If `tracking.logAddedToWishlistEventDebug = true`, expected Added to Wishlist diagnostics include:
+
+```text
+[KlaviyoSiteEventTracking] Wishlist listener attached. { target: "document", event: "onAddWishListId" }
+```
+
+```text
+[KlaviyoSiteEventTracking] Added to Wishlist payload resolved. { trigger: "event_onAddWishListId|xhr_post_itemWishList", variationId: "...", sourceLabel: "...", productId: "...", productName: "..." }
+```
+
+If `tracking.logRemovedFromWishlistEventDebug = true`, expected Removed from Wishlist diagnostics include:
+
+```text
+[KlaviyoSiteEventTracking] Wishlist listener attached. { target: "document", event: "onRemoveWishListId" }
+```
+
+```text
+[KlaviyoSiteEventTracking] Removed from Wishlist payload resolved. { trigger: "event_onRemoveWishListId|xhr_delete_itemWishList", variationId: "...", sourceLabel: "...", productId: "...", productName: "..." }
+```
+
 If `tracking.logStartedCheckoutEventDebug = true`, expected Started Checkout diagnostics include:
 
 When checkout is detected and no Added-to-Cart intent context exists, Started Checkout still resolves basket lines from runtime basket candidates and can proceed to dispatch with the standard payload/dedupe flow. In those cases, `sourceLabel` in the payload log may be runtime-derived (for example `runtime_basket.window.ceresStore.state.basket` or a chained value such as `basket_candidate_0->runtime_basket.window.App.basket`).
@@ -363,10 +397,14 @@ If the snippet executes more than once during page lifecycle, Added-to-Cart list
 ```
 
 ```text
+[KlaviyoSiteEventTracking] Wishlist listeners already registered. Skipping duplicate registration.
+```
+
+```text
 [KlaviyoSiteEventTracking] Bootstrap already initialized. Skipping duplicate initialization.
 ```
 
-The listener-duplicate log appears when `tracking.logAddedToCartEventDebug = true`. The bootstrap-duplicate log appears when `tracking.logPluginHeartbeat = true`.
+The Added-to-Cart listener-duplicate log appears when `tracking.logAddedToCartEventDebug = true`. The wishlist listener-duplicate log appears when `tracking.logAddedToWishlistEventDebug = true` or `tracking.logRemovedFromWishlistEventDebug = true`. The bootstrap-duplicate log appears when `tracking.logPluginHeartbeat = true`.
 
 ### Practical logging combinations
 
@@ -377,6 +415,10 @@ The listener-duplicate log appears when `tracking.logAddedToCartEventDebug = tru
   - `logViewedProductEventDebug = true`
 - **Event-specific troubleshoot for Added to Cart**
   - `logAddedToCartEventDebug = true`
+- **Event-specific troubleshoot for Added to Wishlist**
+  - `logAddedToWishlistEventDebug = true`
+- **Event-specific troubleshoot for Removed from Wishlist**
+  - `logRemovedFromWishlistEventDebug = true`
 - **Event-specific troubleshoot for Identify**
   - `logIdentifyEventDebug = true`
 
