@@ -3099,6 +3099,13 @@
           const variationIdFromUrl = variationIdFromUrlMatch ? normalizedString(variationIdFromUrlMatch[1]) : '';
 
           this.addEventListener('load', function () {
+            const responseStatus = typeof this.status === 'number' ? this.status : parseInt(this.status, 10);
+            const isSuccessfulResponse = Number.isFinite(responseStatus) && responseStatus >= 200 && responseStatus < 300;
+
+            if (!isSuccessfulResponse) {
+              return;
+            }
+
             if (requestMethod === 'POST') {
               trackWishlistMetric('Added to Wishlist', {
                 trigger: 'xhr_post_itemWishList',
